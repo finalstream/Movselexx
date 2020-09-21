@@ -60,15 +60,41 @@
       </v-list>
     </v-navigation-drawer>
 
+    <v-system-bar class="pr-0" id="titlebar" color="blue darken-3" app window>
+      <span class="drag-region" style="color:white; width:100%; padding-top:5px"
+        >Movselexx</span
+      >
+      <v-spacer></v-spacer>
+      <v-btn class="windowcontrol pl-2" icon tile @click="minimizeWindow()"
+        ><v-icon small style="color:white;text-align:center"
+          >mdi-minus</v-icon
+        ></v-btn
+      >
+      <v-btn class="windowcontrol pl-2" icon tile @click="maximizeWindow()"
+        ><v-icon small style="color:white"
+          >mdi-checkbox-blank-outline</v-icon
+        ></v-btn
+      >
+      <v-btn class="windowcontrol pl-2" icon tile
+        ><v-icon small style="color:white" @click="closeWindow()"
+          >mdi-close</v-icon
+        ></v-btn
+      >
+    </v-system-bar>
     <v-app-bar
       :clipped-left="$vuetify.breakpoint.lgAndUp"
       app
-      color="blue darken-3"
+      color="white"
       dark
     >
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon
+        style="color:black"
+        @click.stop="drawer = !drawer"
+      ></v-app-bar-nav-icon>
       <v-toolbar-title style="width: 300px" class="ml-0 pl-4">
-        <span class="hidden-sm-and-down">Movselexx</span>
+        <span class="hidden-sm-and-down" style="color:black"
+          >XXXXXXXXXXXXXXXXXX</span
+        >
       </v-toolbar-title>
       <!--<v-text-field
         flat
@@ -80,7 +106,7 @@
       ></v-text-field>-->
       <v-spacer></v-spacer>
       <v-btn icon>
-        <v-icon>mdi-cog</v-icon>
+        <v-icon style="color:black">mdi-cog</v-icon>
       </v-btn>
     </v-app-bar>
     <v-main>
@@ -173,9 +199,11 @@
 
 <script lang="ts">
 import { Vue, Component } from "vue-property-decorator";
+import electron from "electron";
 
 @Component
 export default class App extends Vue {
+  private ipcRenderer = electron.ipcRenderer;
   dialog = false;
   drawer = null;
   items = [
@@ -229,6 +257,23 @@ export default class App extends Vue {
   mounted() {
     //
   }
+
+  minimizeWindow() {
+    this.ipcRenderer.invoke("minimizeWindow");
+  }
+
+  maximizeWindow() {
+    this.ipcRenderer.invoke("maximizeWindow");
+  }
+
+  closeWindow() {
+    this.ipcRenderer.invoke("closeWindow");
+  }
+
+  test() {
+    //
+    console.log("test");
+  }
   /*
   switchFunctionGroup(key: string, keyPath: string) {
     console.log("switchFunctionGroup", key, keyPath);
@@ -251,3 +296,14 @@ export default class App extends Vue {
 */
 }
 </script>
+<style scoped>
+.drag-region {
+  width: 100%;
+  height: 100%;
+  -webkit-app-region: drag;
+}
+
+.windowcontrol::before {
+  background-color: #ffffff;
+}
+</style>

@@ -4,6 +4,8 @@ import { app, protocol, BrowserWindow } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer";
 const isDevelopment = process.env.NODE_ENV !== "production";
+import { ipcMain } from "electron";
+import electronDevtoolsInstaller from "electron-devtools-installer";
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -11,20 +13,22 @@ let win: BrowserWindow | null;
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
-  { scheme: "app", privileges: { secure: true, standard: true } }
+  { scheme: "app", privileges: { secure: true, standard: true } },
 ]);
 
 function createWindow() {
-  // Create the browser window.
+  // Create the browser window
   win = new BrowserWindow({
     width: 800,
     height: 600,
+    frame: false,
     webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
       nodeIntegration: (process.env
-        .ELECTRON_NODE_INTEGRATION as unknown) as boolean
-    }
+        .ELECTRON_NODE_INTEGRATION as unknown) as boolean,
+      //nodeIntegration: true,
+    },
   });
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
@@ -77,7 +81,7 @@ app.on("ready", async () => {
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
   if (process.platform === "win32") {
-    process.on("message", data => {
+    process.on("message", (data) => {
       if (data === "graceful-exit") {
         app.quit();
       }
@@ -88,3 +92,15 @@ if (isDevelopment) {
     });
   }
 }
+
+ipcMain.handle("closeWindow", () => {
+  win?.destroy(); // close()では閉じられない
+});
+
+ipcMain.handle("minimizeWindow", () => {
+  win?.minimize();
+});
+
+ipcMain.handle("maximizeWindow", () => {
+  win?.isMaximized() ? win?.unmaximize() : win?.maximize();
+});
