@@ -81,20 +81,10 @@
         ></v-btn
       >
     </v-system-bar>
-    <v-app-bar
-      :clipped-left="$vuetify.breakpoint.lgAndUp"
-      app
-      color="white"
-      dark
-    >
-      <v-app-bar-nav-icon
-        style="color:black"
-        @click.stop="drawer = !drawer"
-      ></v-app-bar-nav-icon>
+    <v-app-bar :clipped-left="$vuetify.breakpoint.lgAndUp" app>
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title style="width: 300px" class="ml-0 pl-4">
-        <span class="hidden-sm-and-down" style="color:black"
-          >XXXXXXXXXXXXXXXXXX</span
-        >
+        <span class="hidden-sm-and-down">XXXXXXXXXXXXXXXXXX</span>
       </v-toolbar-title>
       <!--<v-text-field
         flat
@@ -106,7 +96,7 @@
       ></v-text-field>-->
       <v-spacer></v-spacer>
       <v-btn icon>
-        <v-icon style="color:black">mdi-cog</v-icon>
+        <v-icon>mdi-cog</v-icon>
       </v-btn>
     </v-app-bar>
     <v-main>
@@ -206,6 +196,7 @@ export default class App extends Vue {
   private ipcRenderer = electron.ipcRenderer;
   dialog = false;
   drawer = null;
+  item = null;
   items = [
     { text: "ALL MOVIE" },
     { text: "再生中" },
@@ -256,6 +247,7 @@ export default class App extends Vue {
 
   mounted() {
     //
+    //this.$vuetify.theme.dark = true;
   }
 
   minimizeWindow() {
@@ -305,5 +297,10 @@ export default class App extends Vue {
 
 .windowcontrol::before {
   background-color: #ffffff;
+}
+
+.v-sheet.v-app-bar.v-toolbar:not(.v-sheet--outlined) {
+  box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2),
+    0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12);
 }
 </style>
