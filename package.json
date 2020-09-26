@@ -14,8 +14,12 @@
   "main": "background.js",
   "dependencies": {
     "@types/electron-devtools-installer": "^2.2.0",
+    "@types/sqlite3": "^3.1.6",
     "core-js": "^3.6.5",
     "firx": "0.0.9",
+    "path": "^0.12.7",
+    "sqlite": "^4.0.14",
+    "sqlite3": "^5.0.0",
     "vue": "^2.6.11",
     "vue-class-component": "^7.2.3",
     "vue-property-decorator": "^8.4.2",

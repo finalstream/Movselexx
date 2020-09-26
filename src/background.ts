@@ -7,10 +7,13 @@ const isDevelopment = process.env.NODE_ENV !== "production";
 import { ipcMain } from "electron";
 import electronDevtoolsInstaller from "electron-devtools-installer";
 import AppStore from "firx/AppStore";
+import DatabaseAccessor from "./models/DatabaseAccessor";
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win: BrowserWindow | null;
+
+let dbAcceccor: DatabaseAccessor;
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
@@ -95,6 +98,15 @@ if (isDevelopment) {
     });
   }
 }
+
+ipcMain.handle("initialize", () => {
+  dbAcceccor = new DatabaseAccessor("movselex.db");
+  dbAcceccor.open();
+});
+
+ipcMain.handle("getLibrary", () => {
+  return dbAcceccor.selectLibrary();
+});
 
 ipcMain.handle("setStore", (event, data) => {
   AppStore.instance.set(data);

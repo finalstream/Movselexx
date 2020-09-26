@@ -95,12 +95,12 @@
         class="hidden-sm-and-down"
       ></v-text-field>-->
       <v-spacer></v-spacer>
-      <v-btn icon>
-        <v-icon>mdi-cog</v-icon>
+      <v-btn icon @click="refresh()">
+        <v-icon>mdi-refresh</v-icon>
       </v-btn>
     </v-app-bar>
     <v-main>
-      <router-view></router-view>
+      <router-view ref="main"></router-view>
     </v-main>
     <v-footer app>
       <v-row>
@@ -266,6 +266,12 @@ export default class App extends Vue {
     //
     console.log("test");
   }
+
+  refresh() {
+    const main: any = this.$refs.main;
+    main.refresh();
+  }
+
   /*
   switchFunctionGroup(key: string, keyPath: string) {
     console.log("switchFunctionGroup", key, keyPath);

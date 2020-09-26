@@ -50,10 +50,14 @@
 </template>
 
 <script lang="ts">
+import { IPlayItem } from "@/models/IPlayItem";
+import electron from "electron";
 import { Vue, Component } from "vue-property-decorator";
 
 @Component
 export default class Home extends Vue {
+  private ipcRenderer = electron.ipcRenderer;
+
   headers = [
     {
       text: "",
@@ -103,6 +107,8 @@ export default class Home extends Vue {
   }
 
   async created() {
+    await this.ipcRenderer.invoke("initialize");
+    const rows = await this.ipcRenderer.invoke("getLibrary");
     //const res = await this.ipcRenderer.invoke("getStore", "searchDirectory");
     //if (res) this.mainData.searchDirectory = res;
   }
@@ -113,6 +119,12 @@ export default class Home extends Vue {
 
   rowDbClick(e: any, value: any) {
     console.log(value);
+  }
+
+  async refresh() {
+    console.log("refresh");
+    const rows: IPlayItem[] = await this.ipcRenderer.invoke("getLibrary");
+    console.log(rows);
   }
 }
 </script>
