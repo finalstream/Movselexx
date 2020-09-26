@@ -6,6 +6,7 @@ import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer";
 const isDevelopment = process.env.NODE_ENV !== "production";
 import { ipcMain } from "electron";
 import electronDevtoolsInstaller from "electron-devtools-installer";
+import AppStore from "firx/AppStore";
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -19,8 +20,10 @@ protocol.registerSchemesAsPrivileged([
 function createWindow() {
   // Create the browser window
   win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    x: AppStore.instance.get("window.x"),
+    y: AppStore.instance.get("window.y"),
+    width: AppStore.instance.get("window.width", 800),
+    height: AppStore.instance.get("window.height", 600),
     frame: false,
     webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
@@ -93,8 +96,20 @@ if (isDevelopment) {
   }
 }
 
+ipcMain.handle("setStore", (event, data) => {
+  AppStore.instance.set(data);
+});
+
+ipcMain.handle("getStore", (event, key) => {
+  return AppStore.instance.get(key);
+});
+
 ipcMain.handle("closeWindow", () => {
-  win?.destroy(); // close()では閉じられない
+  AppStore.instance.set("window.x", win!.getPosition()[0]);
+  AppStore.instance.set("window.y", win!.getPosition()[1]);
+  AppStore.instance.set("window.height", win!.getSize()[1]);
+  AppStore.instance.set("window.width", win!.getSize()[0]);
+  win!.destroy(); // close()では閉じられない
 });
 
 ipcMain.handle("minimizeWindow", () => {
