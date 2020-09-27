@@ -2,8 +2,10 @@
 
 <script lang="ts">
 import { IPlayItem } from "@/models/IPlayItem";
+import PlayItem from "@/models/PlayItem";
 import electron from "electron";
 import { Vue, Component } from "vue-property-decorator";
+import ArrayUtils from "firx/ArrayUtils";
 
 @Component
 export default class Home extends Vue {
@@ -33,28 +35,14 @@ export default class Home extends Vue {
     { text: "Cnt", value: "playCount", sortable: false },
     { text: "", align: "center", value: "isPlayed" },
   ];
-  items = [
-    {
-      isPlaying: true,
-      groupId: "1",
-      groupName: "プリンセスコネクト！Re:Dive",
-      title: "プリンセスコネクト！Re:Dive 01",
-      no: 1,
-      length: "24:00",
-      isFavorite: true,
-      isPlayed: true,
-      date: "2020-09-05",
-      videoSize: "1280x720",
-      drive: "E",
-      playCount: 21,
-    },
-  ];
+  items: PlayItem[];
 
   /**
    * コンストラクタ
    */
   constructor() {
     super();
+    this.items = [];
   }
 
   async created() {
@@ -75,7 +63,13 @@ export default class Home extends Vue {
   async refresh() {
     console.log("refresh");
     const rows: IPlayItem[] = await this.ipcRenderer.invoke("getLibrary");
+    this.updatePlayItems(rows);
     console.log(rows);
+  }
+
+  updatePlayItems(rows: IPlayItem[]) {
+    ArrayUtils.clear(this.items);
+    rows.forEach((r) => this.items.push(new PlayItem(r)));
   }
 }
 </script>
