@@ -81,10 +81,14 @@
         ></v-btn
       >
     </v-system-bar>
-    <v-app-bar :clipped-left="$vuetify.breakpoint.lgAndUp" app>
+    <v-app-bar
+      style="user-select: none;"
+      :clipped-left="$vuetify.breakpoint.lgAndUp"
+      app
+    >
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title style="width: 300px" class="ml-0 pl-4">
-        <span class="hidden-sm-and-down">XXXXXXXXXXXXXXXXXX</span>
+        <span class="hidden-sm-and-down">{{ playInfo.getTitle() }}</span>
       </v-toolbar-title>
       <!--<v-text-field
         flat
@@ -95,12 +99,22 @@
         class="hidden-sm-and-down"
       ></v-text-field>-->
       <v-spacer></v-spacer>
+      <v-toolbar-title style="width: 300px;text-align:right" class="ml-0 pr-5">
+        <span class="hidden-sm-and-down"
+          >{{ playInfo.positionString }} / {{ playInfo.durationString }}</span
+        >
+      </v-toolbar-title>
       <v-btn icon @click="refresh()">
         <v-icon>mdi-refresh</v-icon>
       </v-btn>
     </v-app-bar>
     <v-main>
-      <router-view ref="main"></router-view>
+      <v-container fluid>
+        <router-view
+          @update-play-info="updatePlayInfo"
+          ref="main"
+        ></router-view>
+      </v-container>
     </v-main>
     <v-footer app>
       <v-row>
@@ -190,6 +204,8 @@
 <script lang="ts">
 import { Vue, Component } from "vue-property-decorator";
 import electron from "electron";
+import PlayItem from "./models/PlayItem";
+import PlayInfo from "./models/PlayInfo";
 
 @Component
 export default class App extends Vue {
@@ -234,11 +250,14 @@ export default class App extends Vue {
     { icon: "mdi-keyboard", text: "Go to the old version" },
     */
   ];
+  playInfo: PlayInfo;
+
   /**
    * コンストラクタ
    */
   constructor() {
     super();
+    this.playInfo = new PlayInfo();
   }
 
   async created() {
@@ -265,6 +284,10 @@ export default class App extends Vue {
   test() {
     //
     console.log("test");
+  }
+
+  updatePlayInfo(playInfo: PlayInfo) {
+    this.playInfo.update(playInfo);
   }
 
   refresh() {

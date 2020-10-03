@@ -51,10 +51,12 @@ export default class Home extends Vue {
     await this.ipcRenderer.invoke("initialize");
     this.refresh();
     this.mpcClient = new MpcClient("localhost", 13579);
+    this.mpcClient.connect();
 
     setInterval(() => {
-      this.mpcClient.getPlayInfo().then((s) => {
-        console.log(s);
+      this.mpcClient.getPlayInfo().then((pi) => {
+        console.log(pi);
+        this.$emit("update-play-info", pi);
       });
     }, 1000);
 

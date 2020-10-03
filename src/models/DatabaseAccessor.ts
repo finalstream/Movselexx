@@ -27,7 +27,9 @@ export default class DatabaseAccessor {
   }
 
   private getSql(sql: string, withLimit: boolean = false) {
+    sql += " ORDER BY PL.ID DESC ";
     if (withLimit) sql = sql + " LIMIT " + this.limit;
+
     return sql;
   }
 }

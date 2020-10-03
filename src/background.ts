@@ -8,12 +8,15 @@ import { ipcMain } from "electron";
 import electronDevtoolsInstaller from "electron-devtools-installer";
 import AppStore from "firx/AppStore";
 import DatabaseAccessor from "./models/DatabaseAccessor";
+import MpcService from "./models/MpcService";
+import PlayInfo from "./models/PlayInfo";
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win: BrowserWindow | null;
 
 let dbAcceccor: DatabaseAccessor;
+let mpcService: MpcService;
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
@@ -132,6 +135,17 @@ ipcMain.handle("maximizeWindow", () => {
   win?.isMaximized() ? win?.unmaximize() : win?.maximize();
 });
 
-ipcMain.handle("mpcGetPlayInfo", () => {
-  return new Date().toString();
+ipcMain.handle("mpcConnect", (event, connectInfo: any) => {
+  mpcService = new MpcService(connectInfo.host, connectInfo.port);
+});
+
+ipcMain.handle("mpcGetPlayInfo", async () => {
+  const pv = await mpcService.getPlayInfo();
+  const playInfo = new PlayInfo();
+  playInfo.file = pv.file;
+  playInfo.duration = pv.duration;
+  playInfo.position = pv.position;
+  playInfo.durationString = pv.durationstring;
+  playInfo.positionString = pv.positionstring;
+  return playInfo;
 });
