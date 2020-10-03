@@ -131,3 +131,7 @@ ipcMain.handle("minimizeWindow", () => {
 ipcMain.handle("maximizeWindow", () => {
   win?.isMaximized() ? win?.unmaximize() : win?.maximize();
 });
+
+ipcMain.handle("mpcGetPlayInfo", () => {
+  return new Date().toString();
+});

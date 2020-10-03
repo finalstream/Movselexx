@@ -6,6 +6,7 @@ import PlayItem from "@/models/PlayItem";
 import electron from "electron";
 import { Vue, Component } from "vue-property-decorator";
 import ArrayUtils from "firx/ArrayUtils";
+import MpcClient from "@/models/MpcClient";
 
 @Component
 export default class Home extends Vue {
@@ -36,6 +37,7 @@ export default class Home extends Vue {
     { text: "", align: "center", value: "isPlayed" },
   ];
   items: PlayItem[];
+  mpcClient!: MpcClient;
 
   /**
    * コンストラクタ
@@ -47,7 +49,15 @@ export default class Home extends Vue {
 
   async created() {
     await this.ipcRenderer.invoke("initialize");
-    const rows = await this.ipcRenderer.invoke("getLibrary");
+    this.refresh();
+    this.mpcClient = new MpcClient("localhost", 13579);
+
+    setInterval(() => {
+      this.mpcClient.getPlayInfo().then((s) => {
+        console.log(s);
+      });
+    }, 1000);
+
     //const res = await this.ipcRenderer.invoke("getStore", "searchDirectory");
     //if (res) this.mainData.searchDirectory = res;
   }
@@ -57,7 +67,8 @@ export default class Home extends Vue {
   }
 
   rowDbClick(e: any, value: any) {
-    console.log(value);
+    const item: PlayItem = value.item;
+    console.log(item.id);
   }
 
   async refresh() {
