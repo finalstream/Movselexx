@@ -149,3 +149,7 @@ ipcMain.handle("mpcGetPlayInfo", async () => {
   playInfo.positionString = pv.positionstring;
   return playInfo;
 });
+
+ipcMain.handle("mpcOpenFile", (event, filePath: string) => {
+  mpcService.openFile(filePath);
+});

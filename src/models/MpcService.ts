@@ -10,4 +10,8 @@ export default class MpcService {
   getPlayInfo(): Promise<IPlayerVariables> {
     return this._mpcControl.getVariables();
   }
+
+  openFile(filePath: string) {
+    this._mpcControl.openFile(filePath);
+  }
 }

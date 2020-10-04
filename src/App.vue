@@ -60,6 +60,22 @@
       </v-list>
     </v-navigation-drawer>
 
+    <v-navigation-drawer clipped app right>
+      <v-timeline align-top dense>
+        <v-timeline-item
+          v-for="nowPlaying in nowPlayings"
+          :key="nowPlaying.id"
+          small
+          right
+        >
+          <div>
+            <strong>{{ nowPlaying.startTimeString }}</strong>
+          </div>
+          <div class="pl-3">{{ nowPlaying.title }}</div>
+        </v-timeline-item>
+      </v-timeline>
+    </v-navigation-drawer>
+
     <v-system-bar class="pr-0" id="titlebar" color="blue darken-3" app window>
       <span class="drag-region" style="color:white; width:100%; padding-top:5px"
         >Movselexx</span
@@ -81,13 +97,9 @@
         ></v-btn
       >
     </v-system-bar>
-    <v-app-bar
-      style="user-select: none;"
-      :clipped-left="$vuetify.breakpoint.lgAndUp"
-      app
-    >
+    <v-app-bar style="user-select: none;" clipped-left clipped-right app>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-      <v-toolbar-title style="width: 300px" class="ml-0 pl-4">
+      <v-toolbar-title class="ml-0 pl-4">
         <span class="hidden-sm-and-down">{{ playInfo.getTitle() }}</span>
       </v-toolbar-title>
       <!--<v-text-field
@@ -112,10 +124,12 @@
       <v-container fluid>
         <router-view
           @update-play-info="updatePlayInfo"
+          @update-playing-info="updatePlayingInfo"
           ref="main"
         ></router-view>
       </v-container>
     </v-main>
+
     <v-footer app>
       <v-row>
         <v-col class="pa-0 px-1">
@@ -206,6 +220,8 @@ import { Vue, Component } from "vue-property-decorator";
 import electron from "electron";
 import PlayItem from "./models/PlayItem";
 import PlayInfo from "./models/PlayInfo";
+import PlayingItem from "./models/PlayingItem";
+import ArrayUtils from "firx/ArrayUtils";
 
 @Component
 export default class App extends Vue {
@@ -251,6 +267,7 @@ export default class App extends Vue {
     */
   ];
   playInfo: PlayInfo;
+  nowPlayings: PlayingItem[];
 
   /**
    * コンストラクタ
@@ -258,6 +275,7 @@ export default class App extends Vue {
   constructor() {
     super();
     this.playInfo = new PlayInfo();
+    this.nowPlayings = [];
   }
 
   async created() {
@@ -288,6 +306,13 @@ export default class App extends Vue {
 
   updatePlayInfo(playInfo: PlayInfo) {
     this.playInfo.update(playInfo);
+  }
+
+  updatePlayingInfo(playingInfos: PlayingItem[]) {
+    ArrayUtils.clear(this.nowPlayings);
+    playingInfos.forEach((pi) => {
+      this.nowPlayings.push(pi);
+    });
   }
 
   refresh() {

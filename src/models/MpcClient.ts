@@ -22,4 +22,8 @@ export default class MpcClient {
   getPlayInfo(): Promise<PlayInfo> {
     return this.ipcRenderer.invoke("mpcGetPlayInfo");
   }
+
+  openFile(filePath: string) {
+    this.ipcRenderer.invoke("mpcOpenFile", filePath);
+  }
 }

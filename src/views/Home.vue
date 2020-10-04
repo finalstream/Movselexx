@@ -6,7 +6,10 @@ import PlayItem from "@/models/PlayItem";
 import electron from "electron";
 import { Vue, Component } from "vue-property-decorator";
 import ArrayUtils from "firx/ArrayUtils";
+import TimeSpan from "firx/TimeSpan";
 import MpcClient from "@/models/MpcClient";
+import PlayingItem from "@/models/PlayingItem";
+import DateFormat from "dateformat";
 
 @Component
 export default class Home extends Vue {
@@ -19,15 +22,15 @@ export default class Home extends Vue {
       sortable: false,
       value: "isPlaying",
     },
-    {
+    /*{
       text: "Group",
       align: "start",
       sortable: false,
       value: "groupName",
-    },
+    },*/
     { text: "Title", align: "start", value: "title" },
     { text: "No", align: "start", value: "no" },
-    { text: "Length", align: "start", value: "length" },
+    { text: "Length", align: "end", value: "length" },
     { text: "", align: "center", value: "isFavorite" },
 
     { text: "Date", value: "date" },
@@ -68,9 +71,27 @@ export default class Home extends Vue {
     //this.ipcRenderer.invoke("ready");
   }
 
-  rowDbClick(e: any, value: any) {
+  async rowDbClick(e: any, value: any) {
     const item: PlayItem = value.item;
-    console.log(item.id);
+    console.log(item.filePath);
+
+    this.mpcClient.openFile(item.filePath);
+
+    let currentTime = new Date();
+    let currentTimeSpan = TimeSpan.fromMilliseconds(currentTime.getTime());
+    const playings = this.items.map((item) => {
+      const pi = new PlayingItem();
+      pi.id = item.id;
+      pi.title = item.title;
+      const durationSpan = TimeSpan.parse(item.length);
+      currentTime = new Date(
+        currentTimeSpan.add(durationSpan).totalMilliseconds
+      );
+      currentTimeSpan = TimeSpan.fromMilliseconds(currentTime.getTime());
+      pi.startTimeString = DateFormat(currentTime, "HH:MM");
+      return pi;
+    });
+    this.$emit("update-playing-info", playings);
   }
 
   async refresh() {

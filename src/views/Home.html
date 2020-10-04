@@ -35,6 +35,12 @@
     style="user-select: none;"
     @dblclick:row="rowDbClick"
   >
+    <template v-slot:item.title="{ item }">
+      <div class="caption" style="color:lightslategray">
+        {{ item.groupName }}
+      </div>
+      <div>{{ item.title }}</div>
+    </template>
     <template v-slot:item.isPlaying="{ item }">
       <v-icon v-show="item.isPlaying">mdi-play-circle-outline</v-icon>
     </template>

@@ -13,10 +13,12 @@
   },
   "main": "background.js",
   "dependencies": {
+    "@types/dateformat": "^3.0.1",
     "@types/electron-devtools-installer": "^2.2.0",
     "@types/sqlite3": "^3.1.6",
     "core-js": "^3.6.5",
-    "firx": "^0.1.1",
+    "dateformat": "^3.0.3",
+    "firx": "^0.1.4",
     "mpc-hc-control": "^1.0.2",
     "path": "^0.12.7",
     "sqlite": "^4.0.14",

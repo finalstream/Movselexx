@@ -3,6 +3,7 @@ import { IPlayItem } from "./IPlayItem";
 
 export default class PlayItem {
   id: number;
+  filePath: string;
   isPlaying: boolean;
   groupId: number;
   groupName: string;
@@ -21,6 +22,7 @@ export default class PlayItem {
    */
   constructor(item: IPlayItem) {
     this.id = item.ID;
+    this.filePath = item.FILEPATH;
     this.isPlaying = false;
     this.groupId = item.GID;
     this.groupName = item.GROUPNAME;
@@ -31,7 +33,7 @@ export default class PlayItem {
     this.isPlayed = item.ISPLAYED == 1;
     this.date = item.DATE;
     this.videoSize = item.VIDEOSIZE;
-    this.drive = item.FILEPATH.substr(0, 1);
+    this.drive = item.FILEPATH.substr(0, 1).toUpperCase();
     this.playCount = item.PLAYCOUNT;
   }
 }
