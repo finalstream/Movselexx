@@ -41,6 +41,7 @@ export default class Home extends Vue {
   ];
   items: PlayItem[];
   mpcClient!: MpcClient;
+  showSnackbar: boolean;
 
   /**
    * コンストラクタ
@@ -48,6 +49,7 @@ export default class Home extends Vue {
   constructor() {
     super();
     this.items = [];
+    this.showSnackbar = false;
   }
 
   async created() {
@@ -104,6 +106,12 @@ export default class Home extends Vue {
   updatePlayItems(rows: IPlayItem[]) {
     ArrayUtils.clear(this.items);
     rows.forEach((r) => this.items.push(new PlayItem(r)));
+  }
+
+  async saveScreenShot() {
+    this.showSnackbar = false;
+    await this.mpcClient.saveScreenShot();
+    this.showSnackbar = true;
   }
 }
 </script>

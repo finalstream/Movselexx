@@ -26,4 +26,8 @@ export default class MpcClient {
   openFile(filePath: string) {
     this.ipcRenderer.invoke("mpcOpenFile", filePath);
   }
+
+  saveScreenShot() {
+    return this.ipcRenderer.invoke("mpcSaveScreenShot");
+  }
 }

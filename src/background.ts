@@ -153,3 +153,7 @@ ipcMain.handle("mpcGetPlayInfo", async () => {
 ipcMain.handle("mpcOpenFile", (event, filePath: string) => {
   mpcService.openFile(filePath);
 });
+
+ipcMain.handle("mpcSaveScreenShot", (event) => {
+  mpcService.saveScreenShot();
+});

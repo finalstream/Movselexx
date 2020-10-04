@@ -14,4 +14,8 @@ export default class MpcService {
   openFile(filePath: string) {
     this._mpcControl.openFile(filePath);
   }
+
+  async saveScreenShot() {
+    await this._mpcControl.execute("SAVE_IMAGE_AUTO");
+  }
 }

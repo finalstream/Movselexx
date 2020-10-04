@@ -132,6 +132,11 @@
 
     <v-footer app>
       <v-row>
+        <v-col cols="1" class="pa-0 px-1">
+          <v-btn color="primary" block @click="saveScreenShot()">
+            <v-icon>mdi-camera</v-icon>
+          </v-btn>
+        </v-col>
         <v-col class="pa-0 px-1">
           <v-btn color="primary" block>Throw</v-btn>
         </v-col>
@@ -313,6 +318,11 @@ export default class App extends Vue {
     playingInfos.forEach((pi) => {
       this.nowPlayings.push(pi);
     });
+  }
+
+  saveScreenShot() {
+    const main: any = this.$refs.main;
+    main.saveScreenShot();
   }
 
   refresh() {
