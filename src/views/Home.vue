@@ -65,9 +65,10 @@ export default class Home extends Vue {
       });
     }, 1000);
 
-    this.ipcRenderer.on("pushProgressInfo", (event, message: string) => {
+    this.ipcRenderer.on("pushProgressInfo", async (event, message: string) => {
       if (message == "#END#") {
         this.$emit("update-progress-info", false);
+        this.reloadItems();
         return;
       }
       console.log("filepath", message);
@@ -102,14 +103,20 @@ export default class Home extends Vue {
     this.$emit("update-playing-info", playings);
   }
 
-  async refresh() {
-    console.log("refresh");
-    this.$emit("update-progress-info", true);
-    this.ipcRenderer.invoke("updateLibrary", this.items);
+  async reloadItems() {
     const rows: IPlayItem[] = await this.ipcRenderer.invoke("getLibrary");
     this.updatePlayItems(rows);
     console.log(rows);
-    this.$emit("update-progress-info", false);
+  }
+
+  async refresh() {
+    if (this.items.length == 0) {
+      this.reloadItems();
+    } else {
+      console.log("refresh");
+      this.$emit("update-progress-info", true);
+      this.ipcRenderer.invoke("updateLibrary", this.items);
+    }
   }
 
   updatePlayItems(rows: IPlayItem[]) {

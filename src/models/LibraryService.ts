@@ -45,6 +45,8 @@ export default class LibraryService {
 
             const mediaFile = await ffprobe(filePath, { path: ffprobeStatic.path });
             const duration = new TimeSpan(mediaFile.streams[0].duration * 1000);
+            if (mediaFile.streams[0].duration == undefined || mediaFile.streams[0].duration <= 0)
+              continue; // 不完全ファイルはスキップ
             const movTitle = this.getMovTitle(filePath);
             const group = await this.getMovGroup(movTitle);
             const length = duration.minutes + ":" + ("00" + duration.seconds).slice(-2);
@@ -52,7 +54,7 @@ export default class LibraryService {
             this._databaseAccessor.insertLibrary({
               "@Gid": group.GID,
               "@FilePath": filePath,
-              "@Option": "",
+              "@Option": null,
               "@Filesize": fs.statSync(filePath).size,
               "@No": this.getNo(filePath),
               "@Length": length,
@@ -62,9 +64,9 @@ export default class LibraryService {
               "@PlayCount": 0,
               "@Date": DatabaseAccessor.formatSQLiteDateString(lastWriteDate),
               "@NotFound": 0,
-              "@Tag": "",
+              "@Tag": null,
               "@AddDate": DatabaseAccessor.formatSQLiteDateString(new Date()),
-              "@LastPlayDate": "",
+              "@LastPlayDate": null,
               "@Played": 0,
               "@VideoSize": mediaFile.streams[0].width + "x" + mediaFile.streams[0].height,
               "@Season": lastWriteDate.getFullYear() + " " + this.getSeasonString(lastWriteDate),
@@ -126,7 +128,7 @@ export default class LibraryService {
 
     for (const i in ary) {
       const s = ary[i];
-      if (Number.isInteger(s)) {
+      if (Number.isInteger(parseInt(s, 10))) {
         result = s;
         break;
       }
@@ -158,7 +160,8 @@ export default class LibraryService {
 
   private async getMovGroup(title: string): Promise<IGroupItem> {
     const keywords = this.createKeywords(title).reverse();
-    for (const keyword in keywords) {
+    for (const i in keywords) {
+      const keyword = keywords[i];
       const group = await this._databaseAccessor.selectMatchGroupKeyword(keyword);
 
       if (group) {
@@ -228,7 +231,8 @@ export default class LibraryService {
     const wordList = [];
 
     let workword: string = "";
-    for (const word in titlewords) {
+    for (const i in titlewords) {
+      const word = titlewords[i];
       if (word) {
         workword += word + " ";
         if (word != workword) {
