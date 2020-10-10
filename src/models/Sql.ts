@@ -3,7 +3,7 @@
  */
 export default class Sql {
   /**
-   * アプリ名
+   * ライブラリリストを取得
    */
   static SelectLibraryList = `SELECT 
       PL.ID AS ID,
@@ -25,6 +25,11 @@ export default class Sql {
     FROM MOVLIST PL 
     LEFT JOIN MOVGROUPLIST GPL
     ON PL.GID = GPL.GID`;
+
+  static SelectAllFilePathList = `SELECT
+       FILEPATH 
+      FROM MOVLIST 
+      GROUP BY FILEPATH`;
 
   /**
    * ロガー設定ファイル

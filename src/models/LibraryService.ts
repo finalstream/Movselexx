@@ -19,25 +19,33 @@ export default class LibraryService {
     return this._databaseAccessor.selectLibrary();
   }
 
-  updateLibrary(playItems: PlayItem[]) {
+  getAllLibraryFilePaths() {
+    return this._databaseAccessor.selectAllLibraryFilePaths();
+  }
+
+  async updateLibrary(playItems: PlayItem[]) {
     if (playItems.length == 0) return;
 
     const directories = playItems.map(p=> Path.dirname(p.filePath))
     const baseDirctory = this.getMostUseDirectory(directories);
     const movFiles = this.getAllFiles(baseDirctory, AppConfig.SupportFileExts);
-
+    const registedFiles = await (await this.getAllLibraryFilePaths()).map(p=>p.FILEPATH);
+    
     movFiles.forEach(f=>{
-      this._notificationService.push(f);
+      if (!registedFiles.includes(f))  {
+        this._notificationService.push(f);
+      }
     });
   }
 
   private getAllFiles(dir:string, exts:string[],  files:string[] = []) {
+    // TODO: ライブラリに追加する
     const dirents:Dirent[] = fs.readdirSync(dir, { withFileTypes: true });
     const dirs:string[] = [];
     for (const dirent of dirents) {
-      if (dirent.isDirectory()) dirs.push(`${dir}/${dirent.name}`);
+      if (dirent.isDirectory()) dirs.push(`${dir}\\${dirent.name}`);
       if (dirent.isFile()) {
-        const filepath = `${dir}/${dirent.name}`;
+        const filepath = `${dir}\\${dirent.name}`;
         if (exts.includes(Path.extname(filepath).toLowerCase())) files.push(filepath);
       }
     }

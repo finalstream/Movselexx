@@ -66,7 +66,7 @@ export default class Home extends Vue {
     }, 1000); 
 
     this.ipcRenderer.on("pushFilePath", (event,message:string) => {
-      //console.log("filepath",message);
+      console.log("filepath",message);
       this.$emit("update-progress-info", true, message);
     });
     //const res = await this.ipcRenderer.invoke("getStore", "searchDirectory");
@@ -81,7 +81,7 @@ export default class Home extends Vue {
     const item: PlayItem = value.item;
     console.log(item.filePath);
 
-    this.mpcClient.openFile(item.filePath);
+    //this.mpcClient.openFile(item.filePath);
 
     let currentTime = new Date();
     let currentTimeSpan = TimeSpan.fromMilliseconds(currentTime.getTime());

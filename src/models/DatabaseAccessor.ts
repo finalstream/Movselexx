@@ -3,8 +3,10 @@ import { Database } from "sqlite";
 import Sql from "./Sql";
 import path from "path";
 import { IPlayItem } from "./IPlayItem";
+import { IPlayerVariables } from 'mpc-hc-control/lib/commands/commands';
 
 export default class DatabaseAccessor {
+  
   db: Database<sqlite3.Database, sqlite3.Statement>;
   limit = 100;
 
@@ -23,6 +25,12 @@ export default class DatabaseAccessor {
   async selectLibrary() {
     return await this.db.all<IPlayItem[]>(
       this.getSql(Sql.SelectLibraryList, true)
+    );
+  }
+
+  async selectAllLibraryFilePaths() {
+    return await this.db.all<IPlayItem[]>(
+      Sql.SelectAllFilePathList
     );
   }
 
