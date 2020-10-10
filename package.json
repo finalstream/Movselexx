@@ -15,9 +15,13 @@
   "dependencies": {
     "@types/dateformat": "^3.0.1",
     "@types/electron-devtools-installer": "^2.2.0",
+    "@types/ffprobe": "^1.1.0",
+    "@types/ffprobe-static": "^2.0.0",
     "@types/sqlite3": "^3.1.6",
     "core-js": "^3.6.5",
     "dateformat": "^3.0.3",
+    "ffprobe": "^1.1.2",
+    "ffprobe-static": "^3.0.0",
     "firx": "^0.1.4",
     "mpc-hc-control": "^1.0.2",
     "path": "^0.12.7",

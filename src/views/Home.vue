@@ -59,14 +59,18 @@ export default class Home extends Vue {
     this.mpcClient.connect();
 
     setInterval(() => {
-      this.mpcClient.getPlayInfo().then((pi) => {
+      this.mpcClient.getPlayInfo().then(pi => {
         //console.log(pi);
         this.$emit("update-play-info", pi);
       });
-    }, 1000); 
+    }, 1000);
 
-    this.ipcRenderer.on("pushFilePath", (event,message:string) => {
-      console.log("filepath",message);
+    this.ipcRenderer.on("pushProgressInfo", (event, message: string) => {
+      if (message == "#END#") {
+        this.$emit("update-progress-info", false);
+        return;
+      }
+      console.log("filepath", message);
       this.$emit("update-progress-info", true, message);
     });
     //const res = await this.ipcRenderer.invoke("getStore", "searchDirectory");
@@ -81,18 +85,16 @@ export default class Home extends Vue {
     const item: PlayItem = value.item;
     console.log(item.filePath);
 
-    //this.mpcClient.openFile(item.filePath);
+    this.mpcClient.openFile(item.filePath);
 
     let currentTime = new Date();
     let currentTimeSpan = TimeSpan.fromMilliseconds(currentTime.getTime());
-    const playings = this.items.map((item) => {
+    const playings = this.items.map(item => {
       const pi = new PlayingItem();
       pi.id = item.id;
       pi.title = item.title;
       const durationSpan = TimeSpan.parse(item.length);
-      currentTime = new Date(
-        currentTimeSpan.add(durationSpan).totalMilliseconds
-      );
+      currentTime = new Date(currentTimeSpan.add(durationSpan).totalMilliseconds);
       currentTimeSpan = TimeSpan.fromMilliseconds(currentTime.getTime());
       pi.startTimeString = DateFormat(currentTime, "HH:MM");
       return pi;
@@ -112,7 +114,7 @@ export default class Home extends Vue {
 
   updatePlayItems(rows: IPlayItem[]) {
     ArrayUtils.clear(this.items);
-    rows.forEach((r) => this.items.push(new PlayItem(r)));
+    rows.forEach(r => this.items.push(new PlayItem(r)));
   }
 
   async saveScreenShot() {
@@ -120,6 +122,5 @@ export default class Home extends Vue {
     await this.mpcClient.saveScreenShot();
     this.showSnackbar = true;
   }
-
 }
 </script>

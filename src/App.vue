@@ -328,7 +328,7 @@ export default class App extends Vue {
     ArrayUtils.clear(this.nowPlayings);
     playingInfos.forEach((pi) => {
       this.nowPlayings.push(pi);
-    });
+    }); 
   }
 
   updateProgressInfo(isProgress:boolean, message:string) {

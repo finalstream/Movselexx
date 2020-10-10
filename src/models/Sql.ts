@@ -31,8 +31,90 @@ export default class Sql {
       FROM MOVLIST 
       GROUP BY FILEPATH`;
 
-  /**
-   * ロガー設定ファイル
-   */
-  static LoggerConfigFile = "./log4js.config.json";
+  static SelectGroupKeyword = `SELECT 
+      GID,
+      GROUPNAME
+    FROM MOVGROUPLIST 
+    WHERE KEYWORD = @Keyword`;
+
+  static SelectGroupIdCount = `SELECT count(GID) GCNT 
+      FROM MOVLIST
+      WHERE GID = @Gid
+      GROUP BY GID`;
+
+  static SelectFavGroupIdCount = `SELECT count(ID) GCNT 
+      FROM MOVLIST
+      WHERE GID = @Gid
+      AND RATING = 9`;
+
+  static SelectNoGroupFromTitle = `SELECT ID, TITLE  FROM MOVLIST WHERE GID IS NULL AND (#0#)`;
+
+  static SelectLastInsertRowid = `SELECT last_insert_rowid() AS LASTROWID`;
+
+  static SelectGIdByGroupName = `SELECT 
+      GID
+    FROM MOVGROUPLIST 
+    WHERE lower(GROUPNAME) = @GroupName`;
+
+  static InsertLibrary = `INSERT INTO MOVLIST(
+    FILEPATH,
+    TITLE,
+    NO,
+    GID,
+    LENGTH,
+    CODEC,
+    RATING,
+    VIDEOSIZE,
+    PLAYCOUNT,
+    DATE,
+    NOTFOUND,
+    OPTION,
+    TAG,
+    ADDDATE,
+    LASTPLAYDATE,
+    DRIVE,
+    FILESIZE,
+    PLAYED,
+    SEASON
+  ) VALUES (
+    @FilePath,
+    @Title,
+    @No,
+    @Gid,
+    @Length,
+    @Codec,
+    @Rating,
+    @VideoSize,
+    @PlayCount,
+    @Date,
+    @NotFound,
+    @Option,
+    @Tag,
+    @AddDate,
+    @LastPlayDate,
+    SUBSTR(@FilePath,1,1),
+    @Filesize,
+    @Played,
+    @Season
+  )`;
+
+  static InsertGroup = `INSERT INTO MOVGROUPLIST(
+        GROUPNAME,
+        KEYWORD,
+        LASTUPDATE
+      ) VALUES (
+        @GroupName,
+        @Keyword,
+        @LastUpdate
+      )`;
+
+  static UpdateGroupLastUpdateDatetime = `UPDATE MOVGROUPLIST 
+      SET
+      LASTUPDATE = @LastUpdate
+      WHERE GID = @Gid`;
+
+  static UpdateGidById = `UPDATE MOVLIST 
+      SET
+      GID = @Gid
+      WHERE ID = @Id`;
 }

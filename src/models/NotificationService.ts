@@ -1,4 +1,4 @@
-import { WebContents } from 'electron';
+import { WebContents } from "electron";
 
 export default class NotificationService {
   _webContents: WebContents;
@@ -7,7 +7,7 @@ export default class NotificationService {
     this._webContents = wc;
   }
 
-  push(message:string) {
-    this._webContents.send("pushFilePath", message);
+  pushProgressInfo(message: string) {
+    this._webContents.send("pushProgressInfo", message);
   }
 }
