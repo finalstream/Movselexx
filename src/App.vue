@@ -125,12 +125,24 @@
         <router-view
           @update-play-info="updatePlayInfo"
           @update-playing-info="updatePlayingInfo"
+          @update-progress-info="updateProgressInfo"
           ref="main"
         ></router-view>
       </v-container>
     </v-main>
 
-    <v-footer app>
+    <v-footer style="z-index:9"  app>
+      <v-container v-show="isProgress" fluid class="mt-2 mb-2 pa-0">
+        <span>{{progressMessage}}</span>
+        <v-progress-linear
+          v-show="isProgress"
+          color="deep-purple accent-4"
+          indeterminate
+          rounded
+          height="6"
+          
+        ></v-progress-linear>
+      </v-container>
       <v-row>
         <v-col cols="1" class="pa-0 px-1">
           <v-btn color="primary" block @click="saveScreenShot()">
@@ -150,11 +162,6 @@
           <v-btn color="primary" block>Next</v-btn>
         </v-col>
       </v-row>
-      <v-progress-linear
-        class="d-none my-3"
-        indeterminate
-        color="yellow darken-2"
-      ></v-progress-linear>
     </v-footer>
     <!--
     <v-btn bottom color="pink" dark fab fixed right @click="dialog = !dialog">
@@ -273,6 +280,8 @@ export default class App extends Vue {
   ];
   playInfo: PlayInfo;
   nowPlayings: PlayingItem[];
+  isProgress: boolean;
+  progressMessage: string;
 
   /**
    * コンストラクタ
@@ -281,6 +290,8 @@ export default class App extends Vue {
     super();
     this.playInfo = new PlayInfo();
     this.nowPlayings = [];
+    this.isProgress = false;
+    this.progressMessage = "";
   }
 
   async created() {
@@ -318,6 +329,11 @@ export default class App extends Vue {
     playingInfos.forEach((pi) => {
       this.nowPlayings.push(pi);
     });
+  }
+
+  updateProgressInfo(isProgress:boolean, message:string) {
+    this.isProgress = isProgress;
+    this.progressMessage = message;
   }
 
   saveScreenShot() {

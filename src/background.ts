@@ -10,13 +10,17 @@ import AppStore from "firx/AppStore";
 import DatabaseAccessor from "./models/DatabaseAccessor";
 import MpcService from "./models/MpcService";
 import PlayInfo from "./models/PlayInfo";
+import LibraryService from './models/LibraryService';
+import PlayItem from './models/PlayItem';
+import NotificationService from './models/NotificationService';
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win: BrowserWindow | null;
 
-let dbAcceccor: DatabaseAccessor;
 let mpcService: MpcService;
+let libraryService: LibraryService;
+let notificationService: NotificationService;
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
@@ -103,12 +107,13 @@ if (isDevelopment) {
 }
 
 ipcMain.handle("initialize", () => {
-  dbAcceccor = new DatabaseAccessor("movselex.db");
-  dbAcceccor.open();
+  const dba = new DatabaseAccessor("movselex.db");
+  dba.open();
+  libraryService = new LibraryService(dba, new NotificationService(win!.webContents));
 });
 
 ipcMain.handle("getLibrary", () => {
-  return dbAcceccor.selectLibrary();
+  return libraryService.getLibrary();
 });
 
 ipcMain.handle("setStore", (event, data) => {
@@ -156,4 +161,8 @@ ipcMain.handle("mpcOpenFile", (event, filePath: string) => {
 
 ipcMain.handle("mpcSaveScreenShot", (event) => {
   mpcService.saveScreenShot();
+});
+
+ipcMain.handle("updateLibrary", (event, playItems: PlayItem[]) => {
+  libraryService.updateLibrary(playItems);
 });

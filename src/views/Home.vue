@@ -60,11 +60,15 @@ export default class Home extends Vue {
 
     setInterval(() => {
       this.mpcClient.getPlayInfo().then((pi) => {
-        console.log(pi);
+        //console.log(pi);
         this.$emit("update-play-info", pi);
       });
-    }, 1000);
+    }, 1000); 
 
+    this.ipcRenderer.on("pushFilePath", (event,message:string) => {
+      //console.log("filepath",message);
+      this.$emit("update-progress-info", true, message);
+    });
     //const res = await this.ipcRenderer.invoke("getStore", "searchDirectory");
     //if (res) this.mainData.searchDirectory = res;
   }
@@ -98,9 +102,12 @@ export default class Home extends Vue {
 
   async refresh() {
     console.log("refresh");
+    this.$emit("update-progress-info", true);
+    this.ipcRenderer.invoke("updateLibrary", this.items);
     const rows: IPlayItem[] = await this.ipcRenderer.invoke("getLibrary");
     this.updatePlayItems(rows);
     console.log(rows);
+    this.$emit("update-progress-info", false);
   }
 
   updatePlayItems(rows: IPlayItem[]) {
@@ -113,5 +120,6 @@ export default class Home extends Vue {
     await this.mpcClient.saveScreenShot();
     this.showSnackbar = true;
   }
+
 }
 </script>
