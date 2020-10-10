@@ -5,6 +5,7 @@ import fs, { Dirent } from "fs";
 import AppConfig from './AppConfig';
 import NotificationService from './NotificationService';
 
+
 export default class LibraryService {
   
   _databaseAccessor: DatabaseAccessor;
@@ -15,6 +16,7 @@ export default class LibraryService {
     this._notificationService = ns;
   }
 
+  
   getLibrary() {
     return this._databaseAccessor.selectLibrary();
   }
@@ -31,11 +33,17 @@ export default class LibraryService {
     const movFiles = this.getAllFiles(baseDirctory, AppConfig.SupportFileExts);
     const registedFiles = await (await this.getAllLibraryFilePaths()).map(p=>p.FILEPATH);
     
-    movFiles.forEach(f=>{
-      if (!registedFiles.includes(f))  {
-        this._notificationService.push(f);
-      }
+    this._databaseAccessor.transaction(db=>{
+      movFiles.forEach(f=>{
+        if (!registedFiles.includes(f))  {
+          try {
+            const mediaFile = File.createFromPath(f);
+            this._notificationService.push(mediaFile.toString());
+          } catch {}
+        }
+      });
     });
+    
   }
 
   private getAllFiles(dir:string, exts:string[],  files:string[] = []) {

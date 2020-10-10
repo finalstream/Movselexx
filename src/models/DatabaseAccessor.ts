@@ -22,6 +22,19 @@ export default class DatabaseAccessor {
     await this.db.open();
   }
 
+  transaction(proc:(db:sqlite3.Database)=>void) {
+    const database = this.db.getDatabaseInstance();
+    database.serialize(()=>{
+      try {
+        database.run("BEGIN TRANSACTION");
+        proc(database);
+        database.run("COMMIT");
+      } catch (e) {
+        database.run("ROLLBACK");
+      }
+    });
+  }
+
   async selectLibrary() {
     return await this.db.all<IPlayItem[]>(
       this.getSql(Sql.SelectLibraryList, true)
