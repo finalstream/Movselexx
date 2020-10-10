@@ -37,8 +37,8 @@ export default class LibraryService {
       movFiles.forEach(f=>{
         if (!registedFiles.includes(f))  {
           try {
-            const mediaFile = File.createFromPath(f);
-            this._notificationService.push(mediaFile.toString());
+            
+            this._notificationService.push(f);
           } catch {}
         }
       });
