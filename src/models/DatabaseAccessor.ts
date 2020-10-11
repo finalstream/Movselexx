@@ -36,12 +36,18 @@ export default class DatabaseAccessor {
     });
   }
 
-  async selectLibrary() {
+  async selectLibraries() {
     return await this.db.all<IPlayItem[]>(this.getSql(Sql.SelectLibraryList, true));
   }
 
   async selectAllLibraryFilePaths() {
     return await this.db.all<IPlayItem[]>(Sql.SelectAllFilePathList);
+  }
+
+  async selectLibraryByFilePath(filepath: string) {
+    return await this.db.get<IPlayItem>(Sql.SelectLibraryList + " WHERE FILEPATH = @FilePath", {
+      "@FilePath": filepath,
+    });
   }
 
   async selectMatchGroupKeyword(keyword: string) {
@@ -97,6 +103,13 @@ export default class DatabaseAccessor {
     });
   }
 
+  async updatePlayCount(id: number) {
+    await this.db.run(Sql.UpdatePlayCount, {
+      "@Id": id,
+      "@LastPlayDate": DatabaseAccessor.formatSQLiteDateString(new Date()),
+    });
+  }
+
   async updateGidById(gid: number, id: number) {
     await this.db.run(Sql.UpdateGidById, { "@Id": id, "@Gid": gid });
   }
@@ -109,12 +122,11 @@ export default class DatabaseAccessor {
   }
 
   public static formatSQLiteDateString(date: Date) {
-    // TODO: ライブラリに追加する
     return dateformat(date, "yyyy-mm-dd HH:MM:ss");
   }
 
   private getSql(sql: string, withLimit: boolean = false) {
-    sql += " ORDER BY PL.ID DESC ";
+    sql += " ORDER BY PL.DATE DESC ";
     if (withLimit) sql = sql + " LIMIT " + this.limit;
 
     return sql;

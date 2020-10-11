@@ -20,12 +20,20 @@ export default class LibraryService {
     this._notificationService = ns;
   }
 
-  getLibrary() {
-    return this._databaseAccessor.selectLibrary();
+  countupPlay(id: number) {
+    this._databaseAccessor.updatePlayCount(id);
+  }
+
+  getLibraries() {
+    return this._databaseAccessor.selectLibraries();
   }
 
   async getAllLibraryFilePaths() {
     return (await this._databaseAccessor.selectAllLibraryFilePaths()).map(p => p.FILEPATH);
+  }
+
+  async getLibraryByFilePath(filepath: string) {
+    return await this._databaseAccessor.selectLibraryByFilePath(filepath);
   }
 
   async updateLibrary(playItems: PlayItem[]) {

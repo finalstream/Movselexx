@@ -62,6 +62,7 @@ export default class Home extends Vue {
       this.mpcClient.getPlayInfo().then(pi => {
         //console.log(pi);
         this.$emit("update-play-info", pi);
+        this.mpcClient.monitoring(pi);
       });
     }, 1000);
 
@@ -104,7 +105,7 @@ export default class Home extends Vue {
   }
 
   async reloadItems() {
-    const rows: IPlayItem[] = await this.ipcRenderer.invoke("getLibrary");
+    const rows: IPlayItem[] = await this.ipcRenderer.invoke("getLibraries");
     this.updatePlayItems(rows);
     console.log(rows);
   }

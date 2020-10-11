@@ -10,9 +10,9 @@ import AppStore from "firx/AppStore";
 import DatabaseAccessor from "./models/DatabaseAccessor";
 import MpcService from "./models/MpcService";
 import PlayInfo from "./models/PlayInfo";
-import LibraryService from './models/LibraryService';
-import PlayItem from './models/PlayItem';
-import NotificationService from './models/NotificationService';
+import LibraryService from "./models/LibraryService";
+import PlayItem from "./models/PlayItem";
+import NotificationService from "./models/NotificationService";
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -38,8 +38,7 @@ async function createWindow() {
     webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
-      nodeIntegration: (process.env
-        .ELECTRON_NODE_INTEGRATION as unknown) as boolean,
+      nodeIntegration: (process.env.ELECTRON_NODE_INTEGRATION as unknown) as boolean,
       //nodeIntegration: true,
     },
   });
@@ -94,7 +93,7 @@ app.on("ready", async () => {
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
   if (process.platform === "win32") {
-    process.on("message", (data) => {
+    process.on("message", data => {
       if (data === "graceful-exit") {
         app.quit();
       }
@@ -112,8 +111,8 @@ ipcMain.handle("initialize", () => {
   libraryService = new LibraryService(dba, new NotificationService(win!.webContents));
 });
 
-ipcMain.handle("getLibrary", () => {
-  return libraryService.getLibrary();
+ipcMain.handle("getLibraries", () => {
+  return libraryService.getLibraries();
 });
 
 ipcMain.handle("setStore", (event, data) => {
@@ -148,18 +147,32 @@ ipcMain.handle("mpcGetPlayInfo", async () => {
   const pv = await mpcService.getPlayInfo();
   const playInfo = new PlayInfo();
   playInfo.file = pv.file;
+  playInfo.filepath = pv.filepath;
+  playInfo.state = pv.state;
   playInfo.duration = pv.duration;
   playInfo.position = pv.position;
   playInfo.durationString = pv.durationstring;
   playInfo.positionString = pv.positionstring;
+
+  // ファイルパスからライブラリを取得
+  const lib = await libraryService.getLibraryByFilePath(playInfo.filepath);
+
+  if (lib) {
+    playInfo.library = lib;
+  }
+
   return playInfo;
+});
+
+ipcMain.handle("countupPlay", (event, id: number) => {
+  libraryService.countupPlay(id);
 });
 
 ipcMain.handle("mpcOpenFile", (event, filePath: string) => {
   mpcService.openFile(filePath);
 });
 
-ipcMain.handle("mpcSaveScreenShot", (event) => {
+ipcMain.handle("mpcSaveScreenShot", event => {
   mpcService.saveScreenShot();
 });
 

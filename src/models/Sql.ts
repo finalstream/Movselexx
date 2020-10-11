@@ -117,4 +117,9 @@ export default class Sql {
       SET
       GID = @Gid
       WHERE ID = @Id`;
+
+  static UpdatePlayCount = `UPDATE MOVLIST
+      SET PLAYCOUNT = PLAYCOUNT + 1,
+      LASTPLAYDATE = @LastPlayDate
+      WHERE ID = @Id`;
 }
