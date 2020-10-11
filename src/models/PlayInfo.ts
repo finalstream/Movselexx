@@ -37,4 +37,8 @@ export default class PlayInfo {
       ? this.library.TITLE
       : Path.basename(this.file, Path.extname(this.file));
   }
+
+  getSeason() {
+    return this.library != null ? this.library.SEASON : "";
+  }
 }

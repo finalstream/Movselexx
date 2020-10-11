@@ -89,7 +89,7 @@ export default class LibraryService {
   }
 
   getSeasonString(date: Date) {
-    const month = date.getMonth();
+    const month = date.getMonth() + 1;
 
     switch (month) {
       case 1:

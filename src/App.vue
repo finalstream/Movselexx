@@ -1,10 +1,6 @@
 <template>
   <v-app id="inspire">
-    <v-navigation-drawer
-      v-model="drawer"
-      :clipped="$vuetify.breakpoint.lgAndUp"
-      app
-    >
+    <v-navigation-drawer v-model="drawer" :clipped="$vuetify.breakpoint.lgAndUp" app>
       <v-list>
         <v-list-item-group v-model="item" color="primary">
           <template v-for="item in items">
@@ -62,12 +58,7 @@
 
     <v-navigation-drawer clipped app right>
       <v-timeline align-top dense>
-        <v-timeline-item
-          v-for="nowPlaying in nowPlayings"
-          :key="nowPlaying.id"
-          small
-          right
-        >
+        <v-timeline-item v-for="nowPlaying in nowPlayings" :key="nowPlaying.id" small right>
           <div>
             <strong>{{ nowPlaying.startTimeString }}</strong>
           </div>
@@ -77,29 +68,30 @@
     </v-navigation-drawer>
 
     <v-system-bar class="pr-0" id="titlebar" color="blue darken-3" app window>
-      <span class="drag-region" style="color:white; width:100%; padding-top:5px"
-        >Movselexx</span
-      >
+      <span class="drag-region" style="color:white; width:100%; padding-top:5px">Movselexx</span>
       <v-spacer></v-spacer>
       <v-btn class="windowcontrol pl-2" icon tile @click="minimizeWindow()"
-        ><v-icon small style="color:white;text-align:center"
-          >mdi-minus</v-icon
-        ></v-btn
+        ><v-icon small style="color:white;text-align:center">mdi-minus</v-icon></v-btn
       >
       <v-btn class="windowcontrol pl-2" icon tile @click="maximizeWindow()"
-        ><v-icon small style="color:white"
-          >mdi-checkbox-blank-outline</v-icon
-        ></v-btn
+        ><v-icon small style="color:white">mdi-checkbox-blank-outline</v-icon></v-btn
       >
       <v-btn class="windowcontrol pl-2" icon tile
-        ><v-icon small style="color:white" @click="closeWindow()"
-          >mdi-close</v-icon
-        ></v-btn
+        ><v-icon small style="color:white" @click="closeWindow()">mdi-close</v-icon></v-btn
       >
     </v-system-bar>
     <v-app-bar style="user-select: none;" clipped-left clipped-right app>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title class="ml-0 pl-4">
+        <v-chip
+          v-show="playInfo.getSeason() != ''"
+          class="ma-2 pa-2"
+          color="primary"
+          label
+          outlined
+        >
+          {{ playInfo.getSeason() }}
+        </v-chip>
         <span class="hidden-sm-and-down">{{ playInfo.getTitle() }}</span>
       </v-toolbar-title>
       <!--<v-text-field
@@ -131,16 +123,15 @@
       </v-container>
     </v-main>
 
-    <v-footer style="z-index:9"  app>
+    <v-footer style="z-index:9" app>
       <v-container v-show="isProgress" fluid class="mt-2 mb-2 pa-0">
-        <span>{{progressMessage}}</span>
+        <span>{{ progressMessage }}</span>
         <v-progress-linear
           v-show="isProgress"
           color="deep-purple accent-4"
           indeterminate
           rounded
           height="6"
-          
         ></v-progress-linear>
       </v-container>
       <v-row>
@@ -326,12 +317,12 @@ export default class App extends Vue {
 
   updatePlayingInfo(playingInfos: PlayingItem[]) {
     ArrayUtils.clear(this.nowPlayings);
-    playingInfos.forEach((pi) => {
+    playingInfos.forEach(pi => {
       this.nowPlayings.push(pi);
-    }); 
+    });
   }
 
-  updateProgressInfo(isProgress:boolean, message:string) {
+  updateProgressInfo(isProgress: boolean, message: string) {
     this.isProgress = isProgress;
     this.progressMessage = message;
   }
@@ -380,7 +371,7 @@ export default class App extends Vue {
 }
 
 .v-sheet.v-app-bar.v-toolbar:not(.v-sheet--outlined) {
-  box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2),
-    0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12);
+  box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14),
+    0px 1px 10px 0px rgba(0, 0, 0, 0.12);
 }
 </style>

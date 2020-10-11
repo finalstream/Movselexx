@@ -29,7 +29,7 @@ export default class Home extends Vue {
       value: "groupName",
     },*/
     { text: "Title", align: "start", value: "title" },
-    { text: "No", align: "start", value: "no" },
+    { text: "No", align: "end", value: "no" },
     { text: "Length", align: "end", value: "length" },
     { text: "", align: "center", value: "isFavorite" },
 
