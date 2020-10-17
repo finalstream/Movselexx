@@ -71,9 +71,7 @@
       <span class="drag-region" style="color:white; width:100%; padding-top:5px">Movselexx</span>
       <v-spacer></v-spacer>
       <v-btn class="windowcontrol pl-2" icon tile
-        ><v-icon small style="color:white" @click="isShowSettingDailog = true"
-          >mdi-cog</v-icon
-        ></v-btn
+        ><v-icon small style="color:white" @click="showSettings()">mdi-cog</v-icon></v-btn
       >
       <v-btn class="windowcontrol pl-2" icon tile @click="minimizeWindow()"
         ><v-icon small style="color:white;text-align:center">mdi-minus</v-icon></v-btn
@@ -235,39 +233,68 @@
           <v-toolbar-title>Settings</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-toolbar-items>
-            <v-btn dark text @click="isShowSettingDailog = false">
+            <v-btn dark text @click="saveSettings()">
               Save
             </v-btn>
           </v-toolbar-items>
         </v-toolbar>
         <v-card-text>
           <v-list three-line subheader>
-            <v-subheader>User Controls</v-subheader>
+            <v-subheader>General</v-subheader>
             <v-list-item>
               <v-list-item-content>
-                <v-list-item-title>Content filtering</v-list-item-title>
-                <v-list-item-subtitle
-                  >Set the content filtering level to restrict apps that can be
-                  downloaded</v-list-item-subtitle
-                >
+                <v-list-item-title>Player</v-list-item-title>
+                <v-list-item-subtitle>Now Only Support Media Player Classic</v-list-item-subtitle>
+                <v-list-item-subtitle>
+                  <v-combobox disabled v-model="players" :items="players"></v-combobox>
+                </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
             <v-list-item>
               <v-list-item-content>
-                <v-list-item-title>Password</v-list-item-title>
-                <v-list-item-subtitle
-                  >Require password for purchase or use password to restrict
-                  purchase</v-list-item-subtitle
-                >
+                <v-list-item-title>Media Player Classic EXE Path</v-list-item-title>
+                <v-list-item-subtitle></v-list-item-subtitle>
+                <v-list-item-subtitle>
+                  <div style="display: inline-flex;width:100%">
+                    <v-text-field disabled v-model="appStore.mpcExePath"></v-text-field>
+                    <v-btn class="mt-3 ml-3" @click="selectFileDialog()">...</v-btn>
+                  </div>
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-title>Media Player Classic Port</v-list-item-title>
+                <v-list-item-subtitle></v-list-item-subtitle>
+                <v-list-item-subtitle>
+                  <v-text-field
+                    style="width:100px"
+                    type="number"
+                    v-model="appStore.mpcPort"
+                  ></v-text-field>
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-title>Play Display</v-list-item-title>
+                <v-list-item-subtitle>
+                  <v-combobox
+                    v-model="playDisplay"
+                    :item-text="getDisplayName"
+                    item-value="no"
+                    :items="displays"
+                  ></v-combobox>
+                </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
           </v-list>
           <v-divider></v-divider>
           <v-list three-line subheader>
-            <v-subheader>General</v-subheader>
+            <v-subheader>XXXXXXX</v-subheader>
             <v-list-item>
               <v-list-item-action>
-                <v-checkbox v-model="notifications"></v-checkbox>
+                <v-checkbox></v-checkbox>
               </v-list-item-action>
               <v-list-item-content>
                 <v-list-item-title>Notifications</v-list-item-title>
@@ -278,7 +305,7 @@
             </v-list-item>
             <v-list-item>
               <v-list-item-action>
-                <v-checkbox v-model="sound"></v-checkbox>
+                <v-checkbox></v-checkbox>
               </v-list-item-action>
               <v-list-item-content>
                 <v-list-item-title>Sound</v-list-item-title>
@@ -289,7 +316,7 @@
             </v-list-item>
             <v-list-item>
               <v-list-item-action>
-                <v-checkbox v-model="widgets"></v-checkbox>
+                <v-checkbox></v-checkbox>
               </v-list-item-action>
               <v-list-item-content>
                 <v-list-item-title>Auto-add widgets</v-list-item-title>
@@ -307,18 +334,22 @@
 
 <script lang="ts">
 import { Vue, Component } from "vue-property-decorator";
-import electron from "electron";
+import electron, { Display } from "electron";
 import PlayItem from "./models/PlayItem";
 import PlayInfo from "./models/PlayInfo";
 import PlayingItem from "./models/PlayingItem";
 import ArrayUtils from "firx/ArrayUtils";
+import MovselexxAppStore from "./models/MovselexxAppStore";
+import DisplayInfo from "./models/DisplayInfo";
 
 @Component
 export default class App extends Vue {
   private ipcRenderer = electron.ipcRenderer;
   dialog = false;
+  appStore: MovselexxAppStore;
   drawer = null;
   item = null;
+  players = ["Media Player Classic"];
   items = [
     { text: "ALL MOVIE" },
     { text: "再生中" },
@@ -361,6 +392,9 @@ export default class App extends Vue {
   isProgress: boolean;
   progressMessage: string;
   isShowSettingDailog: boolean;
+  rules: any;
+  displays: DisplayInfo[];
+  playDisplay: number;
 
   /**
    * コンストラクタ
@@ -368,14 +402,27 @@ export default class App extends Vue {
   constructor() {
     super();
     this.playInfo = new PlayInfo();
+    this.appStore = new MovselexxAppStore();
     this.nowPlayings = [];
     this.isProgress = false;
     this.progressMessage = "";
     this.isShowSettingDailog = false;
+    this.rules = {
+      number: (value: string) => Number.isInteger(value) || "No Number.",
+    };
+    this.displays = [];
+    this.playDisplay = 1;
   }
 
   async created() {
-    //
+    const displays: Display[] = await this.ipcRenderer.invoke("initialize");
+
+    let no = 1;
+    displays.forEach(d => {
+      this.displays.push(new DisplayInfo(no++, d.size));
+    });
+
+    this.loadSettings();
   }
 
   mounted() {
@@ -393,6 +440,12 @@ export default class App extends Vue {
 
   closeWindow() {
     this.ipcRenderer.invoke("closeWindow");
+  }
+
+  async selectFileDialog() {
+    const path = await this.ipcRenderer.invoke("openDialogfile");
+    if (path == undefined) return;
+    this.appStore.mpcExePath = path;
   }
 
   test() {
@@ -434,6 +487,24 @@ export default class App extends Vue {
   refresh() {
     const main: any = this.$refs.main;
     main.refresh();
+  }
+
+  showSettings() {
+    this.loadSettings();
+    this.isShowSettingDailog = true;
+  }
+
+  async loadSettings() {
+    this.appStore.mpcExePath = await this.ipcRenderer.invoke("getStore", "mpcExePath");
+  }
+
+  async saveSettings() {
+    await this.ipcRenderer.invoke("setStore", "mpcExePath", this.appStore.mpcExePath);
+    this.isShowSettingDailog = false;
+  }
+
+  getDisplayName(display: DisplayInfo) {
+    return "Display " + display.no + " (" + display.size.width + "x" + display.size.height + ")";
   }
 
   /*

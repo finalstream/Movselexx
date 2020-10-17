@@ -1,6 +1,6 @@
 "use strict";
 
-import { app, protocol, BrowserWindow } from "electron";
+import { app, protocol, BrowserWindow, dialog, screen } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer";
 const isDevelopment = process.env.NODE_ENV !== "production";
@@ -109,6 +109,7 @@ ipcMain.handle("initialize", () => {
   const dba = new DatabaseAccessor("movselex.db");
   dba.open();
   libraryService = new LibraryService(dba, new NotificationService(win!.webContents));
+  return screen.getAllDisplays();
 });
 
 ipcMain.handle("getLibraries", (event, isShuffle) => {
@@ -178,4 +179,15 @@ ipcMain.handle("mpcSaveScreenShot", event => {
 
 ipcMain.handle("updateLibrary", (event, playItems: PlayItem[]) => {
   libraryService.updateLibrary(playItems);
+});
+
+ipcMain.handle("openDialogfile", (event, data) => {
+  return dialog
+    .showOpenDialog(win!, {
+      properties: ["openFile"],
+      filters: [{ name: "exe file", extensions: ["exe"] }],
+    })
+    .then(ret => {
+      return ret.filePaths[0];
+    });
 });

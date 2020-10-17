@@ -55,7 +55,6 @@ export default class Home extends Vue {
   }
 
   async created() {
-    await this.ipcRenderer.invoke("initialize");
     this.refresh();
     this.mpcClient = new MpcClient("localhost", 13579);
     this.mpcClient.connect();
