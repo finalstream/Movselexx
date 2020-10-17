@@ -56,6 +56,8 @@ export default class Sql {
     FROM MOVGROUPLIST 
     WHERE lower(GROUPNAME) = @GroupName`;
 
+  static SelectShuffleLibrary = `SELECT * FROM (#LastExecSql#) ORDER BY random() `;
+
   static InsertLibrary = `INSERT INTO MOVLIST(
     FILEPATH,
     TITLE,

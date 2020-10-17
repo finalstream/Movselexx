@@ -111,12 +111,12 @@ ipcMain.handle("initialize", () => {
   libraryService = new LibraryService(dba, new NotificationService(win!.webContents));
 });
 
-ipcMain.handle("getLibraries", () => {
-  return libraryService.getLibraries();
+ipcMain.handle("getLibraries", (event, isShuffle) => {
+  return libraryService.getLibraries(isShuffle);
 });
 
-ipcMain.handle("setStore", (event, data) => {
-  AppStore.instance.set(data);
+ipcMain.handle("setStore", (event, key: string, data) => {
+  AppStore.instance.set(key, data);
 });
 
 ipcMain.handle("getStore", (event, key) => {

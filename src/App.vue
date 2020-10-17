@@ -70,6 +70,11 @@
     <v-system-bar class="pr-0" id="titlebar" color="blue darken-3" app window>
       <span class="drag-region" style="color:white; width:100%; padding-top:5px">Movselexx</span>
       <v-spacer></v-spacer>
+      <v-btn class="windowcontrol pl-2" icon tile
+        ><v-icon small style="color:white" @click="isShowSettingDailog = true"
+          >mdi-cog</v-icon
+        ></v-btn
+      >
       <v-btn class="windowcontrol pl-2" icon tile @click="minimizeWindow()"
         ><v-icon small style="color:white;text-align:center">mdi-minus</v-icon></v-btn
       >
@@ -141,10 +146,10 @@
           </v-btn>
         </v-col>
         <v-col class="pa-0 px-1">
-          <v-btn color="primary" block>Throw</v-btn>
+          <v-btn color="primary" @click="throwPlay()" block>Throw</v-btn>
         </v-col>
         <v-col class="pa-0 px-1">
-          <v-btn color="primary" block>Shuffle</v-btn>
+          <v-btn color="primary" @click="shuffle()" block>Shuffle</v-btn>
         </v-col>
         <v-col cols="1" class="pa-0 px-1">
           <v-btn color="primary" block>Prev</v-btn>
@@ -215,6 +220,88 @@
       </v-card>
     </v-dialog>
     -->
+    <v-dialog
+      v-model="isShowSettingDailog"
+      fullscreen
+      hide-overlay
+      transition="dialog-bottom-transition"
+      scrollable
+    >
+      <v-card tile>
+        <v-toolbar flat dark color="primary">
+          <v-btn icon dark @click="isShowSettingDailog = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+          <v-toolbar-title>Settings</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-toolbar-items>
+            <v-btn dark text @click="isShowSettingDailog = false">
+              Save
+            </v-btn>
+          </v-toolbar-items>
+        </v-toolbar>
+        <v-card-text>
+          <v-list three-line subheader>
+            <v-subheader>User Controls</v-subheader>
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-title>Content filtering</v-list-item-title>
+                <v-list-item-subtitle
+                  >Set the content filtering level to restrict apps that can be
+                  downloaded</v-list-item-subtitle
+                >
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-title>Password</v-list-item-title>
+                <v-list-item-subtitle
+                  >Require password for purchase or use password to restrict
+                  purchase</v-list-item-subtitle
+                >
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+          <v-divider></v-divider>
+          <v-list three-line subheader>
+            <v-subheader>General</v-subheader>
+            <v-list-item>
+              <v-list-item-action>
+                <v-checkbox v-model="notifications"></v-checkbox>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>Notifications</v-list-item-title>
+                <v-list-item-subtitle
+                  >Notify me about updates to apps or games that I downloaded</v-list-item-subtitle
+                >
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-action>
+                <v-checkbox v-model="sound"></v-checkbox>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>Sound</v-list-item-title>
+                <v-list-item-subtitle
+                  >Auto-update apps at any time. Data charges may apply</v-list-item-subtitle
+                >
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-action>
+                <v-checkbox v-model="widgets"></v-checkbox>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>Auto-add widgets</v-list-item-title>
+                <v-list-item-subtitle>Automatically add home screen widgets</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-card-text>
+
+        <div style="flex: 1 1 auto;"></div>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
@@ -273,6 +360,7 @@ export default class App extends Vue {
   nowPlayings: PlayingItem[];
   isProgress: boolean;
   progressMessage: string;
+  isShowSettingDailog: boolean;
 
   /**
    * コンストラクタ
@@ -283,6 +371,7 @@ export default class App extends Vue {
     this.nowPlayings = [];
     this.isProgress = false;
     this.progressMessage = "";
+    this.isShowSettingDailog = false;
   }
 
   async created() {
@@ -330,6 +419,16 @@ export default class App extends Vue {
   saveScreenShot() {
     const main: any = this.$refs.main;
     main.saveScreenShot();
+  }
+
+  throwPlay() {
+    const main: any = this.$refs.main;
+    main.throwPlay();
+  }
+
+  shuffle() {
+    const main: any = this.$refs.main;
+    main.reloadPlayItems(true);
   }
 
   refresh() {

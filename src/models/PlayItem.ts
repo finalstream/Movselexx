@@ -16,6 +16,7 @@ export default class PlayItem {
   videoSize: string;
   drive: string;
   playCount: number;
+  isSelected: boolean;
 
   /**
    *
@@ -35,5 +36,6 @@ export default class PlayItem {
     this.videoSize = item.VIDEOSIZE;
     this.drive = item.FILEPATH.substr(0, 1).toUpperCase();
     this.playCount = item.PLAYCOUNT;
+    this.isSelected = false;
   }
 }

@@ -30,10 +30,13 @@
     height="340"
     :headers="headers"
     :items="items"
+    item-key="id"
     :items-per-page="items.length"
-    class="elevation-1"
+    :item-class= "rowClasses"
     hide-default-footer
     style="user-select: none;"
+    single-select
+    @click:row="rowClick"
     @dblclick:row="rowDbClick"
   >
     <template v-slot:item.title="{ item }">

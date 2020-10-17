@@ -13,6 +13,7 @@ export default class MpcService {
 
   openFile(filePath: string) {
     this._mpcControl.openFile(filePath);
+    this._mpcControl.execute("FULLSCREEN");
   }
 
   async saveScreenShot() {

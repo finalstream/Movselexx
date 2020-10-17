@@ -10,6 +10,7 @@ import dateformat from "dateformat";
 export default class DatabaseAccessor {
   db: Database<sqlite3.Database, sqlite3.Statement>;
   limit = 100;
+  lastSelectLibrarySql = Sql.SelectLibraryList;
 
   constructor(databaseFileName: string) {
     const databaseFilePath = path.join(__dirname, "database", databaseFileName);
@@ -36,8 +37,12 @@ export default class DatabaseAccessor {
     });
   }
 
-  async selectLibraries() {
-    return await this.db.all<IPlayItem[]>(this.getSql(Sql.SelectLibraryList, true));
+  async selectLibraries(isShuffle: boolean) {
+    if (isShuffle) {
+      return await this.db.all<IPlayItem[]>(this.createShuffleSql());
+    } else {
+      return await this.db.all<IPlayItem[]>(this.createSql(Sql.SelectLibraryList, true));
+    }
   }
 
   async selectAllLibraryFilePaths() {
@@ -125,11 +130,20 @@ export default class DatabaseAccessor {
     return dateformat(date, "yyyy-mm-dd HH:MM:ss");
   }
 
-  private getSql(sql: string, withLimit: boolean = false) {
+  private createSql(sql: string, withLimit: boolean = false) {
+    this.lastSelectLibrarySql = sql;
     sql += " ORDER BY PL.DATE DESC ";
     if (withLimit) sql = sql + " LIMIT " + this.limit;
 
     return sql;
+  }
+
+  private createShuffleSql() {
+    return (
+      Sql.SelectShuffleLibrary.replace("#LastExecSql#", this.lastSelectLibrarySql) +
+      " LIMIT " +
+      this.limit
+    );
   }
 
   private escapeSql(sql: string) {
