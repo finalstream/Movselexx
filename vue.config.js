@@ -8,6 +8,11 @@ module.exports = {
     electronBuilder: {
       nodeIntegration: true,
       builderOptions: {
+        appId: "net.finalstream.movselexx",
+        productName: "Movselexx",
+        win: {
+          icon: "./src/assets/icon.png",
+        },
         files: ["**/*"],
         extraFiles: [
           {

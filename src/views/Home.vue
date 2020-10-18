@@ -7,7 +7,6 @@ import electron from "electron";
 import { Vue, Component } from "vue-property-decorator";
 import ArrayUtils from "firx/ArrayUtils";
 import MpcClient from "@/models/MpcClient";
-import PlayingItem from "@/models/PlayingItem";
 
 import PlayController from "@/models/PlayController";
 
