@@ -58,7 +58,7 @@
 
     <v-navigation-drawer clipped app right>
       <v-timeline align-top dense>
-        <v-timeline-item v-for="nowPlaying in nowPlayings" :key="nowPlaying.id" small right>
+        <v-timeline-item v-for="nowPlaying in nowPlayings" :key="nowPlaying.key" small right>
           <div>
             <strong>{{ nowPlaying.startTimeString }}</strong>
           </div>

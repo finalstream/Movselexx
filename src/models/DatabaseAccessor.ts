@@ -83,6 +83,15 @@ export default class DatabaseAccessor {
     return gid ? gid : -1;
   }
 
+  async selectPlayingList() {
+    let sql = Sql.SelectLibraryList;
+    sql += " INNER JOIN ";
+    sql += " PLAYINGLIST PIL ";
+    sql += " ON PL.ID = PIL.ID ";
+    sql += "ORDER BY PIL.SORT";
+    return await this.db.all<IPlayItem[]>(sql);
+  }
+
   async getGroupRating(gid: number) {
     const gidcnt: number = (await this.db.get<any>(Sql.SelectGroupIdCount, { "@Gid": gid })).GCNT;
 
@@ -108,6 +117,13 @@ export default class DatabaseAccessor {
     });
   }
 
+  async insertPlayingList(id: number, sort: number) {
+    await this.db.run(Sql.InsertPlayingList, {
+      "@Id": id,
+      "@Sort": sort,
+    });
+  }
+
   async updatePlayCount(id: number) {
     await this.db.run(Sql.UpdatePlayCount, {
       "@Id": id,
@@ -124,6 +140,10 @@ export default class DatabaseAccessor {
       "@LastUpdate": DatabaseAccessor.formatSQLiteDateString(new Date()),
       "@Gid": gid,
     });
+  }
+
+  async deletePlayingList() {
+    await this.db.run(Sql.DeletePlayingList);
   }
 
   public static formatSQLiteDateString(date: Date) {

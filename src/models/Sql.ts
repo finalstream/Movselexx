@@ -110,6 +110,8 @@ export default class Sql {
         @LastUpdate
       )`;
 
+  static InsertPlayingList = `INSERT INTO PLAYINGLIST(ID, SORT) VALUES (@Id, @Sort)`;
+
   static UpdateGroupLastUpdateDatetime = `UPDATE MOVGROUPLIST 
       SET
       LASTUPDATE = @LastUpdate
@@ -124,4 +126,6 @@ export default class Sql {
       SET PLAYCOUNT = PLAYCOUNT + 1,
       LASTPLAYDATE = @LastPlayDate
       WHERE ID = @Id`;
+
+  static DeletePlayingList = `DELETE FROM PLAYINGLIST`;
 }

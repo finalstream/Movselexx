@@ -10,6 +10,7 @@ import TimeSpan from "firx/TimeSpan";
 import { IPlayerVariables } from "mpc-hc-control/lib/commands/commands";
 import { IPlayItem } from "./IPlayItem";
 import { IGroupItem } from "./IGroupItem";
+import PlayingItem from "./PlayingItem";
 
 export default class LibraryService {
   _databaseAccessor: DatabaseAccessor;
@@ -36,6 +37,10 @@ export default class LibraryService {
 
   async getLibraryByFilePath(filepath: string) {
     return await this._databaseAccessor.selectLibraryByFilePath(filepath);
+  }
+
+  async getPlayingList() {
+    return await this._databaseAccessor.selectPlayingList();
   }
 
   async updateLibrary(playItems: PlayItem[]) {
@@ -87,6 +92,16 @@ export default class LibraryService {
         }
       }
       this._notificationService.pushProgressInfo("#END#");
+    });
+  }
+
+  updatePlayingList(playingItems: PlayingItem[]) {
+    this._databaseAccessor.transaction(async dba => {
+      this._databaseAccessor.deletePlayingList();
+      let sort = 1;
+      for (const pi of playingItems) {
+        this._databaseAccessor.insertPlayingList(pi.id, sort++);
+      }
     });
   }
 

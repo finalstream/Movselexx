@@ -6,10 +6,10 @@ import PlayItem from "@/models/PlayItem";
 import electron from "electron";
 import { Vue, Component } from "vue-property-decorator";
 import ArrayUtils from "firx/ArrayUtils";
-import TimeSpan from "firx/TimeSpan";
 import MpcClient from "@/models/MpcClient";
 import PlayingItem from "@/models/PlayingItem";
-import DateFormat from "dateformat";
+
+import PlayController from "@/models/PlayController";
 
 @Component
 export default class Home extends Vue {
@@ -40,9 +40,9 @@ export default class Home extends Vue {
     { text: "", align: "center", value: "isPlayed" },
   ];
   items: PlayItem[];
-  playings: PlayingItem[];
   mpcClient!: MpcClient;
   showSnackbar: boolean;
+  playController!: PlayController;
 
   /**
    * コンストラクタ
@@ -50,20 +50,27 @@ export default class Home extends Vue {
   constructor() {
     super();
     this.items = [];
-    this.playings = [];
     this.showSnackbar = false;
   }
 
   async created() {
     this.refresh();
     this.mpcClient = new MpcClient("localhost", 13579);
+    this.playController = new PlayController(this.mpcClient);
+    const playingItems: IPlayItem[] = await this.ipcRenderer.invoke("getPlayingList");
+    this.addPlayingItems(
+      playingItems.map(p => new PlayItem(p)),
+      false,
+      true
+    );
     this.mpcClient.connect();
 
     setInterval(() => {
       this.mpcClient.getPlayInfo().then(pi => {
         //console.log(pi);
         this.$emit("update-play-info", pi);
-        this.mpcClient.monitoring(pi);
+        const isUpdatePlayings = this.playController.monitoring(pi);
+        if (isUpdatePlayings) this.$emit("update-playing-info", this.playController.playings);
       });
     }, 1000);
 
@@ -98,39 +105,21 @@ export default class Home extends Vue {
     const item: PlayItem = value.item;
     console.log(item.filePath);
 
-    this.mpcClient.openFile(item.filePath);
+    this.mpcClient.openFile(item.filePath, false);
 
-    this.addPlayingItems([item], true);
+    this.addPlayingItems([item], true, false);
+  }
+
+  addPlayingItems(items: PlayItem[], isAdd: boolean, isRebuild: boolean) {
+    this.playController.addPlayingItems(items, isAdd, isRebuild);
+    this.ipcRenderer.invoke("updatePlayingList", this.playController.playings);
+    this.$emit("update-playing-info", this.playController.playings);
   }
 
   async reloadPlayItems(isShuffle = false) {
     const rows: IPlayItem[] = await this.ipcRenderer.invoke("getLibraries", isShuffle);
     this.updatePlayItems(rows);
     console.log(rows);
-  }
-
-  addPlayingItems(items: PlayItem[], isAddHead = false) {
-    let currentTime = new Date();
-    let currentTimeSpan = TimeSpan.fromMilliseconds(currentTime.getTime());
-    let count = 0;
-    for (const item of items) {
-      const pi = new PlayingItem();
-      pi.id = item.id;
-      pi.title = item.title;
-      if (count != 0) {
-        const durationSpan = TimeSpan.parse(item.length);
-        currentTime = new Date(currentTimeSpan.add(durationSpan).totalMilliseconds);
-        currentTimeSpan = TimeSpan.fromMilliseconds(currentTime.getTime());
-      }
-      pi.startTimeString = DateFormat(currentTime, "HH:MM");
-      if (!isAddHead) {
-        this.playings.push(pi);
-      } else {
-        this.playings.unshift(pi);
-      }
-      count++;
-    }
-    this.$emit("update-playing-info", this.playings);
   }
 
   throwPlay() {
@@ -141,8 +130,8 @@ export default class Home extends Vue {
       if (isStarted) throwItems.push(item);
     }
     if (throwItems.length == 0) throwItems = throwItems.concat(this.items);
-    ArrayUtils.clear(this.playings);
-    this.addPlayingItems(throwItems);
+
+    this.addPlayingItems(throwItems, false, true);
   }
 
   async refresh() {

@@ -13,6 +13,7 @@ import PlayInfo from "./models/PlayInfo";
 import LibraryService from "./models/LibraryService";
 import PlayItem from "./models/PlayItem";
 import NotificationService from "./models/NotificationService";
+import PlayingItem from "./models/PlayingItem";
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -116,6 +117,10 @@ ipcMain.handle("getLibraries", (event, isShuffle) => {
   return libraryService.getLibraries(isShuffle);
 });
 
+ipcMain.handle("getPlayingList", event => {
+  return libraryService.getPlayingList();
+});
+
 ipcMain.handle("setStore", (event, key: string, data) => {
   AppStore.instance.set(key, data);
 });
@@ -169,12 +174,16 @@ ipcMain.handle("countupPlay", (event, id: number) => {
   libraryService.countupPlay(id);
 });
 
-ipcMain.handle("mpcOpenFile", (event, filePath: string) => {
-  mpcService.openFile(filePath);
+ipcMain.handle("mpcOpenFile", (event, filePath: string, isFullScreen: boolean) => {
+  mpcService.openFile(filePath, isFullScreen);
 });
 
 ipcMain.handle("mpcSaveScreenShot", event => {
   mpcService.saveScreenShot();
+});
+
+ipcMain.handle("updatePlayingList", (event, playingItems: PlayingItem[]) => {
+  libraryService.updatePlayingList(playingItems);
 });
 
 ipcMain.handle("updateLibrary", (event, playItems: PlayItem[]) => {
