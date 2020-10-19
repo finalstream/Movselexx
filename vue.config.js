@@ -20,6 +20,11 @@ module.exports = {
             to: "database",
             filter: ["**/*"],
           },
+          {
+            from: "bin",
+            to: "bin",
+            filter: ["**/*"],
+          },
         ],
       },
     },

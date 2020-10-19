@@ -1,5 +1,6 @@
 import { TouchBarSlider } from "electron";
 import { IPlayItem } from "./IPlayItem";
+import { RatingType } from "./RatingType";
 
 export default class PlayItem {
   id: number;
@@ -10,13 +11,13 @@ export default class PlayItem {
   title: string;
   no: string;
   length: string;
-  isFavorite: boolean;
   isPlayed: boolean;
   date: string;
   videoSize: string;
   drive: string;
   playCount: number;
   isSelected: boolean;
+  rating: number;
 
   /**
    *
@@ -30,12 +31,16 @@ export default class PlayItem {
     this.title = item.TITLE;
     this.no = item.NO;
     this.length = item.LENGTH;
-    this.isFavorite = item.RATING == 9;
+    this.rating = item.RATING;
     this.isPlayed = item.ISPLAYED == 1;
     this.date = item.DATE;
     this.videoSize = item.VIDEOSIZE;
     this.drive = item.FILEPATH.substr(0, 1).toUpperCase();
     this.playCount = item.PLAYCOUNT;
     this.isSelected = false;
+  }
+
+  get isFavorite() {
+    return this.rating == RatingType.Favorite;
   }
 }

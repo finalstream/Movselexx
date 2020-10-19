@@ -11,6 +11,7 @@ import { IPlayerVariables } from "mpc-hc-control/lib/commands/commands";
 import { IPlayItem } from "./IPlayItem";
 import { IGroupItem } from "./IGroupItem";
 import PlayingItem from "./PlayingItem";
+import { RatingType } from "./RatingType";
 
 export default class LibraryService {
   _databaseAccessor: DatabaseAccessor;
@@ -25,10 +26,10 @@ export default class LibraryService {
     this._databaseAccessor.updatePlayCount(id);
   }
 
-  async getLibraries(isShuffle: boolean) {
-    return await (await this._databaseAccessor.selectLibraries(isShuffle)).filter(l =>
-      fs.existsSync(l.FILEPATH)
-    );
+  async getLibraries(isShuffle: boolean, selectionRating: RatingType) {
+    return await (
+      await this._databaseAccessor.selectLibraries(isShuffle, selectionRating)
+    ).filter(l => fs.existsSync(l.FILEPATH));
   }
 
   async getAllLibraryFilePaths() {
@@ -49,6 +50,25 @@ export default class LibraryService {
     const directories = playItems.map(p => Path.dirname(p.filePath));
     const baseDirctory = this.getMostUseDirectory(directories);
     const movFiles = this.getAllFiles(baseDirctory, AppConfig.SupportFileExts);
+
+    this.registLibrary(movFiles);
+  }
+
+  registDrops(drops: string[]) {
+    let files: string[] = [];
+    for (const drop of drops) {
+      const stat = fs.statSync(drop);
+      if (stat.isDirectory()) {
+        const movFiles = this.getAllFiles(drop, AppConfig.SupportFileExts);
+        files = files.concat(movFiles);
+      } else {
+        if (AppConfig.SupportFileExts.includes(Path.extname(drop).toLowerCase())) files.push(drop);
+      }
+    }
+    this.registLibrary(files);
+  }
+
+  async registLibrary(movFiles: string[]) {
     const registedFiles = await this.getAllLibraryFilePaths();
 
     this._databaseAccessor.transaction(async dba => {
@@ -225,7 +245,7 @@ export default class LibraryService {
         GROUPRATING: groupRating,
       };
     }
-    return { GID: -1, GROUPNAME: "", GROUPKEYWORD: "", GROUPRATING: 0 };
+    return { GID: -1, GROUPNAME: "", GROUPKEYWORD: "", GROUPRATING: RatingType.Nothing };
   }
 
   async registGroup(groupName: string, keyword: string) {

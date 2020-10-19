@@ -1,5 +1,4 @@
 import electron from "electron";
-import IpcResponse from "firx/IpcResponse";
 import PlayInfo from "./PlayInfo";
 
 export default class MpcClient {

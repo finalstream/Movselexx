@@ -9,6 +9,7 @@ import ArrayUtils from "firx/ArrayUtils";
 import MpcClient from "@/models/MpcClient";
 
 import PlayController from "@/models/PlayController";
+import { RatingType } from "@/models/RatingType";
 
 @Component
 export default class Home extends Vue {
@@ -30,7 +31,7 @@ export default class Home extends Vue {
     { text: "Title", align: "start", value: "title" },
     { text: "No", align: "end", value: "no" },
     { text: "Length", align: "end", value: "length" },
-    { text: "", align: "center", value: "isFavorite" },
+    { text: "", align: "center", value: "rating" },
 
     { text: "Date", value: "date" },
     { text: "VideoSize", value: "videoSize", sortable: false },
@@ -42,6 +43,7 @@ export default class Home extends Vue {
   mpcClient!: MpcClient;
   showSnackbar: boolean;
   playController!: PlayController;
+  selectionRatingMode: number;
 
   /**
    * コンストラクタ
@@ -50,9 +52,28 @@ export default class Home extends Vue {
     super();
     this.items = [];
     this.showSnackbar = false;
+    this.selectionRatingMode = 0;
   }
 
   async created() {
+    document.ondragover = document.ondrop = e => {
+      e.dataTransfer!.dropEffect = "copy";
+      e.preventDefault();
+      return false;
+    };
+    document.ondrop = e => {
+      const drops = [];
+      for (const i in e.dataTransfer!.files) {
+        if (Object.prototype.hasOwnProperty.call(e.dataTransfer!.files, i)) {
+          const element = e.dataTransfer!.files[i];
+          drops.push(element.path);
+        }
+      }
+      console.log("file dropped:", drops);
+      this.$emit("update-progress-info", true);
+      this.ipcRenderer.invoke("registLibrary", drops);
+    };
+
     this.refresh();
     this.mpcClient = new MpcClient("localhost", 13579);
     this.playController = new PlayController(this.mpcClient);
@@ -116,9 +137,24 @@ export default class Home extends Vue {
   }
 
   async reloadPlayItems(isShuffle = false) {
-    const rows: IPlayItem[] = await this.ipcRenderer.invoke("getLibraries", isShuffle);
+    const rows: IPlayItem[] = await this.ipcRenderer.invoke(
+      "getLibraries",
+      isShuffle,
+      this.convertRatingType(this.selectionRatingMode)
+    );
     this.updatePlayItems(rows);
     console.log(rows);
+  }
+
+  convertRatingType(ratingMode: number) {
+    switch (ratingMode) {
+      case 0:
+        return RatingType.Normal;
+      case 1:
+        return RatingType.Favorite;
+      case 2:
+        return RatingType.Exclution;
+    }
   }
 
   throwPlay() {

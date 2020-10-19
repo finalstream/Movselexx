@@ -55,15 +55,15 @@ export default class PlayController {
         this._playAccumTimeMs += playIncrementalTimeMs;
         const countUpDurationMs = pi.duration * 0.7;
 
-        console.log("playingId", nowId);
-        console.log("playAccumTimeMs", this._playAccumTimeMs);
-        console.log("countUpDurationMs", countUpDurationMs);
+        //console.log("playingId", nowId);
+        //console.log("playAccumTimeMs", this._playAccumTimeMs);
+        //console.log("countUpDurationMs", countUpDurationMs);
         if (countUpDurationMs <= this._playAccumTimeMs) {
           // 再生回数をカウントアップする
           this._mpcClient.countupPlay(nowId);
           // 累積時間をリセット
           this._playAccumTimeMs = 0;
-          console.log("countupPlay", nowId);
+          //console.log("countupPlay", nowId);
         }
       }
       this._playPreviousDate = new Date();

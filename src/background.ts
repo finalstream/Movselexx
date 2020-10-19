@@ -14,6 +14,7 @@ import LibraryService from "./models/LibraryService";
 import PlayItem from "./models/PlayItem";
 import NotificationService from "./models/NotificationService";
 import PlayingItem from "./models/PlayingItem";
+import { RatingType } from "./models/RatingType";
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -113,8 +114,8 @@ ipcMain.handle("initialize", () => {
   return screen.getAllDisplays();
 });
 
-ipcMain.handle("getLibraries", (event, isShuffle) => {
-  return libraryService.getLibraries(isShuffle);
+ipcMain.handle("getLibraries", (event, isShuffle: boolean, selectionRating: RatingType) => {
+  return libraryService.getLibraries(isShuffle, selectionRating);
 });
 
 ipcMain.handle("getPlayingList", event => {
@@ -188,6 +189,10 @@ ipcMain.handle("updatePlayingList", (event, playingItems: PlayingItem[]) => {
 
 ipcMain.handle("updateLibrary", (event, playItems: PlayItem[]) => {
   libraryService.updateLibrary(playItems);
+});
+
+ipcMain.handle("registLibrary", (event, drops: string[]) => {
+  libraryService.registDrops(drops);
 });
 
 ipcMain.handle("openDialogfile", (event, data) => {

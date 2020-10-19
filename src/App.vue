@@ -1,6 +1,6 @@
 <template>
   <v-app id="inspire">
-    <v-navigation-drawer v-model="drawer" :clipped="$vuetify.breakpoint.lgAndUp" app>
+    <v-navigation-drawer v-model="isShowLeftNav" :clipped="$vuetify.breakpoint.lgAndUp" app>
       <v-list>
         <v-list-item-group v-model="item" color="primary">
           <template v-for="item in items">
@@ -84,7 +84,7 @@
       >
     </v-system-bar>
     <v-app-bar style="user-select: none;" clipped-left clipped-right app>
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon @click.stop="switchShowLeftNav()"></v-app-bar-nav-icon>
       <v-toolbar-title class="ml-0 pl-4">
         <v-chip
           v-show="playInfo.getSeason() != ''"
@@ -131,7 +131,7 @@
         <span>{{ progressMessage }}</span>
         <v-progress-linear
           v-show="isProgress"
-          color="deep-purple accent-4"
+          color="orange accent-4"
           indeterminate
           rounded
           height="6"
@@ -246,7 +246,7 @@
                 <v-list-item-title>Player</v-list-item-title>
                 <v-list-item-subtitle>Now Only Support Media Player Classic</v-list-item-subtitle>
                 <v-list-item-subtitle>
-                  <v-combobox disabled v-model="players" :items="players"></v-combobox>
+                  <v-combobox readonly v-model="players" :items="players"></v-combobox>
                 </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
@@ -256,7 +256,7 @@
                 <v-list-item-subtitle></v-list-item-subtitle>
                 <v-list-item-subtitle>
                   <div style="display: inline-flex;width:100%">
-                    <v-text-field disabled v-model="appStore.mpcExePath"></v-text-field>
+                    <v-text-field readonly v-model="appStore.mpcExePath"></v-text-field>
                     <v-btn class="mt-3 ml-3" @click="selectFileDialog()">...</v-btn>
                   </div>
                 </v-list-item-subtitle>
@@ -347,7 +347,7 @@ export default class App extends Vue {
   private ipcRenderer = electron.ipcRenderer;
   dialog = false;
   appStore: MovselexxAppStore;
-  drawer = null;
+  isShowLeftNav;
   item = null;
   players = ["Media Player Classic"];
   items = [
@@ -407,6 +407,7 @@ export default class App extends Vue {
     this.isProgress = false;
     this.progressMessage = "";
     this.isShowSettingDailog = false;
+    this.isShowLeftNav = false;
     this.rules = {
       number: (value: string) => Number.isInteger(value) || "No Number.",
     };
@@ -501,6 +502,10 @@ export default class App extends Vue {
   async saveSettings() {
     await this.ipcRenderer.invoke("setStore", "mpcExePath", this.appStore.mpcExePath);
     this.isShowSettingDailog = false;
+  }
+
+  switchShowLeftNav() {
+    this.isShowLeftNav = !this.isShowLeftNav;
   }
 
   getDisplayName(display: DisplayInfo) {

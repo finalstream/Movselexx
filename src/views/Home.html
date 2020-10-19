@@ -1,14 +1,14 @@
 <div class="home">
   <v-row>
     <v-col cols="4">
-      <v-btn-toggle color="blue accent-3">
-        <v-btn value="normal">
+      <v-btn-toggle v-model="selectionRatingMode" color="blue accent-3">
+        <v-btn>
           <span class="hidden-sm-and-down">Normal</span>
         </v-btn>
-        <v-btn value="favorite">
+        <v-btn>
           <span class="hidden-sm-and-down">Favorite</span>
         </v-btn>
-        <v-btn value="exclude">
+        <v-btn>
           <span class="hidden-sm-and-down">Exclude</span>
         </v-btn>
       </v-btn-toggle>
@@ -48,8 +48,9 @@
     <template v-slot:item.isPlaying="{ item }">
       <v-icon v-show="item.isPlaying">mdi-play-circle-outline</v-icon>
     </template>
-    <template v-slot:item.isFavorite="{ item }">
+    <template v-slot:item.rating="{ item }">
       <v-icon v-show="item.isFavorite">mdi-star</v-icon>
+      <v-icon v-show="!item.isFavorite">mdi-star-outline</v-icon>
     </template>
     <template v-slot:item.isPlayed="{ item }">
       <v-icon v-show="item.isPlayed">mdi-check-outline</v-icon>

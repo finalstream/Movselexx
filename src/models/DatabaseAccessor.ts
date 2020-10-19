@@ -2,6 +2,7 @@ import sqlite3 from "sqlite3";
 import { Database } from "sqlite";
 import Sql from "./Sql";
 import path from "path";
+import fs from "fs";
 import { IPlayItem } from "./IPlayItem";
 import { IPlayerVariables } from "mpc-hc-control/lib/commands/commands";
 import { RatingType } from "./RatingType";
@@ -13,7 +14,10 @@ export default class DatabaseAccessor {
   lastSelectLibrarySql = Sql.SelectLibraryList;
 
   constructor(databaseFileName: string) {
+    const blankdatabaseFilePath = path.join(__dirname, "database", "blank.movselexdatabase");
     const databaseFilePath = path.join(__dirname, "database", databaseFileName);
+    if (!fs.existsSync(databaseFilePath)) fs.copyFileSync(blankdatabaseFilePath, databaseFilePath);
+
     this.db = new Database({
       filename: databaseFilePath,
       driver: sqlite3.Database,
@@ -37,11 +41,13 @@ export default class DatabaseAccessor {
     });
   }
 
-  async selectLibraries(isShuffle: boolean) {
+  async selectLibraries(isShuffle: boolean, selectionRating: RatingType) {
     if (isShuffle) {
       return await this.db.all<IPlayItem[]>(this.createShuffleSql());
     } else {
-      return await this.db.all<IPlayItem[]>(this.createSql(Sql.SelectLibraryList, true));
+      return await this.db.all<IPlayItem[]>(
+        this.createSql(Sql.SelectLibraryList, selectionRating, true)
+      );
     }
   }
 
@@ -150,12 +156,24 @@ export default class DatabaseAccessor {
     return dateformat(date, "yyyy-mm-dd HH:MM:ss");
   }
 
-  private createSql(sql: string, withLimit: boolean = false) {
+  private createSql(sql: string, selectionRating: RatingType, withLimit: boolean = false) {
     this.lastSelectLibrarySql = sql;
+    sql += " WHERE ";
+    sql += this.getRatingWhereString(selectionRating);
     sql += " ORDER BY PL.DATE DESC ";
     if (withLimit) sql = sql + " LIMIT " + this.limit;
 
     return sql;
+  }
+  getRatingWhereString(selectionRating: RatingType) {
+    switch (selectionRating) {
+      case RatingType.Normal:
+        return "RATING > 0 ";
+      case RatingType.Favorite:
+        return "RATING = 9 ";
+      case RatingType.Exclution:
+        return "RATING = 0 ";
+    }
   }
 
   private createShuffleSql() {
