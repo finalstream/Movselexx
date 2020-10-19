@@ -1,5 +1,6 @@
 import Path from "path";
 import { IPlayItem } from "./IPlayItem";
+import { RatingType } from "./RatingType";
 export default class PlayInfo {
   file: string;
   filepath: string;
@@ -40,5 +41,13 @@ export default class PlayInfo {
 
   getSeason() {
     return this.library != null ? this.library.SEASON : "";
+  }
+
+  get hasLibrary() {
+    return this.library != null ? true : false;
+  }
+
+  get isFavorite() {
+    return this.library && this.library.RATING == RatingType.Favorite ? true : false;
   }
 }

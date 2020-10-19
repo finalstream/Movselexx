@@ -127,5 +127,9 @@ export default class Sql {
       LASTPLAYDATE = @LastPlayDate
       WHERE ID = @Id`;
 
+  static UpdateRating = `UPDATE MOVLIST
+  SET RATING = @Rating
+  WHERE ID = @Id`;
+
   static DeletePlayingList = `DELETE FROM PLAYINGLIST`;
 }

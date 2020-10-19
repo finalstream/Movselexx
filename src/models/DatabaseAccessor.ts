@@ -148,6 +148,15 @@ export default class DatabaseAccessor {
     });
   }
 
+  async updateRating(id: number, isFavorite: boolean) {
+    const rating = isFavorite ? RatingType.Favorite : RatingType.Normal;
+    await this.db.run(Sql.UpdateRating, {
+      "@Rating": rating,
+      "@Id": id,
+    });
+    return rating;
+  }
+
   async deletePlayingList() {
     await this.db.run(Sql.DeletePlayingList);
   }

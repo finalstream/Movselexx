@@ -125,7 +125,11 @@ export default class LibraryService {
     });
   }
 
-  getSeasonString(date: Date) {
+  switchRating(id: number, isFavorite: boolean): any {
+    return this._databaseAccessor.updateRating(id, isFavorite);
+  }
+
+  private getSeasonString(date: Date) {
     const month = date.getMonth() + 1;
 
     switch (month) {
@@ -149,7 +153,7 @@ export default class LibraryService {
     return "Unknown";
   }
 
-  getNo(filePath: string) {
+  private getNo(filePath: string) {
     let title = Path.basename(filePath, Path.extname(filePath));
     let work = "";
     let result = "";
@@ -186,7 +190,7 @@ export default class LibraryService {
     }
   }
 
-  getMovTitle(ss: string) {
+  private getMovTitle(ss: string) {
     if (ss == null) return ss;
     let sss = Path.basename(ss, Path.extname(ss));
 

@@ -4,7 +4,7 @@
 import { IPlayItem } from "@/models/IPlayItem";
 import PlayItem from "@/models/PlayItem";
 import electron from "electron";
-import { Vue, Component } from "vue-property-decorator";
+import { Vue, Component, Watch } from "vue-property-decorator";
 import ArrayUtils from "firx/ArrayUtils";
 import MpcClient from "@/models/MpcClient";
 
@@ -89,8 +89,18 @@ export default class Home extends Vue {
       this.mpcClient.getPlayInfo().then(pi => {
         //console.log(pi);
         this.$emit("update-play-info", pi);
-        const isUpdatePlayings = this.playController.monitoring(pi);
-        if (isUpdatePlayings) this.$emit("update-playing-info", this.playController.playings);
+        if (pi.library != null) {
+          const library = pi.library;
+          const itemIndex = this.items.findIndex(i => i.id == library.ID);
+          if (itemIndex != -1) {
+            const item = this.items[itemIndex];
+            item.rating = library.RATING;
+            item.playCount = library.PLAYCOUNT;
+          }
+
+          const isUpdatePlayings = this.playController.monitoring(pi);
+          if (isUpdatePlayings) this.$emit("update-playing-info", this.playController.playings);
+        }
       });
     }, 1000);
 
@@ -112,7 +122,7 @@ export default class Home extends Vue {
   }
 
   async rowClick(e: any, value: any) {
-    console.log(value.item);
+    console.log("selectItem", value.item);
     const item: PlayItem = value.item;
     for (let index = 0; index < this.items.length; index++) {
       const element = this.items[index];
@@ -190,8 +200,19 @@ export default class Home extends Vue {
     this.showSnackbar = true;
   }
 
+  async switchRating(playItem: PlayItem) {
+    console.log("switchRating", playItem.id, !playItem.isFavorite);
+    const rating = await this.ipcRenderer.invoke("switchRating", playItem.id, !playItem.isFavorite);
+    playItem.rating = rating;
+  }
+
   rowClasses(item: PlayItem) {
     return item.isSelected ? "v-data-table__selected" : "";
+  }
+
+  @Watch("selectionRatingMode")
+  onChangeSelectionRatingMode() {
+    this.reloadPlayItems();
   }
 }
 </script>

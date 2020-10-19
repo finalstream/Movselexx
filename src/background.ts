@@ -122,6 +122,10 @@ ipcMain.handle("getPlayingList", event => {
   return libraryService.getPlayingList();
 });
 
+ipcMain.handle("switchRating", (event, id: number, isFavorite: boolean) => {
+  return libraryService.switchRating(id, isFavorite);
+});
+
 ipcMain.handle("setStore", (event, key: string, data) => {
   AppStore.instance.set(key, data);
 });

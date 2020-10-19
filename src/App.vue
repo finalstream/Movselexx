@@ -85,7 +85,7 @@
     </v-system-bar>
     <v-app-bar style="user-select: none;" clipped-left clipped-right app>
       <v-app-bar-nav-icon @click.stop="switchShowLeftNav()"></v-app-bar-nav-icon>
-      <v-toolbar-title class="ml-0 pl-4">
+      <v-toolbar-title class="ml-0 pl-2">
         <v-chip
           v-show="playInfo.getSeason() != ''"
           class="ma-2 pa-2"
@@ -95,7 +95,21 @@
         >
           {{ playInfo.getSeason() }}
         </v-chip>
-        <span class="hidden-sm-and-down">{{ playInfo.getTitle() }}</span>
+        <span>
+          <v-icon
+            color="orange darken-1"
+            @click="switchRating(playInfo)"
+            v-show="playInfo.hasLibrary && playInfo.isFavorite"
+            >mdi-star</v-icon
+          >
+          <v-icon
+            color="grey lighten-1"
+            @click="switchRating(playInfo)"
+            v-show="playInfo.hasLibrary && !playInfo.isFavorite"
+            >mdi-star-outline</v-icon
+          >
+        </span>
+        <span class="pl-3">{{ playInfo.getTitle() }}</span>
       </v-toolbar-title>
       <!--<v-text-field
         flat
@@ -508,6 +522,13 @@ export default class App extends Vue {
     this.isShowLeftNav = !this.isShowLeftNav;
   }
 
+  async switchRating(playInfo: PlayInfo) {
+    const id = playInfo.library!.ID;
+    console.log("switchRating", id, !playInfo.isFavorite);
+    const rating = await this.ipcRenderer.invoke("switchRating", id, !playInfo.isFavorite);
+    playInfo.library!.RATING = rating;
+  }
+
   getDisplayName(display: DisplayInfo) {
     return "Display " + display.no + " (" + display.size.width + "x" + display.size.height + ")";
   }
@@ -517,6 +538,7 @@ export default class App extends Vue {
     console.log("switchFunctionGroup", key, keyPath);
 
     if (key == this.activeFunctionGroupIndex) return;
+
 
     switch (key) {
       case "1":
