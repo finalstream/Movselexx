@@ -167,7 +167,7 @@
           <v-btn color="primary" block>Prev</v-btn>
         </v-col>
         <v-col cols="1" class="pa-0 px-1">
-          <v-btn color="primary" block>Next</v-btn>
+          <v-btn color="primary" @click="nextPlay()" block>Next</v-btn>
         </v-col>
       </v-row>
     </v-footer>
@@ -500,6 +500,11 @@ export default class App extends Vue {
   shuffle() {
     const main: any = this.$refs.main;
     main.reloadPlayItems(true);
+  }
+
+  nextPlay() {
+    const main: any = this.$refs.main;
+    main.playNext();
   }
 
   refresh() {

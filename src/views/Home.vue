@@ -197,6 +197,10 @@ export default class Home extends Vue {
     }
   }
 
+  playNext() {
+    this.playController.playNext(true);
+  }
+
   async refresh() {
     if (this.items.length == 0) {
       this.reloadPlayItems();

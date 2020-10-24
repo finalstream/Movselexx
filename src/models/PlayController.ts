@@ -35,15 +35,7 @@ export default class PlayController {
     if (nowId == this._playingId) {
       if (pi.duration == pi.position && pi.state == 1) {
         // 再生が停止されたら再生リストの次のアイテムを再生
-        this._playings.shift();
-        const nextItem = this.playings[0];
-        if (nextItem) {
-          this._mpcClient.openFile(nextItem.filePath, true);
-        } else if (this._lastMakePlayings.length > 0) {
-          // 最後までいったらlastPlayingから復元する
-          this._playings = this._playings.concat(this._lastMakePlayings);
-          this._mpcClient.openFile(this._playings[0].filePath, true);
-        }
+        this.playNext(false);
         //isUpdatePlayings = true;
       }
       // 継続再生
@@ -80,6 +72,20 @@ export default class PlayController {
       isUpdatePlayings = true;
     }
     return isUpdatePlayings;
+  }
+
+  async playNext(isManual: boolean) {
+    const isFullScreen = !isManual;
+    this._playings.shift();
+    const nextItem = this.playings[0];
+    if (nextItem) {
+      await this._mpcClient.openFile(nextItem.filePath, isFullScreen);
+    } else if (this._lastMakePlayings.length > 0) {
+      // 最後までいったらlastPlayingから復元する
+      this._playings = this._playings.concat(this._lastMakePlayings);
+      await this._mpcClient.openFile(this._playings[0].filePath, isFullScreen);
+    }
+    this._playingId = -1;
   }
 
   updatePlayingList(nowId: number, nextItem: PlayItem) {
