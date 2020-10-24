@@ -155,7 +155,12 @@ ipcMain.handle("mpcConnect", (event, connectInfo: any) => {
 });
 
 ipcMain.handle("mpcGetPlayInfo", async () => {
-  const pv = await mpcService.getPlayInfo();
+  let pv;
+  try {
+    pv = await mpcService.getPlayInfo();
+  } catch {
+    return null;
+  }
   const playInfo = new PlayInfo();
   playInfo.file = pv.file;
   playInfo.filepath = pv.filepath;
@@ -178,6 +183,9 @@ ipcMain.handle("mpcGetPlayInfo", async () => {
 ipcMain.handle("countupPlay", (event, id: number) => {
   libraryService.countupPlay(id);
 });
+ipcMain.handle("mpcBoot", async (event, mpcExePath: string, screenNo: number) => {
+  await mpcService.boot(mpcExePath, screenNo);
+});
 
 ipcMain.handle("mpcOpenFile", (event, filePath: string, isFullScreen: boolean) => {
   mpcService.openFile(filePath, isFullScreen);
@@ -197,6 +205,10 @@ ipcMain.handle("updateLibrary", (event, playItems: PlayItem[]) => {
 
 ipcMain.handle("registLibrary", (event, drops: string[]) => {
   libraryService.registDrops(drops);
+});
+
+ipcMain.handle("deleteLibrary", (event, isDeleteFile: boolean, deleteItems: PlayItem[]) => {
+  libraryService.deleteLibrary(isDeleteFile, deleteItems);
 });
 
 ipcMain.handle("openDialogfile", (event, data) => {

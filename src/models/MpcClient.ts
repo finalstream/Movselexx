@@ -1,14 +1,19 @@
-import electron from "electron";
+import electron, { app } from "electron";
+import MovselexxAppStore from "./MovselexxAppStore";
 import PlayInfo from "./PlayInfo";
 
 export default class MpcClient {
   private ipcRenderer = electron.ipcRenderer;
   private _host: string;
   private _port: number;
+  private _isBootMpc: boolean;
+  private _appStore: MovselexxAppStore;
 
-  constructor(host: string, port: number) {
+  constructor(appStore: MovselexxAppStore, host: string, port: number) {
+    this._appStore = appStore;
     this._host = host;
     this._port = port;
+    this._isBootMpc = false;
   }
 
   async connect() {
@@ -22,15 +27,38 @@ export default class MpcClient {
     this.ipcRenderer.invoke("countupPlay", id);
   }
 
-  getPlayInfo(): Promise<PlayInfo> {
-    return this.ipcRenderer.invoke("mpcGetPlayInfo");
+  async getPlayInfo(): Promise<PlayInfo> {
+    const pi = await this.ipcRenderer.invoke("mpcGetPlayInfo");
+    if (pi == null) {
+      this._isBootMpc = false;
+    } else {
+      this._isBootMpc = true;
+    }
+    return pi;
   }
 
-  openFile(filePath: string, isFullScreen: boolean) {
+  async bootMpc() {
+    await this.ipcRenderer.invoke(
+      "mpcBoot",
+      this._appStore.mpcExePath,
+      this._appStore.playDisplayNo
+    );
+  }
+
+  async openFile(filePath: string, isFullScreen: boolean) {
+    console.log("mpcOpenFile", filePath, isFullScreen);
+    if (!this.isBootMpc()) {
+      await this.bootMpc();
+      isFullScreen = true;
+    }
     this.ipcRenderer.invoke("mpcOpenFile", filePath, isFullScreen);
   }
 
   saveScreenShot() {
     return this.ipcRenderer.invoke("mpcSaveScreenShot");
+  }
+
+  isBootMpc() {
+    return this._isBootMpc;
   }
 }

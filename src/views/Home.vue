@@ -10,6 +10,8 @@ import MpcClient from "@/models/MpcClient";
 
 import PlayController from "@/models/PlayController";
 import { RatingType } from "@/models/RatingType";
+import contextMenuDataPlayList from "../assets/contextMenuDataPlayList.json";
+import App from "@/App.vue";
 
 @Component
 export default class Home extends Vue {
@@ -44,6 +46,13 @@ export default class Home extends Vue {
   showSnackbar: boolean;
   playController!: PlayController;
   selectionRatingMode: number;
+  menuX = 0;
+  menuY = 0;
+  isShowMenu = false;
+  contextMenuDataPlayLists = contextMenuDataPlayList;
+  isShowDeleteLibraryDialog = false;
+  isShowDeleteFileDialog = false;
+  deleteSelectItems: PlayItem[] = [];
 
   /**
    * コンストラクタ
@@ -75,7 +84,7 @@ export default class Home extends Vue {
     };
 
     this.refresh();
-    this.mpcClient = new MpcClient("localhost", 13579);
+    this.mpcClient = new MpcClient(this.getAppStore(), "localhost", 13579);
     this.playController = new PlayController(this.mpcClient);
     const playingItems: IPlayItem[] = await this.ipcRenderer.invoke("getPlayingList");
     this.addPlayingItems(
@@ -87,6 +96,7 @@ export default class Home extends Vue {
 
     setInterval(() => {
       this.mpcClient.getPlayInfo().then(pi => {
+        if (pi == null) return;
         //console.log(pi);
         this.$emit("update-play-info", pi);
         if (pi.library != null) {
@@ -121,6 +131,12 @@ export default class Home extends Vue {
     //this.ipcRenderer.invoke("ready");
   }
 
+  getAppStore() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const root: any = this.$root.$children[0];
+    return root.appStore;
+  }
+
   async rowClick(e: any, value: any) {
     console.log("selectItem", value.item);
     const item: PlayItem = value.item;
@@ -153,7 +169,6 @@ export default class Home extends Vue {
       this.convertRatingType(this.selectionRatingMode)
     );
     this.updatePlayItems(rows);
-    console.log(rows);
   }
 
   convertRatingType(ratingMode: number) {
@@ -177,6 +192,9 @@ export default class Home extends Vue {
     if (throwItems.length == 0) throwItems = throwItems.concat(this.items);
 
     this.addPlayingItems(throwItems, false, true);
+    if (throwItems.length > 0) {
+      this.mpcClient.openFile(throwItems[0].filePath, false);
+    }
   }
 
   async refresh() {
@@ -206,8 +224,57 @@ export default class Home extends Vue {
     playItem.rating = rating;
   }
 
+  async deleteLibrary(isFileDelete: boolean) {
+    console.log("deleteLibrary", isFileDelete, this.deleteSelectItems);
+    await this.ipcRenderer.invoke("deleteLibrary", isFileDelete, this.deleteSelectItems);
+    for (const deleteItem of this.deleteSelectItems) {
+      const deleteIndex = this.items.findIndex(v => v.id == deleteItem.id);
+      if (deleteIndex != -1) {
+        this.items.splice(deleteIndex, 1);
+      }
+    }
+  }
+
   rowClasses(item: PlayItem) {
     return item.isSelected ? "v-data-table__selected" : "";
+  }
+
+  onRowContextmenu(event: MouseEvent, data: any) {
+    event.preventDefault();
+    /*
+    this.items = Object.entries(data)
+      .map(([key, value]) => {
+        return {
+          title: `${key}: ${
+            typeof value === "function" ? value.toString() : JSON.stringify(value)
+          }`,
+        };
+      })
+      .sort((item1, item2) => item1.title.localeCompare(item2.title));
+      */
+    this.rowClick(event, data);
+    this.isShowMenu = false;
+    this.menuX = event.clientX;
+    this.menuY = event.clientY;
+    this.$nextTick(() => {
+      this.isShowMenu = true;
+    });
+  }
+
+  onContextMenuClick(action: string) {
+    const selectItems = this.items.filter(i => i.isSelected);
+    console.log("contextMenuClick", action, selectItems);
+
+    switch (action) {
+      case "deleteLibrary":
+        ArrayUtils.clear(this.deleteSelectItems);
+        this.deleteSelectItems = this.deleteSelectItems.concat(selectItems);
+        this.isShowDeleteLibraryDialog = true;
+        break;
+
+      default:
+        break;
+    }
   }
 
   @Watch("selectionRatingMode")

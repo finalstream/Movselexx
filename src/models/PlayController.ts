@@ -108,7 +108,7 @@ export default class PlayController {
     this.clearPlayings();
     for (const item of items) {
       const pi = new PlayingItem();
-      pi.key = this.getUniqueKey();
+      pi.key = this.getUniqueKey(100000);
       pi.id = item.id;
       pi.filePath = item.filePath;
       pi.title = item.title;

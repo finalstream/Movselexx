@@ -131,5 +131,8 @@ export default class Sql {
   SET RATING = @Rating
   WHERE ID = @Id`;
 
+  static DeleteLibrary = `DELETE FROM MOVLIST 
+  WHERE ID = @Id`;
+
   static DeletePlayingList = `DELETE FROM PLAYINGLIST`;
 }

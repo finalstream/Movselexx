@@ -361,7 +361,7 @@ export default class App extends Vue {
   private ipcRenderer = electron.ipcRenderer;
   dialog = false;
   appStore: MovselexxAppStore;
-  isShowLeftNav;
+  isShowLeftNav = false;
   item = null;
   players = ["Media Player Classic"];
   items = [
@@ -408,7 +408,7 @@ export default class App extends Vue {
   isShowSettingDailog: boolean;
   rules: any;
   displays: DisplayInfo[];
-  playDisplay: number;
+  playDisplay: DisplayInfo;
 
   /**
    * コンストラクタ
@@ -426,17 +426,20 @@ export default class App extends Vue {
       number: (value: string) => Number.isInteger(value) || "No Number.",
     };
     this.displays = [];
-    this.playDisplay = 1;
+    this.playDisplay = new DisplayInfo(1, { width: 0, height: 0 });
   }
 
   async created() {
     const displays: Display[] = await this.ipcRenderer.invoke("initialize");
-
+    await this.loadSettings();
     let no = 1;
-    displays.forEach(d => {
+    for (const d of displays) {
       this.displays.push(new DisplayInfo(no++, d.size));
-    });
+    }
 
+    if (this.displays.length > 0) {
+      this.playDisplay = this.displays.filter(d => d.no == this.appStore.playDisplayNo)[0];
+    }
     this.loadSettings();
   }
 
@@ -511,10 +514,12 @@ export default class App extends Vue {
 
   async loadSettings() {
     this.appStore.mpcExePath = await this.ipcRenderer.invoke("getStore", "mpcExePath");
+    this.appStore.playDisplayNo = await this.ipcRenderer.invoke("getStore", "playDisplayNo");
   }
 
   async saveSettings() {
     await this.ipcRenderer.invoke("setStore", "mpcExePath", this.appStore.mpcExePath);
+    await this.ipcRenderer.invoke("setStore", "playDisplayNo", this.playDisplay.no);
     this.isShowSettingDailog = false;
   }
 

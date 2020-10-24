@@ -1,0 +1,6 @@
+[
+  {
+    "label": "削除...",
+    "action": "deleteLibrary"
+  }
+]

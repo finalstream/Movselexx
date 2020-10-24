@@ -12,6 +12,7 @@ import { IPlayItem } from "./IPlayItem";
 import { IGroupItem } from "./IGroupItem";
 import PlayingItem from "./PlayingItem";
 import { RatingType } from "./RatingType";
+import trash from "trash";
 
 export default class LibraryService {
   _databaseAccessor: DatabaseAccessor;
@@ -52,6 +53,13 @@ export default class LibraryService {
     const movFiles = this.getAllFiles(baseDirctory, AppConfig.SupportFileExts);
 
     this.registLibrary(movFiles);
+  }
+
+  async deleteLibrary(isDeleteFile: boolean, deleteItems: PlayItem[]) {
+    for (const deleteItem of deleteItems) {
+      this._databaseAccessor.deleteLibrary(deleteItem.id);
+      if (isDeleteFile) await trash(deleteItem.filePath);
+    }
   }
 
   registDrops(drops: string[]) {

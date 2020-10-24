@@ -157,6 +157,12 @@ export default class DatabaseAccessor {
     return rating;
   }
 
+  async deleteLibrary(deleteid: number) {
+    await this.db.run(Sql.DeleteLibrary, {
+      "@Id": deleteid,
+    });
+  }
+
   async deletePlayingList() {
     await this.db.run(Sql.DeletePlayingList);
   }
@@ -166,9 +172,9 @@ export default class DatabaseAccessor {
   }
 
   private createSql(sql: string, selectionRating: RatingType, withLimit: boolean = false) {
-    this.lastSelectLibrarySql = sql;
     sql += " WHERE ";
     sql += this.getRatingWhereString(selectionRating);
+    this.lastSelectLibrarySql = sql;
     sql += " ORDER BY PL.DATE DESC ";
     if (withLimit) sql = sql + " LIMIT " + this.limit;
 
