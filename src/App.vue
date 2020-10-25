@@ -86,30 +86,41 @@
     <v-app-bar style="user-select: none;" clipped-left clipped-right app>
       <v-app-bar-nav-icon @click.stop="switchShowLeftNav()"></v-app-bar-nav-icon>
       <v-toolbar-title class="ml-0 pl-2">
-        <v-chip
-          v-show="playInfo.getSeason() != ''"
-          class="ma-2 pa-2"
-          color="primary"
-          label
-          outlined
-        >
-          {{ playInfo.getSeason() }}
-        </v-chip>
-        <span>
-          <v-icon
-            color="orange darken-1"
-            @click="switchRating(playInfo)"
-            v-show="playInfo.hasLibrary && playInfo.isFavorite"
-            >mdi-star</v-icon
-          >
-          <v-icon
-            color="grey lighten-1"
-            @click="switchRating(playInfo)"
-            v-show="playInfo.hasLibrary && !playInfo.isFavorite"
-            >mdi-star-outline</v-icon
-          >
-        </span>
-        <span class="pl-3">{{ playInfo.getTitle() }}</span>
+        <div style="display: flex;">
+          <div>
+            <v-chip
+              v-show="playInfo.getSeason() != ''"
+              class="ma-2 pa-2"
+              color="primary"
+              label
+              outlined
+            >
+              {{ playInfo.getSeason() }}
+            </v-chip>
+          </div>
+
+          <div class="pt-1">
+            <v-icon
+              color="orange darken-1"
+              @click="switchRating(playInfo)"
+              v-show="playInfo.hasLibrary && playInfo.isFavorite"
+              >mdi-star</v-icon
+            >
+            <v-icon
+              color="grey lighten-1"
+              @click="switchRating(playInfo)"
+              v-show="playInfo.hasLibrary && !playInfo.isFavorite"
+              >mdi-star-outline</v-icon
+            >
+          </div>
+          <!--<span class="pl-3">{{ playInfo.getTitle() }}</span>-->
+          <div>
+            <div class="caption pl-3" style="color:lightslategray">
+              {{ playInfo.getGroupName() }}
+            </div>
+            <div class="pl-3" style="margin-top:-7px">{{ playInfo.getTitle() }}</div>
+          </div>
+        </div>
       </v-toolbar-title>
       <!--<v-text-field
         flat

@@ -99,7 +99,7 @@ export default class PlayController {
       );
     } else {
       // 見つからなかったら再生中リストを更新
-      this.addPlayingItems([nextItem], false, false);
+      this.addPlayingItems([nextItem], true, false);
     }
   }
 
