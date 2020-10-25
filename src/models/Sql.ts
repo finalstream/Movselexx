@@ -52,7 +52,7 @@ export default class Sql {
   static SelectLastInsertRowid = `SELECT last_insert_rowid() AS LASTROWID`;
 
   static SelectGIdByGroupName = `SELECT 
-      GID
+      GID 
     FROM MOVGROUPLIST 
     WHERE lower(GROUPNAME) = @GroupName`;
 

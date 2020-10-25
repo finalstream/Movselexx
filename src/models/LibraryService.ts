@@ -245,7 +245,7 @@ export default class LibraryService {
 
       // グループを登録する
       const gid = await this.registGroup(groupNameandKeyword, groupNameandKeyword);
-      this.joinGroup(groupNameandKeyword, groupNameandKeyword, unGroupLibraries);
+      await this.joinGroup(groupNameandKeyword, groupNameandKeyword, unGroupLibraries);
 
       // グループのレーティングを取得
       const groupRating = await this._databaseAccessor.getGroupRating(gid);
@@ -257,7 +257,7 @@ export default class LibraryService {
         GROUPRATING: groupRating,
       };
     }
-    return { GID: -1, GROUPNAME: "", GROUPKEYWORD: "", GROUPRATING: RatingType.Nothing };
+    return { GID: null, GROUPNAME: "", GROUPKEYWORD: "", GROUPRATING: RatingType.Nothing };
   }
 
   async registGroup(groupName: string, keyword: string) {

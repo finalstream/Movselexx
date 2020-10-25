@@ -1,5 +1,5 @@
 export interface IGroupItem {
-  GID: number;
+  GID: number | null;
   GROUPNAME: string;
   GROUPKEYWORD: string;
   GROUPRATING: number;

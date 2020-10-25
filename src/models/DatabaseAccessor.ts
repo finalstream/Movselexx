@@ -70,7 +70,7 @@ export default class DatabaseAccessor {
   async selectUnGroupingLibrary(keywords: string[]) {
     for (const i in keywords) {
       const keyword = keywords[i];
-      var keywordCond = " lower(TITLE) LIKE '%{" + this.escapeSql(keyword.toLowerCase()) + "}%'";
+      var keywordCond = " lower(TITLE) LIKE '%" + this.escapeSql(keyword.toLowerCase()) + "%'";
       var sql = Sql.SelectNoGroupFromTitle.replace("#0#", keywordCond);
       var result = await this.db.all<IPlayItem[]>(sql);
       if (result && result.length > 0) return { KEYWORD: keyword, RESULT: result };
@@ -84,8 +84,10 @@ export default class DatabaseAccessor {
   }
 
   async selectGIdByGroupName(groupName: string) {
-    const gid: number = (await this.db.get<any>(Sql.SelectGIdByGroupName, "@GroupName", groupName))
-      .GID;
+    const gidResult: any = await this.db.get<any>(Sql.SelectGIdByGroupName, {
+      "@GroupName": groupName.toLowerCase(),
+    });
+    const gid = gidResult ? gidResult.GID : undefined;
     return gid ? gid : -1;
   }
 
@@ -99,11 +101,12 @@ export default class DatabaseAccessor {
   }
 
   async getGroupRating(gid: number) {
-    const gidcnt: number = (await this.db.get<any>(Sql.SelectGroupIdCount, { "@Gid": gid })).GCNT;
+    const gidcntResult: any = await this.db.get<any>(Sql.SelectGroupIdCount, { "@Gid": gid });
+    const gidcnt = gidcntResult ? gidcntResult.GCNT : 0;
 
     if (gidcnt > 0) {
-      const gidfavcnt: number = (await this.db.get<any>(Sql.SelectGroupIdCount, { "@Gid": gid }))
-        .GCNT;
+      const gidfavcntResult: any = await this.db.get<any>(Sql.SelectGroupIdCount, { "@Gid": gid });
+      const gidfavcnt = gidfavcntResult ? gidfavcntResult.GCNT : 0;
 
       if (gidcnt == gidfavcnt) return RatingType.Favorite;
     }
@@ -118,7 +121,7 @@ export default class DatabaseAccessor {
   async insertGroup(groupName: string, keyword: string) {
     await this.db.run(Sql.InsertGroup, {
       "@GroupName": groupName,
-      "@Keyword": keyword,
+      "@Keyword": keyword.toLowerCase(),
       "@LastUpdate": DatabaseAccessor.formatSQLiteDateString(new Date()),
     });
   }
