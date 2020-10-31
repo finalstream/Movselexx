@@ -7,7 +7,7 @@ export default class NotificationService {
     this._webContents = wc;
   }
 
-  pushProgressInfo(message: string) {
-    this._webContents.send("pushProgressInfo", message);
+  pushProgressInfo(message: string, detail?: any) {
+    this._webContents.send("pushProgressInfo", message, detail);
   }
 }

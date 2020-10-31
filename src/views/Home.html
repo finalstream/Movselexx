@@ -58,8 +58,8 @@
       <v-icon v-show="item.isPlayed">mdi-check-outline</v-icon>
     </template>
   </v-data-table>
-  <v-snackbar v-model="showSnackbar" bottom color="success">
-    スクリーンショットを保存しました。
+  <v-snackbar v-model="isShowSnackbar" bottom :color="snackbarMessageLevel" timeout="1000">
+    {{ snackbarMessage }}
     <!--
       <template v-slot:action="{ attrs }">
         <v-btn

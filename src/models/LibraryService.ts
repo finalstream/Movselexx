@@ -80,6 +80,7 @@ export default class LibraryService {
     const registedFiles = await this.getAllLibraryFilePaths();
 
     this._databaseAccessor.transaction(async dba => {
+      let registedCount = 0;
       for (const f in movFiles) {
         const filePath = movFiles[f];
         if (!registedFiles.includes(filePath)) {
@@ -94,7 +95,7 @@ export default class LibraryService {
             const group = await this.getMovGroup(movTitle);
             const length = duration.minutes + ":" + ("00" + duration.seconds).slice(-2);
             const lastWriteDate = fs.statSync(filePath).mtime;
-            this._databaseAccessor.insertLibrary({
+            await this._databaseAccessor.insertLibrary({
               "@Gid": group.GID,
               "@FilePath": filePath,
               "@Option": null,
@@ -114,12 +115,13 @@ export default class LibraryService {
               "@VideoSize": mediaFile.streams[0].width + "x" + mediaFile.streams[0].height,
               "@Season": lastWriteDate.getFullYear() + " " + this.getSeasonString(lastWriteDate),
             });
+            registedCount++;
           } catch {}
         } else {
           // TODO: 同じものがあればファイルパス更新。そもそも同じという判定をファイルパスからかえる
         }
       }
-      this._notificationService.pushProgressInfo("#END#");
+      this._notificationService.pushProgressInfo("#REGIST-END#", registedCount);
     });
   }
 

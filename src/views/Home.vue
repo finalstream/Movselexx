@@ -6,6 +6,7 @@ import PlayItem from "@/models/PlayItem";
 import electron from "electron";
 import { Vue, Component, Watch } from "vue-property-decorator";
 import ArrayUtils from "firx/ArrayUtils";
+import { MessageLevel } from "firx/MessageLevel";
 import MpcClient from "@/models/MpcClient";
 
 import PlayController from "@/models/PlayController";
@@ -43,7 +44,9 @@ export default class Home extends Vue {
   ];
   items: PlayItem[];
   mpcClient!: MpcClient;
-  showSnackbar: boolean;
+  isShowSnackbar: boolean;
+  snackbarMessageLevel: MessageLevel;
+  snackbarMessage: string;
   playController!: PlayController;
   selectionRatingMode: number;
   menuX = 0;
@@ -60,7 +63,9 @@ export default class Home extends Vue {
   constructor() {
     super();
     this.items = [];
-    this.showSnackbar = false;
+    this.isShowSnackbar = false;
+    this.snackbarMessageLevel = MessageLevel.Success;
+    this.snackbarMessage = "";
     this.selectionRatingMode = 0;
   }
 
@@ -114,9 +119,11 @@ export default class Home extends Vue {
       });
     }, 1000);
 
-    this.ipcRenderer.on("pushProgressInfo", async (event, message: string) => {
-      if (message == "#END#") {
+    this.ipcRenderer.on("pushProgressInfo", async (event, message: string, detail: any) => {
+      if (message == "#REGIST-END#") {
         this.$emit("update-progress-info", false);
+        const registedCount: number = detail;
+        if (registedCount > 0) this.showSnackbar(registedCount + " 件を登録しました");
         this.reloadPlayItems();
         return;
       }
@@ -217,9 +224,16 @@ export default class Home extends Vue {
   }
 
   async saveScreenShot() {
-    this.showSnackbar = false;
-    await this.mpcClient.saveScreenShot();
-    this.showSnackbar = true;
+    this.$nextTick(async () => {
+      await this.mpcClient.saveScreenShot();
+    });
+    this.showSnackbar("スクリーンショットを保存しました");
+  }
+
+  showSnackbar(message: string, level: MessageLevel = MessageLevel.Success) {
+    this.snackbarMessageLevel = level;
+    this.snackbarMessage = message;
+    this.isShowSnackbar = true;
   }
 
   async switchRating(playItem: PlayItem) {
