@@ -94,6 +94,7 @@
               color="primary"
               label
               outlined
+              @click="setSeasonSearchKeyword(playInfo)"
             >
               {{ playInfo.getSeason() }}
             </v-chip>
@@ -115,7 +116,11 @@
           </div>
           <!--<span class="pl-3">{{ playInfo.getTitle() }}</span>-->
           <div>
-            <div class="caption pl-3" style="color:lightslategray">
+            <div
+              class="caption pl-3"
+              style="color:lightslategray"
+              @click="setGroupNameSearchKeyword(playInfo)"
+            >
               {{ playInfo.getGroupName() }}
             </div>
             <div class="pl-3" style="margin-top:-7px">{{ playInfo.getTitle() }}</div>
@@ -498,34 +503,41 @@ export default class App extends Vue {
     this.progressMessage = message;
   }
 
+  public get MainVue(): any {
+    return this.$refs.main;
+  }
+
   saveScreenShot() {
-    const main: any = this.$refs.main;
-    main.saveScreenShot();
+    this.MainVue.saveScreenShot();
   }
 
   throwPlay() {
-    const main: any = this.$refs.main;
-    main.throwPlay();
+    this.MainVue.throwPlay();
   }
 
   shuffle() {
-    const main: any = this.$refs.main;
-    main.reloadPlayItems(true);
+    this.MainVue.reloadPlayItems(true);
   }
 
   nextPlay() {
-    const main: any = this.$refs.main;
-    main.playNext();
+    this.MainVue.playNext();
   }
 
   refresh() {
-    const main: any = this.$refs.main;
-    main.refresh();
+    this.MainVue.refresh();
   }
 
   showSettings() {
     this.loadSettings();
     this.isShowSettingDailog = true;
+  }
+
+  setGroupNameSearchKeyword(playInfo: PlayInfo) {
+    this.MainVue.setSearchKeyword(playInfo.getGroupName());
+  }
+
+  setSeasonSearchKeyword(playInfo: PlayInfo) {
+    this.MainVue.setSearchKeyword(playInfo.getSeason());
   }
 
   async loadSettings() {

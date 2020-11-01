@@ -56,6 +56,7 @@ export default class Home extends Vue {
   isShowDeleteLibraryDialog = false;
   isShowDeleteFileDialog = false;
   deleteSelectItems: PlayItem[] = [];
+  searchKeyword: string;
 
   /**
    * コンストラクタ
@@ -67,6 +68,7 @@ export default class Home extends Vue {
     this.snackbarMessageLevel = MessageLevel.Success;
     this.snackbarMessage = "";
     this.selectionRatingMode = 0;
+    this.searchKeyword = "";
   }
 
   async created() {
@@ -169,9 +171,10 @@ export default class Home extends Vue {
     this.$emit("update-playing-info", this.playController.playings);
   }
 
-  async reloadPlayItems(isShuffle = false) {
+  async reloadPlayItems(searchKeyword = "", isShuffle = false) {
     const rows: IPlayItem[] = await this.ipcRenderer.invoke(
       "getLibraries",
+      searchKeyword,
       isShuffle,
       this.convertRatingType(this.selectionRatingMode)
     );
@@ -253,6 +256,10 @@ export default class Home extends Vue {
     }
   }
 
+  setSearchKeyword(keyword: string) {
+    this.searchKeyword = keyword;
+  }
+
   rowClasses(item: PlayItem) {
     return item.isSelected ? "v-data-table__selected" : "";
   }
@@ -298,6 +305,12 @@ export default class Home extends Vue {
   @Watch("selectionRatingMode")
   onChangeSelectionRatingMode() {
     this.reloadPlayItems();
+  }
+
+  @Watch("searchKeyword")
+  onChangeSearchKeyword() {
+    console.log("ChangeSearchKeyword", this.searchKeyword);
+    this.reloadPlayItems(this.searchKeyword);
   }
 }
 </script>

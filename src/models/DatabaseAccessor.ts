@@ -41,12 +41,12 @@ export default class DatabaseAccessor {
     });
   }
 
-  async selectLibraries(isShuffle: boolean, selectionRating: RatingType) {
+  async selectLibraries(isShuffle: boolean, selectionRating: RatingType, searchKeyword: string) {
     if (isShuffle) {
       return await this.db.all<IPlayItem[]>(this.createShuffleSql());
     } else {
       return await this.db.all<IPlayItem[]>(
-        this.createSql(Sql.SelectLibraryList, selectionRating, true)
+        this.createSql(Sql.SelectLibraryList, selectionRating, searchKeyword, true)
       );
     }
   }
@@ -174,9 +174,26 @@ export default class DatabaseAccessor {
     return dateformat(date, "yyyy-mm-dd HH:MM:ss");
   }
 
-  private createSql(sql: string, selectionRating: RatingType, withLimit: boolean = false) {
+  private createSql(
+    sql: string,
+    selectionRating: RatingType,
+    searchKeyword: string,
+    withLimit: boolean = false
+  ) {
+    // Generate WHERE
     sql += " WHERE ";
+    // Rating
     sql += this.getRatingWhereString(selectionRating);
+
+    // Keyword
+    if (searchKeyword) {
+      const searchKeywordLower = searchKeyword.toLowerCase();
+      sql +=
+        " AND lower(IFNULL(FILEPATH,'') || IFNULL(TITLE,'') || IFNULL(GPL.GROUPNAME,'') || IFNULL(SEASON,'')) LIKE '%" +
+        this.escapeSql(searchKeywordLower) +
+        "%' ";
+    }
+
     this.lastSelectLibrarySql = sql;
     sql += " ORDER BY PL.DATE DESC ";
     if (withLimit) sql = sql + " LIMIT " + this.limit;

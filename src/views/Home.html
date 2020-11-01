@@ -16,10 +16,10 @@
     <v-col
       ><v-text-field
         flat
-        solo-inverted
         hide-details
+        clearable
         prepend-inner-icon="mdi-magnify"
-        label="Search"
+        v-model ="searchKeyword"
       ></v-text-field
     ></v-col>
     <v-col cols="1" class="text-right">
@@ -42,7 +42,7 @@
     @contextmenu:row="onRowContextmenu"
   >
     <template v-slot:item.title="{ item }">
-      <div class="caption" style="color:lightslategray">
+      <div class="caption" style="color:lightslategray" @click="setSearchKeyword(item.groupName)">
         {{ item.groupName }}
       </div>
       <div>{{ item.title }}</div>

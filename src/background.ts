@@ -114,9 +114,12 @@ ipcMain.handle("initialize", () => {
   return screen.getAllDisplays();
 });
 
-ipcMain.handle("getLibraries", (event, isShuffle: boolean, selectionRating: RatingType) => {
-  return libraryService.getLibraries(isShuffle, selectionRating);
-});
+ipcMain.handle(
+  "getLibraries",
+  (event, searchKeyword: string, isShuffle: boolean, selectionRating: RatingType) => {
+    return libraryService.getLibraries(isShuffle, selectionRating, searchKeyword);
+  }
+);
 
 ipcMain.handle("getPlayingList", event => {
   return libraryService.getPlayingList();

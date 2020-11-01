@@ -27,9 +27,9 @@ export default class LibraryService {
     this._databaseAccessor.updatePlayCount(id);
   }
 
-  async getLibraries(isShuffle: boolean, selectionRating: RatingType) {
+  async getLibraries(isShuffle: boolean, selectionRating: RatingType, searchKeyword: string) {
     return await (
-      await this._databaseAccessor.selectLibraries(isShuffle, selectionRating)
+      await this._databaseAccessor.selectLibraries(isShuffle, selectionRating, searchKeyword)
     ).filter(l => fs.existsSync(l.FILEPATH));
   }
 
