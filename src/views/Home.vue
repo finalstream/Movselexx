@@ -109,10 +109,12 @@ export default class Home extends Vue {
         if (pi.library != null) {
           const library = pi.library;
           const itemIndex = this.items.findIndex(i => i.id == library.ID);
+          this.items.forEach(i => (i.isPlaying = false));
           if (itemIndex != -1) {
             const item = this.items[itemIndex];
             item.rating = library.RATING;
             item.playCount = library.PLAYCOUNT;
+            item.isPlaying = true;
           }
 
           const isUpdatePlayings = this.playController.monitoring(pi);
@@ -125,7 +127,7 @@ export default class Home extends Vue {
       if (message == "#REGIST-END#") {
         this.$emit("update-progress-info", false);
         const registedCount: number = detail;
-        if (registedCount > 0) this.showSnackbar(registedCount + " 件を登録しました");
+        if (registedCount > 0) this.showSnackbar(registedCount + " 件 登録しました");
         this.reloadPlayItems();
         return;
       }

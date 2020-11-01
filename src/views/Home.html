@@ -48,7 +48,7 @@
       <div>{{ item.title }}</div>
     </template>
     <template v-slot:item.isPlaying="{ item }">
-      <v-icon v-show="item.isPlaying">mdi-play-circle-outline</v-icon>
+      <v-icon color="indigo accent-3" v-show="item.isPlaying">mdi-play-circle-outline</v-icon>
     </template>
     <template v-slot:item.rating="{ item }">
       <v-icon color="orange darken-1" @click="switchRating(item)" v-show="item.isFavorite">mdi-star</v-icon>
