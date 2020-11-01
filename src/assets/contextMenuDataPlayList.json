@@ -1,5 +1,9 @@
 [
   {
+    "label": "グループでフィルタ",
+    "action": "filterGroup"
+  },
+  {
     "label": "削除...",
     "action": "deleteLibrary"
   }

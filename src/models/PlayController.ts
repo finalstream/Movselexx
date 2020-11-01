@@ -9,10 +9,14 @@ import ArrayUtils from "firx/ArrayUtils";
 export default class PlayController {
   private _mpcClient: MpcClient;
   private _playingId: number;
+  private _playingInfo: PlayInfo | null;
+  private _playPreviousFilePath: string;
   private _playPreviousDate: Date | null;
   private _playAccumTimeMs: number;
   private _playings: PlayingItem[];
   private _lastMakePlayings: PlayingItem[];
+
+  CountUpParsent = 0.7;
 
   constructor(mpcClient: MpcClient) {
     this._mpcClient = mpcClient;
@@ -21,6 +25,8 @@ export default class PlayController {
     this._playAccumTimeMs = 0;
     this._playings = [];
     this._lastMakePlayings = [];
+    this._playingInfo = null;
+    this._playPreviousFilePath = "";
   }
 
   public get playings(): PlayingItem[] {
@@ -31,6 +37,7 @@ export default class PlayController {
     let isUpdatePlayings = false;
     if (pi.library == null) return false;
     const nowId = pi.library.ID;
+    this._playingInfo = pi;
 
     if (nowId == this._playingId) {
       if (pi.duration == pi.position && pi.state == 1) {
@@ -45,7 +52,7 @@ export default class PlayController {
         // 再生中の場合、経過した時間を蓄積する
         const playIncrementalTimeMs = new Date().getTime() - this._playPreviousDate.getTime();
         this._playAccumTimeMs += playIncrementalTimeMs;
-        const countUpDurationMs = pi.duration * 0.7;
+        const countUpDurationMs = pi.duration * this.CountUpParsent;
 
         //console.log("playingId", nowId);
         //console.log("playAccumTimeMs", this._playAccumTimeMs);
@@ -75,6 +82,7 @@ export default class PlayController {
   }
 
   async playNext(isManual: boolean) {
+    if (this._playingInfo) this._playPreviousFilePath = this._playingInfo.filepath!;
     const isFullScreen = !isManual;
     this._playings.shift();
     const nextItem = this.playings[0];
@@ -86,6 +94,18 @@ export default class PlayController {
       await this._mpcClient.openFile(this._playings[0].filePath, isFullScreen);
     }
     this._playingId = -1;
+  }
+
+  async playPrev() {
+    if (this._playPreviousFilePath) {
+      await this._mpcClient.openFile(this._playPreviousFilePath, false);
+      this._playingId = -1;
+    }
+  }
+
+  getCountUpRemainMs() {
+    if (!this._playingInfo) return null;
+    return this._playingInfo.duration * this.CountUpParsent - this._playAccumTimeMs;
   }
 
   updatePlayingList(nowId: number, nextItem: PlayItem) {

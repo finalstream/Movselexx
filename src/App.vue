@@ -127,19 +127,16 @@
           </div>
         </div>
       </v-toolbar-title>
-      <!--<v-text-field
-        flat
-        solo-inverted
-        hide-details
-        prepend-inner-icon="mdi-magnify"
-        label="Search"
-        class="hidden-sm-and-down"
-      ></v-text-field>-->
       <v-spacer></v-spacer>
       <v-toolbar-title style="width: 300px;text-align:right" class="ml-0 pr-5">
-        <span class="hidden-sm-and-down"
-          >{{ playInfo.positionString }} / {{ playInfo.durationString }}</span
-        >
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <span class="hidden-sm-and-down" v-bind="attrs" v-on="on"
+              >{{ playInfo.positionString }} / {{ playInfo.durationString }}</span
+            >
+          </template>
+          <span>{{ getCountUpRemainTimeString() }}</span>
+        </v-tooltip>
       </v-toolbar-title>
       <v-btn icon @click="refresh()">
         <v-icon>mdi-refresh</v-icon>
@@ -180,7 +177,7 @@
           <v-btn color="primary" @click="shuffle()" block>Shuffle</v-btn>
         </v-col>
         <v-col cols="1" class="pa-0 px-1">
-          <v-btn color="primary" block>Prev</v-btn>
+          <v-btn color="primary" @click="prevPlay()" block>Prev</v-btn>
         </v-col>
         <v-col cols="1" class="pa-0 px-1">
           <v-btn color="primary" @click="nextPlay()" block>Next</v-btn>
@@ -371,6 +368,7 @@ import PlayingItem from "./models/PlayingItem";
 import ArrayUtils from "firx/ArrayUtils";
 import MovselexxAppStore from "./models/MovselexxAppStore";
 import DisplayInfo from "./models/DisplayInfo";
+import TimeSpan from "firx/TimeSpan";
 
 @Component
 export default class App extends Vue {
@@ -503,28 +501,32 @@ export default class App extends Vue {
     this.progressMessage = message;
   }
 
-  public get MainVue(): any {
+  public getMainVue(): any {
     return this.$refs.main;
   }
 
   saveScreenShot() {
-    this.MainVue.saveScreenShot();
+    this.getMainVue().saveScreenShot();
   }
 
   throwPlay() {
-    this.MainVue.throwPlay();
+    this.getMainVue().throwPlay();
   }
 
   shuffle() {
-    this.MainVue.reloadPlayItems(true);
+    this.getMainVue().reloadPlayItems(true);
   }
 
   nextPlay() {
-    this.MainVue.playNext();
+    this.getMainVue().playNext();
+  }
+
+  prevPlay() {
+    this.getMainVue().playPrev();
   }
 
   refresh() {
-    this.MainVue.refresh();
+    this.getMainVue().refresh();
   }
 
   showSettings() {
@@ -533,11 +535,27 @@ export default class App extends Vue {
   }
 
   setGroupNameSearchKeyword(playInfo: PlayInfo) {
-    this.MainVue.setSearchKeyword(playInfo.getGroupName());
+    this.getMainVue().setSearchKeyword(playInfo.getGroupName());
   }
 
   setSeasonSearchKeyword(playInfo: PlayInfo) {
-    this.MainVue.setSearchKeyword(playInfo.getSeason());
+    this.getMainVue().setSearchKeyword(playInfo.getSeason());
+  }
+
+  getCountUpRemainTimeString() {
+    const countUpRemainMs = this.getMainVue()?.getCountUpRemainMs();
+    if (countUpRemainMs == null) return "No Match Library";
+    const countUpRemain = new TimeSpan(countUpRemainMs);
+    let str = "Remain CountUp ";
+
+    if (Math.floor(countUpRemain.totalHours) > 0) str += countUpRemain.hours + " hour ";
+    if (Math.floor(countUpRemain.totalMinutes) > 0) {
+      str += countUpRemain.minutes + " min ";
+      str += countUpRemain.seconds + " sec";
+    } else {
+      str += countUpRemain.seconds + " sec";
+    }
+    return str;
   }
 
   async loadSettings() {

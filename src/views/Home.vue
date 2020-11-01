@@ -211,6 +211,10 @@ export default class Home extends Vue {
     this.playController.playNext(true);
   }
 
+  playPrev() {
+    this.playController.playPrev();
+  }
+
   async refresh() {
     if (this.items.length == 0) {
       this.reloadPlayItems();
@@ -260,6 +264,10 @@ export default class Home extends Vue {
     this.searchKeyword = keyword;
   }
 
+  getCountUpRemainMs() {
+    return this.playController.getCountUpRemainMs();
+  }
+
   rowClasses(item: PlayItem) {
     return item.isSelected ? "v-data-table__selected" : "";
   }
@@ -291,12 +299,17 @@ export default class Home extends Vue {
     console.log("contextMenuClick", action, selectItems);
 
     switch (action) {
-      case "deleteLibrary":
+      case "filterGroup": {
+        const selectItem = selectItems[0];
+        this.setSearchKeyword(selectItem.groupName);
+        break;
+      }
+      case "deleteLibrary": {
         ArrayUtils.clear(this.deleteSelectItems);
         this.deleteSelectItems = this.deleteSelectItems.concat(selectItems);
         this.isShowDeleteLibraryDialog = true;
         break;
-
+      }
       default:
         break;
     }

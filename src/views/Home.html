@@ -28,7 +28,7 @@
   </v-row>
   <v-data-table
     fixed-header
-    height="340"
+    height="360"
     :headers="headers"
     :items="items"
     item-key="id"
@@ -42,7 +42,7 @@
     @contextmenu:row="onRowContextmenu"
   >
     <template v-slot:item.title="{ item }">
-      <div class="caption" style="color:lightslategray" @click="setSearchKeyword(item.groupName)">
+      <div class="caption" style="color:lightslategray">
         {{ item.groupName }}
       </div>
       <div>{{ item.title }}</div>
