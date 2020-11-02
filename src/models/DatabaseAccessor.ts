@@ -160,6 +160,15 @@ export default class DatabaseAccessor {
     return rating;
   }
 
+  async updatePlayed(id: number, isPlayed: boolean) {
+    const played = isPlayed ? "1" : "0";
+    await this.db.run(Sql.UpdatePlayed, {
+      "@Played": played,
+      "@Id": id,
+    });
+    return isPlayed;
+  }
+
   async deleteLibrary(deleteid: number) {
     await this.db.run(Sql.DeleteLibrary, {
       "@Id": deleteid,

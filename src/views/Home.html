@@ -40,6 +40,7 @@
     @click:row="rowClick"
     @dblclick:row="rowDbClick"
     @contextmenu:row="onRowContextmenu"
+    ref="gridItemList"
   >
     <template v-slot:item.title="{ item }">
       <div class="caption" style="color:lightslategray">
@@ -55,7 +56,8 @@
       <v-icon color="grey lighten-1" @click="switchRating(item)" v-show="!item.isFavorite">mdi-star-outline</v-icon>
     </template>
     <template v-slot:item.isPlayed="{ item }">
-      <v-icon v-show="item.isPlayed">mdi-check-outline</v-icon>
+      <v-icon v-show="item.isPlayed" @click="switchPlayed(item)" color="light-green darken-1">mdi-check-bold</v-icon>
+      <v-icon v-show="!item.isPlayed" @click="switchPlayed(item)" color="grey lighten-2">mdi-check-outline</v-icon>
     </template>
   </v-data-table>
   <v-snackbar v-model="isShowSnackbar" bottom :color="snackbarMessageLevel" timeout="1000">

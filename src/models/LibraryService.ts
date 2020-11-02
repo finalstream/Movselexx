@@ -139,6 +139,10 @@ export default class LibraryService {
     return this._databaseAccessor.updateRating(id, isFavorite);
   }
 
+  switchPlayed(id: number, isPlayed: boolean): any {
+    return this._databaseAccessor.updatePlayed(id, isPlayed);
+  }
+
   private getSeasonString(date: Date) {
     const month = date.getMonth() + 1;
 

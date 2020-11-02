@@ -131,6 +131,10 @@ export default class Sql {
   SET RATING = @Rating
   WHERE ID = @Id`;
 
+  static UpdatePlayed = `UPDATE MOVLIST
+  SET PLAYED = @Played
+  WHERE ID = @Id`;
+
   static DeleteLibrary = `DELETE FROM MOVLIST 
   WHERE ID = @Id`;
 

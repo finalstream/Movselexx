@@ -39,7 +39,7 @@ export default class Home extends Vue {
     { text: "Date", value: "date" },
     { text: "VideoSize", value: "videoSize", sortable: false },
     { text: "D", value: "drive", sortable: false },
-    { text: "Cnt", value: "playCount", sortable: false },
+    { text: "Cnt", value: "playCount", align: "end", sortable: false },
     { text: "", align: "center", value: "isPlayed" },
   ];
   items: PlayItem[];
@@ -148,6 +148,10 @@ export default class Home extends Vue {
     return root.appStore;
   }
 
+  getGridItemListVue(): any {
+    return this.$refs.gridItemList;
+  }
+
   async rowClick(e: any, value: any) {
     console.log("selectItem", value.item);
     const item: PlayItem = value.item;
@@ -197,7 +201,8 @@ export default class Home extends Vue {
   throwPlay() {
     let throwItems: PlayItem[] = [];
     let isStarted = false;
-    for (const item of this.items) {
+    // ソートされた場合、Itemsではソートどおりに取得できないため、selectableItemsから取得する
+    for (const item of this.getGridItemListVue().selectableItems) {
       if (item.isSelected) isStarted = true;
       if (isStarted) throwItems.push(item);
     }
@@ -249,6 +254,12 @@ export default class Home extends Vue {
     console.log("switchRating", playItem.id, !playItem.isFavorite);
     const rating = await this.ipcRenderer.invoke("switchRating", playItem.id, !playItem.isFavorite);
     playItem.rating = rating;
+  }
+
+  async switchPlayed(playItem: PlayItem) {
+    console.log("switchPlayed", playItem.id, !playItem.isPlayed);
+    const isPlayed = await this.ipcRenderer.invoke("switchPlayed", playItem.id, !playItem.isPlayed);
+    playItem.isPlayed = isPlayed;
   }
 
   async deleteLibrary(isFileDelete: boolean) {

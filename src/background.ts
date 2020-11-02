@@ -129,6 +129,10 @@ ipcMain.handle("switchRating", (event, id: number, isFavorite: boolean) => {
   return libraryService.switchRating(id, isFavorite);
 });
 
+ipcMain.handle("switchPlayed", (event, id: number, isPlayed: boolean) => {
+  return libraryService.switchPlayed(id, isPlayed);
+});
+
 ipcMain.handle("setStore", (event, key: string, data) => {
   AppStore.instance.set(key, data);
 });
