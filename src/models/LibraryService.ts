@@ -13,6 +13,8 @@ import { IGroupItem } from "./IGroupItem";
 import PlayingItem from "./PlayingItem";
 import { RatingType } from "./RatingType";
 import trash from "trash";
+import { app } from "electron";
+import path from "path";
 
 export default class LibraryService {
   _databaseAccessor: DatabaseAccessor;
@@ -93,8 +95,10 @@ export default class LibraryService {
         ) {
           try {
             this._notificationService.pushProgressInfo("Regist Files... " + filePath);
-
-            const mediaFile = await ffprobe(filePath, { path: ffprobeStatic.path });
+            const ffprobePath = !app.isPackaged
+              ? ffprobeStatic.path
+              : path.join(path.dirname(app.getPath("exe")), "bin", "win32", "x64", "ffprobe.exe");
+            const mediaFile = await ffprobe(filePath, { path: ffprobePath });
             const duration = new TimeSpan(mediaFile.streams[0].duration * 1000);
             if (mediaFile.streams[0].duration == undefined || mediaFile.streams[0].duration <= 0)
               continue; // 不完全ファイルはスキップ
