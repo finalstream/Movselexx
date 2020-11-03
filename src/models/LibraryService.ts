@@ -82,8 +82,15 @@ export default class LibraryService {
     this._databaseAccessor.transaction(async dba => {
       let registedCount = 0;
       for (const f in movFiles) {
+        // ドライブレターが大文字か小文字を区別しないようにチェックする
         const filePath = movFiles[f];
-        if (!registedFiles.includes(filePath)) {
+        const driveletter = filePath.substr(0, 1);
+        const lowerDriveLetterFilePath = driveletter.toLowerCase() + filePath.substr(1);
+        const upperDriveLetterFilePath = driveletter.toUpperCase() + filePath.substr(1);
+        if (
+          !registedFiles.includes(lowerDriveLetterFilePath) &&
+          !registedFiles.includes(upperDriveLetterFilePath)
+        ) {
           try {
             this._notificationService.pushProgressInfo("Regist Files... " + filePath);
 
