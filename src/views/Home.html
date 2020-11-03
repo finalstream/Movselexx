@@ -1,6 +1,7 @@
 <div>
   <v-row>
-    <v-col cols="4">
+    <v-col cols="2">
+      <!--
       <v-btn-toggle v-model="selectionRatingMode" color="blue accent-3">
         <v-btn>
           <span class="hidden-sm-and-down">Normal</span>
@@ -12,6 +13,11 @@
           <span class="hidden-sm-and-down">Exclude</span>
         </v-btn>
       </v-btn-toggle>
+    -->
+      <v-switch
+        v-model="isOnlyFavorite"
+        label="Only Favorite"
+      ></v-switch>
     </v-col>
     <v-col
       ><v-text-field
@@ -22,7 +28,7 @@
         v-model ="searchKeyword"
       ></v-text-field
     ></v-col>
-    <v-col cols="1" class="text-right">
+    <v-col cols="2" class="text-right">
       <div class="pt-3">{{ items.length }} items</div>
     </v-col>
   </v-row>

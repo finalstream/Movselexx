@@ -24,6 +24,7 @@ export default class Home extends Vue {
       align: "start",
       sortable: false,
       value: "isPlaying",
+      width: "60px",
     },
     /*{
       text: "Group",
@@ -48,7 +49,6 @@ export default class Home extends Vue {
   snackbarMessageLevel: MessageLevel;
   snackbarMessage: string;
   playController!: PlayController;
-  selectionRatingMode: number;
   menuX = 0;
   menuY = 0;
   isShowMenu = false;
@@ -57,6 +57,7 @@ export default class Home extends Vue {
   isShowDeleteFileDialog = false;
   deleteSelectItems: PlayItem[] = [];
   searchKeyword: string;
+  isOnlyFavorite = false;
 
   /**
    * コンストラクタ
@@ -67,7 +68,6 @@ export default class Home extends Vue {
     this.isShowSnackbar = false;
     this.snackbarMessageLevel = MessageLevel.Success;
     this.snackbarMessage = "";
-    this.selectionRatingMode = 0;
     this.searchKeyword = "";
   }
 
@@ -182,20 +182,9 @@ export default class Home extends Vue {
       "getLibraries",
       searchKeyword,
       isShuffle,
-      this.convertRatingType(this.selectionRatingMode)
+      this.isOnlyFavorite ? RatingType.Favorite : RatingType.Normal
     );
     this.updatePlayItems(rows);
-  }
-
-  convertRatingType(ratingMode: number) {
-    switch (ratingMode) {
-      case 0:
-        return RatingType.Normal;
-      case 1:
-        return RatingType.Favorite;
-      case 2:
-        return RatingType.Exclution;
-    }
   }
 
   throwPlay() {
@@ -328,8 +317,8 @@ export default class Home extends Vue {
     }
   }
 
-  @Watch("selectionRatingMode")
-  onChangeSelectionRatingMode() {
+  @Watch("isOnlyFavorite")
+  onChangeIsOnlyFavorite() {
     this.reloadPlayItems();
   }
 
