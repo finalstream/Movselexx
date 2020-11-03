@@ -623,3 +623,8 @@ export default class App extends Vue {
     0px 1px 10px 0px rgba(0, 0, 0, 0.12);
 }
 </style>
+<style>
+html {
+  overflow-y: hidden !important;
+}
+</style>

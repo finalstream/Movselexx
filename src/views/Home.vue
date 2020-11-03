@@ -321,7 +321,7 @@ export default class Home extends Vue {
   async onHomeResized() {
     const winSize: number[] = await this.ipcRenderer.invoke("getWindowSize");
     console.log("homeResized", winSize);
-    this.itemListHeight = winSize[1] - 250;
+    this.itemListHeight = winSize[1] - 260;
   }
 
   @Watch("isOnlyFavorite")
