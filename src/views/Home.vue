@@ -58,6 +58,7 @@ export default class Home extends Vue {
   deleteSelectItems: PlayItem[] = [];
   searchKeyword: string;
   isOnlyFavorite = false;
+  itemListHeight = 300;
 
   /**
    * コンストラクタ
@@ -315,6 +316,12 @@ export default class Home extends Vue {
       default:
         break;
     }
+  }
+
+  async onHomeResized() {
+    const winSize: number[] = await this.ipcRenderer.invoke("getWindowSize");
+    console.log("homeResized", winSize);
+    this.itemListHeight = winSize[1] - 250;
   }
 
   @Watch("isOnlyFavorite")

@@ -149,6 +149,10 @@ ipcMain.handle("closeWindow", () => {
   win!.destroy(); // close()では閉じられない
 });
 
+ipcMain.handle("getWindowSize", () => {
+  return win!.getSize();
+});
+
 ipcMain.handle("minimizeWindow", () => {
   win?.minimize();
 });

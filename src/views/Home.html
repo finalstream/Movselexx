@@ -1,4 +1,4 @@
-<div>
+<div v-resize="onHomeResized">
   <v-row>
     <v-col cols="2">
       <!--
@@ -34,7 +34,7 @@
   </v-row>
   <v-data-table
     fixed-header
-    height="360"
+    :height="itemListHeight"
     :headers="headers"
     :items="items"
     item-key="id"
