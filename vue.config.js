@@ -1,8 +1,4 @@
 module.exports = {
-  node: {
-    __dirname: false,
-    __filename: false,
-  },
   // debug
   configureWebpack: {
     devtool: "source-map",

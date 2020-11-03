@@ -14,8 +14,9 @@ export default class DatabaseAccessor {
   lastSelectLibrarySql = Sql.SelectLibraryList;
 
   constructor(databaseFileName: string) {
-    const blankdatabaseFilePath = path.join(__dirname, "database", "blank.movselexdatabase");
-    const databaseFilePath = path.join(__dirname, "database", databaseFileName);
+    const appDirectory = path.resolve(__dirname);
+    const blankdatabaseFilePath = path.join(appDirectory, "database", "blank.movselexdatabase");
+    const databaseFilePath = path.join(appDirectory, "database", databaseFileName);
     if (!fs.existsSync(databaseFilePath)) fs.copyFileSync(blankdatabaseFilePath, databaseFilePath);
 
     this.db = new Database({
