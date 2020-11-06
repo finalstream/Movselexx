@@ -70,11 +70,12 @@
           <div style="margin-left:-40px">
             <strong>{{ nowPlaying.startTimeString }}</strong
             >&nbsp;<v-icon
+              small
               v-show="playInfo.library && playInfo.library.ID != nowPlaying.id"
               style="margin-top:-5px"
               color="red accent-3"
               @click="removePlaying(nowPlaying)"
-              >mdi-close-circle-outline</v-icon
+              >mdi-close-thick</v-icon
             >
           </div>
           <div style="margin-left:-40px" class="pl-3">{{ nowPlaying.title }}</div>

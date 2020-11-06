@@ -3,7 +3,6 @@ import PlayInfo from "./PlayInfo";
 import PlayingItem from "./PlayingItem";
 import PlayItem from "./PlayItem";
 import TimeSpan from "firx/TimeSpan";
-import DateFormat from "dateformat";
 import ArrayUtils from "firx/ArrayUtils";
 
 export default class PlayController {
@@ -129,28 +128,18 @@ export default class PlayController {
   }
 
   addPlayingItems(items: PlayItem[], isAdd: boolean, isRebuild: boolean) {
-    let currentTime = new Date();
-    let currentTimeSpan = TimeSpan.fromMilliseconds(currentTime.getTime());
-    let count = 0;
-
     if (isAdd) {
       items = items.concat(this._playings.map(p => p.library));
     }
+
     this.clearPlayings();
+    let count = 0;
     for (const item of items) {
-      const pi = new PlayingItem();
-      pi.key = this.getUniqueKey(100000);
-      pi.id = item.id;
-      pi.filePath = item.filePath;
-      pi.title = item.title;
-      pi.library = item;
-      if (count != 0) {
-        let durationSpan = TimeSpan.zero;
-        durationSpan = TimeSpan.parse(item.length);
-        currentTime = new Date(currentTimeSpan.add(durationSpan).totalMilliseconds);
-        currentTimeSpan = TimeSpan.fromMilliseconds(currentTime.getTime());
+      const pi = this.createPlayingItem(item);
+      if (count == 0) {
+        // 最初のアイテムだけ現在時刻を設定(再生開始時刻の推測に使用)
+        pi.startTime = new Date();
       }
-      pi.startTimeString = DateFormat(currentTime, "HH:MM");
       this._playings.push(pi);
       count++;
     }
@@ -159,6 +148,38 @@ export default class PlayController {
       ArrayUtils.clear(this._lastMakePlayings);
       this._lastMakePlayings = this._lastMakePlayings.concat(this._playings);
     }
+
+    this.calcStartTime();
+  }
+
+  calcStartTime() {
+    // ベース時刻は最初のアイテムとする
+    let currentTime = this.playings[0].startTime;
+    let currentTimeSpan = TimeSpan.fromMilliseconds(currentTime.getTime());
+    let count = 0;
+    for (const item of this._playings) {
+      if (count == 0) {
+        count++;
+        continue;
+      }
+      let durationSpan = TimeSpan.zero;
+      durationSpan = TimeSpan.parse(item.library.length);
+      currentTime = new Date(currentTimeSpan.add(durationSpan).totalMilliseconds);
+      currentTimeSpan = TimeSpan.fromMilliseconds(currentTime.getTime());
+
+      item.startTime = currentTime;
+      count++;
+    }
+  }
+
+  createPlayingItem(item: PlayItem) {
+    const pi = new PlayingItem();
+    pi.key = this.getUniqueKey(100000);
+    pi.id = item.id;
+    pi.filePath = item.filePath;
+    pi.title = item.title;
+    pi.library = item;
+    return pi;
   }
 
   getUniqueKey(myStrong?: number): string {
@@ -170,6 +191,20 @@ export default class PlayController {
   setSkip(key: string) {
     this._playings.filter(p => p.key == key).forEach(p => (p.isSkip = true));
     this._lastMakePlayings.filter(p => p.key == key).forEach(p => (p.isSkip = true));
+  }
+
+  reserveNext(item: PlayItem) {
+    const reserveItem = this.createPlayingItem(item);
+    this._playings.splice(1, 0, reserveItem);
+    this.calcStartTime();
+    // ストックしているリストにも反映
+    const playingItem = this._playings[0];
+    if (playingItem) {
+      const idx = this._lastMakePlayings.findIndex(p => p.key == playingItem.key);
+      if (idx != -1) {
+        this._lastMakePlayings.splice(idx, 0, reserveItem);
+      }
+    }
   }
 
   clearPlayings() {

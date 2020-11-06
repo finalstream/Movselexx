@@ -305,6 +305,12 @@ export default class Home extends Vue {
     console.log("contextMenuClick", action, selectItems);
 
     switch (action) {
+      case "reserveNext": {
+        const selectItem = selectItems[0];
+        this.playController.reserveNext(selectItem);
+        this.$emit("update-playing-info", this.playController.playings);
+        break;
+      }
       case "filterGroup": {
         const selectItem = selectItems[0];
         this.setSearchKeyword(selectItem.groupName);

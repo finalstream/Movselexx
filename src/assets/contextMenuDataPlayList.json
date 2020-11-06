@@ -1,5 +1,9 @@
 [
   {
+    "label": "次に再生",
+    "action": "reserveNext"
+  },
+  {
     "label": "グループでフィルタ",
     "action": "filterGroup"
   },

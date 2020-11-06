@@ -1,11 +1,12 @@
 import PlayItem from "./PlayItem";
+import DateFormat from "dateformat";
 
 export default class PlayingItem {
   key: string;
   id: number;
   filePath: string;
   title: string;
-  startTimeString: string;
+  startTime: Date;
   isPlaying: boolean;
   library: PlayItem;
   isSkip: boolean;
@@ -15,7 +16,7 @@ export default class PlayingItem {
     this.id = -1;
     this.filePath = "";
     this.title = "";
-    this.startTimeString = "";
+    this.startTime = new Date();
     this.isPlaying = false;
     this.isSkip = false;
     this.library = new PlayItem({
@@ -36,5 +37,9 @@ export default class PlayingItem {
       TITLE: "",
       VIDEOSIZE: "",
     });
+  }
+
+  get startTimeString() {
+    return DateFormat(this.startTime, "HH:MM");
   }
 }
