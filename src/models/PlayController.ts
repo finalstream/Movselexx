@@ -87,6 +87,11 @@ export default class PlayController {
     this._playings.shift();
     const nextItem = this.playings[0];
     if (nextItem) {
+      if (nextItem.isSkip) {
+        // スキップが設定されていたら次へ
+        this.playNext(isManual);
+        return;
+      }
       await this._mpcClient.openFile(nextItem.filePath, isFullScreen);
     } else if (this._lastMakePlayings.length > 0) {
       // 最後までいったらlastPlayingから復元する
@@ -160,6 +165,11 @@ export default class PlayController {
     let strong = 1000;
     if (myStrong) strong = myStrong;
     return new Date().getTime().toString(16) + Math.floor(strong * Math.random()).toString(16);
+  }
+
+  setSkip(key: string) {
+    this._playings.filter(p => p.key == key).forEach(p => (p.isSkip = true));
+    this._lastMakePlayings.filter(p => p.key == key).forEach(p => (p.isSkip = true));
   }
 
   clearPlayings() {

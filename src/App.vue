@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 <template>
   <v-app id="inspire">
     <v-navigation-drawer v-model="isShowLeftNav" :clipped="$vuetify.breakpoint.lgAndUp" app>
@@ -58,11 +59,25 @@
 
     <v-navigation-drawer clipped app right>
       <v-timeline align-top dense>
-        <v-timeline-item v-for="nowPlaying in nowPlayings" :key="nowPlaying.key" small right>
-          <div>
-            <strong>{{ nowPlaying.startTimeString }}</strong>
+        <v-timeline-item
+          v-for="nowPlaying in nowPlayings.filter(p => !p.isSkip)"
+          :key="nowPlaying.key"
+          small
+          fill-dot
+          right
+          class="pr-2"
+        >
+          <div style="margin-left:-40px">
+            <strong>{{ nowPlaying.startTimeString }}</strong
+            >&nbsp;<v-icon
+              v-show="playInfo.library && playInfo.library.ID != nowPlaying.id"
+              style="margin-top:-5px"
+              color="red accent-3"
+              @click="removePlaying(nowPlaying)"
+              >mdi-close-circle-outline</v-icon
+            >
           </div>
-          <div class="pl-3">{{ nowPlaying.title }}</div>
+          <div style="margin-left:-40px" class="pl-3">{{ nowPlaying.title }}</div>
         </v-timeline-item>
       </v-timeline>
     </v-navigation-drawer>
@@ -362,7 +377,6 @@
 <script lang="ts">
 import { Vue, Component } from "vue-property-decorator";
 import electron, { Display } from "electron";
-import PlayItem from "./models/PlayItem";
 import PlayInfo from "./models/PlayInfo";
 import PlayingItem from "./models/PlayingItem";
 import ArrayUtils from "firx/ArrayUtils";
@@ -420,7 +434,6 @@ export default class App extends Vue {
   isProgress: boolean;
   progressMessage: string;
   isShowSettingDailog: boolean;
-  rules: any;
   displays: DisplayInfo[];
   playDisplay: DisplayInfo;
 
@@ -436,9 +449,6 @@ export default class App extends Vue {
     this.progressMessage = "";
     this.isShowSettingDailog = false;
     this.isShowLeftNav = false;
-    this.rules = {
-      number: (value: string) => Number.isInteger(value) || "No Number.",
-    };
     this.displays = [];
     this.playDisplay = new DisplayInfo(1, { width: 0, height: 0 });
   }
@@ -501,6 +511,7 @@ export default class App extends Vue {
     this.progressMessage = message;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public getMainVue(): any {
     return this.$refs.main;
   }
@@ -574,10 +585,16 @@ export default class App extends Vue {
   }
 
   async switchRating(playInfo: PlayInfo) {
-    const id = playInfo.library!.ID;
+    if (!playInfo.library) return;
+    const id = playInfo.library.ID;
     console.log("switchRating", id, !playInfo.isFavorite);
     const rating = await this.ipcRenderer.invoke("switchRating", id, !playInfo.isFavorite);
-    playInfo.library!.RATING = rating;
+    playInfo.library.RATING = rating;
+  }
+
+  removePlaying(nowPlaying: PlayingItem) {
+    console.log("removePlaying", nowPlaying);
+    this.getMainVue().removePlaying(nowPlaying.key);
   }
 
   getDisplayName(display: DisplayInfo) {
@@ -626,5 +643,30 @@ export default class App extends Vue {
 <style>
 html {
   overflow-y: hidden !important;
+}
+
+.v-timeline-item--fill-dot .v-timeline-item__inner-dot {
+  height: 16px !important;
+  margin: 0;
+  width: 16px !important;
+}
+
+.v-timeline-item__dot--small {
+  height: 16px !important;
+  left: calc(50% - 12px);
+  width: 16px !important;
+}
+
+.v-timeline-item__divider {
+  position: relative;
+  min-width: 72px !important;
+  display: flex;
+  /*align-items: center;*/
+  justify-content: normal !important;
+}
+
+.v-application--is-ltr .v-timeline--dense:not(.v-timeline--reverse):before {
+  left: calc(32px - 1px) !important;
+  right: initial;
 }
 </style>

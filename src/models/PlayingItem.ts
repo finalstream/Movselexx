@@ -8,6 +8,7 @@ export default class PlayingItem {
   startTimeString: string;
   isPlaying: boolean;
   library: PlayItem;
+  isSkip: boolean;
 
   constructor() {
     this.key = "";
@@ -16,6 +17,7 @@ export default class PlayingItem {
     this.title = "";
     this.startTimeString = "";
     this.isPlaying = false;
+    this.isSkip = false;
     this.library = new PlayItem({
       ADDDATE: "",
       CODEC: "",

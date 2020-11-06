@@ -12,7 +12,6 @@ import MpcClient from "@/models/MpcClient";
 import PlayController from "@/models/PlayController";
 import { RatingType } from "@/models/RatingType";
 import contextMenuDataPlayList from "../assets/contextMenuDataPlayList.json";
-import App from "@/App.vue";
 
 @Component
 export default class Home extends Vue {
@@ -269,6 +268,10 @@ export default class Home extends Vue {
 
   getCountUpRemainMs() {
     return this.playController.getCountUpRemainMs();
+  }
+
+  removePlaying(key: string) {
+    this.playController.setSkip(key);
   }
 
   rowClasses(item: PlayItem) {
