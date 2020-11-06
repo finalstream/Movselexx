@@ -73,15 +73,17 @@ export default class Home extends Vue {
 
   async created() {
     document.ondragover = document.ondrop = e => {
-      e.dataTransfer!.dropEffect = "copy";
+      if (e.dataTransfer == null) return;
+      e.dataTransfer.dropEffect = "copy";
       e.preventDefault();
       return false;
     };
     document.ondrop = e => {
       const drops = [];
-      for (const i in e.dataTransfer!.files) {
-        if (Object.prototype.hasOwnProperty.call(e.dataTransfer!.files, i)) {
-          const element = e.dataTransfer!.files[i];
+      if (e.dataTransfer == null) return;
+      for (const i in e.dataTransfer.files) {
+        if (Object.prototype.hasOwnProperty.call(e.dataTransfer.files, i)) {
+          const element = e.dataTransfer.files[i];
           drops.push(element.path);
         }
       }
@@ -123,6 +125,7 @@ export default class Home extends Vue {
       });
     }, 1000);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.ipcRenderer.on("pushProgressInfo", async (event, message: string, detail: any) => {
       if (message == "#REGIST-END#") {
         this.$emit("update-progress-info", false);
@@ -148,11 +151,13 @@ export default class Home extends Vue {
     return root.appStore;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getGridItemListVue(): any {
     return this.$refs.gridItemList;
   }
 
-  async rowClick(e: any, value: any) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async rowClick(e: MouseEvent, value: any) {
     console.log("selectItem", value.item);
     const item: PlayItem = value.item;
     for (let index = 0; index < this.items.length; index++) {
@@ -162,7 +167,8 @@ export default class Home extends Vue {
     item.isSelected = true;
   }
 
-  async rowDbClick(e: any, value: any) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async rowDbClick(e: MouseEvent, value: any) {
     const item: PlayItem = value.item;
     console.log(item.filePath);
 
@@ -278,6 +284,7 @@ export default class Home extends Vue {
     return item.isSelected ? "v-data-table__selected" : "";
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onRowContextmenu(event: MouseEvent, data: any) {
     event.preventDefault();
     /*
