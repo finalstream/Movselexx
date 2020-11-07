@@ -28,6 +28,10 @@ export default class PlayController {
     this._playPreviousFilePath = "";
   }
 
+  public get playingId() {
+    return this._playingId;
+  }
+
   public get playings(): PlayingItem[] {
     return this._playings;
   }
@@ -127,7 +131,7 @@ export default class PlayController {
     }
   }
 
-  addPlayingItems(items: PlayItem[], isAdd: boolean, isRebuild: boolean) {
+  addPlayingItems(items: PlayItem[], isAdd: boolean, isRebuild: boolean, removeId?: number) {
     if (isAdd) {
       items = items.concat(this._playings.map(p => p.library));
     }
@@ -139,6 +143,13 @@ export default class PlayController {
       if (count == 0) {
         // 最初のアイテムだけ現在時刻を設定(再生開始時刻の推測に使用)
         pi.startTime = new Date();
+      }
+      if (count > 0) {
+        if (pi.id == removeId) {
+          // 再生終盤のidを除外
+          removeId = -1;
+          continue;
+        }
       }
       this._playings.push(pi);
       count++;
@@ -158,7 +169,7 @@ export default class PlayController {
     let currentTimeSpan = TimeSpan.fromMilliseconds(currentTime.getTime());
     let count = 0;
     for (const item of this._playings) {
-      if (count == 0) {
+      if (count == 0 || item.isSkip) {
         count++;
         continue;
       }
@@ -205,6 +216,12 @@ export default class PlayController {
         this._lastMakePlayings.splice(idx, 0, reserveItem);
       }
     }
+  }
+
+  isNearEnd() {
+    if (this._playingInfo == null) return;
+    const remainTime = new TimeSpan(this._playingInfo.duration - this._playingInfo.position);
+    return remainTime.totalMinutes < 5;
   }
 
   clearPlayings() {

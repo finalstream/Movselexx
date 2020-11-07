@@ -172,13 +172,15 @@ export default class Home extends Vue {
     const item: PlayItem = value.item;
     console.log(item.filePath);
 
+    const isNearEnd = this.playController.isNearEnd();
+    const removeId = isNearEnd ? this.playController.playingId : -1;
     this.mpcClient.openFile(item.filePath, false);
 
-    this.addPlayingItems([item], true, false);
+    this.addPlayingItems([item], true, false, removeId);
   }
 
-  addPlayingItems(items: PlayItem[], isAdd: boolean, isRebuild: boolean) {
-    this.playController.addPlayingItems(items, isAdd, isRebuild);
+  addPlayingItems(items: PlayItem[], isAdd: boolean, isRebuild: boolean, removeId?: number) {
+    this.playController.addPlayingItems(items, isAdd, isRebuild, removeId);
     this.ipcRenderer.invoke("updatePlayingList", this.playController.playings);
     this.$emit("update-playing-info", this.playController.playings);
   }
@@ -278,6 +280,8 @@ export default class Home extends Vue {
 
   removePlaying(key: string) {
     this.playController.setSkip(key);
+    this.playController.calcStartTime();
+    this.$emit("update-playing-info", this.playController.playings);
   }
 
   rowClasses(item: PlayItem) {
