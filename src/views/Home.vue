@@ -185,10 +185,10 @@ export default class Home extends Vue {
     this.$emit("update-playing-info", this.playController.playings);
   }
 
-  async reloadPlayItems(searchKeyword = "", isShuffle = false) {
+  async reloadPlayItems(isShuffle = false) {
     const rows: IPlayItem[] = await this.ipcRenderer.invoke(
       "getLibraries",
-      searchKeyword,
+      this.searchKeyword,
       isShuffle,
       this.isOnlyFavorite ? RatingType.Favorite : RatingType.Normal
     );
@@ -352,7 +352,7 @@ export default class Home extends Vue {
   @Watch("searchKeyword")
   onChangeSearchKeyword() {
     console.log("ChangeSearchKeyword", this.searchKeyword);
-    this.reloadPlayItems(this.searchKeyword);
+    this.reloadPlayItems();
   }
 }
 </script>
