@@ -8,6 +8,7 @@ import { Vue, Component, Watch } from "vue-property-decorator";
 import ArrayUtils from "firx/ArrayUtils";
 import { MessageLevel } from "firx/MessageLevel";
 import MpcClient from "@/models/MpcClient";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Vuetify from "vuetify";
 import PlayController from "@/models/PlayController";
 import { RatingType } from "@/models/RatingType";
