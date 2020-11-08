@@ -125,7 +125,7 @@ export default class Home extends Vue {
           this.playController.updateRating(library.id, library.rating);
 
           const isUpdatePlayings = this.playController.monitoring(pi);
-          if (isUpdatePlayings) this.$emit("update-playing-info", this.playController.playings);
+          if (isUpdatePlayings) this.updatePlayingList();
         }
       });
     }, 1000);
@@ -186,8 +186,7 @@ export default class Home extends Vue {
 
   addPlayingItems(items: PlayItem[], isAdd: boolean, isRebuild: boolean, removeId?: number) {
     this.playController.addPlayingItems(items, isAdd, isRebuild, removeId);
-    this.ipcRenderer.invoke("updatePlayingList", this.playController.playings);
-    this.$emit("update-playing-info", this.playController.playings);
+    this.updatePlayingList();
   }
 
   async reloadPlayItems(isShuffle = false) {
@@ -279,6 +278,17 @@ export default class Home extends Vue {
     this.searchKeyword = keyword;
   }
 
+  updatePlayingList() {
+    this.ipcRenderer.invoke(
+      "updatePlayingList",
+      this.playController.lastMakePlayings.filter(p => !p.isSkip)
+    );
+    this.$emit(
+      "update-playing-info",
+      this.playController.playings.filter(p => !p.isSkip)
+    );
+  }
+
   getCountUpRemainMs() {
     return this.playController.getCountUpRemainMs();
   }
@@ -286,7 +296,7 @@ export default class Home extends Vue {
   removePlaying(playingItem: PlayingItem) {
     this.playController.setSkip(playingItem);
     this.playController.calcStartTime();
-    this.$emit("update-playing-info", this.playController.playings);
+    this.updatePlayingList();
     if (this.playController.playingId == playingItem.id) this.playNext();
   }
 
@@ -325,7 +335,7 @@ export default class Home extends Vue {
       case "reserveNext": {
         const selectItem = selectItems[0];
         this.playController.reserveNext(selectItem);
-        this.$emit("update-playing-info", this.playController.playings);
+        this.updatePlayingList();
         break;
       }
       case "filterGroup": {

@@ -36,6 +36,10 @@ export default class PlayController {
     return this._playings;
   }
 
+  public get lastMakePlayings(): PlayingItem[] {
+    return this._lastMakePlayings;
+  }
+
   monitoring(pi: PlayInfo): boolean {
     let isUpdatePlayings = false;
     if (pi.library == null) return false;
