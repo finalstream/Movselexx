@@ -1,5 +1,6 @@
 import PlayItem from "./PlayItem";
 import DateFormat from "dateformat";
+import { RatingType } from "./RatingType";
 
 export default class PlayingItem {
   key: string;
@@ -37,6 +38,10 @@ export default class PlayingItem {
       TITLE: "",
       VIDEOSIZE: "",
     });
+  }
+
+  get isFavorite() {
+    return this.library.rating == RatingType.Favorite;
   }
 
   get startTimeString() {

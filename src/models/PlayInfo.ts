@@ -1,6 +1,7 @@
 import TimeSpan from "firx/TimeSpan";
 import Path from "path";
 import { IPlayItem } from "./IPlayItem";
+import PlayItem from "./PlayItem";
 import { RatingType } from "./RatingType";
 export default class PlayInfo {
   file: string;
@@ -10,7 +11,7 @@ export default class PlayInfo {
   position: number;
   durationString: string;
   positionString: string;
-  library: IPlayItem | null;
+  library: PlayItem | null;
 
   constructor() {
     this.file = "";
@@ -36,16 +37,16 @@ export default class PlayInfo {
 
   getTitle() {
     return this.library != null
-      ? this.library.TITLE
+      ? this.library.title
       : Path.basename(this.file, Path.extname(this.file));
   }
 
   getGroupName() {
-    return this.library != null ? this.library.GROUPNAME : "";
+    return this.library != null ? this.library.groupName : "";
   }
 
   getSeason() {
-    return this.library != null ? this.library.SEASON : "";
+    return this.library != null ? this.library.season : "";
   }
 
   get hasLibrary() {
@@ -53,6 +54,6 @@ export default class PlayInfo {
   }
 
   get isFavorite() {
-    return this.library && this.library.RATING == RatingType.Favorite ? true : false;
+    return this.library && this.library.rating == RatingType.Favorite ? true : false;
   }
 }

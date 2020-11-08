@@ -181,14 +181,12 @@ ipcMain.handle("mpcGetPlayInfo", async () => {
   playInfo.durationString = pv.durationstring;
   playInfo.positionString = pv.positionstring;
 
-  // ファイルパスからライブラリを取得
-  const lib = await libraryService.getLibraryByFilePath(playInfo.filepath);
-
-  if (lib) {
-    playInfo.library = lib;
-  }
-
   return playInfo;
+});
+
+ipcMain.handle("getLibrary", async (event, filePath: string) => {
+  // ファイルパスからライブラリを取得
+  return await libraryService.getLibraryByFilePath(filePath);
 });
 
 ipcMain.handle("countupPlay", (event, id: number) => {

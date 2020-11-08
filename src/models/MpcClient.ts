@@ -1,6 +1,8 @@
 import electron, { app } from "electron";
+import { IPlayItem } from "./IPlayItem";
 import MovselexxAppStore from "./MovselexxAppStore";
 import PlayInfo from "./PlayInfo";
+import PlayItem from "./PlayItem";
 
 export default class MpcClient {
   private ipcRenderer = electron.ipcRenderer;
@@ -28,12 +30,17 @@ export default class MpcClient {
   }
 
   async getPlayInfo(): Promise<PlayInfo> {
-    const pi = await this.ipcRenderer.invoke("mpcGetPlayInfo");
+    const pi: PlayInfo = await this.ipcRenderer.invoke("mpcGetPlayInfo");
     if (pi == null) {
       this._isBootMpc = false;
     } else {
       this._isBootMpc = true;
+      const library: IPlayItem = await this.ipcRenderer.invoke("getLibrary", pi.filepath);
+      if (library) {
+        pi.library = new PlayItem(library);
+      }
     }
+
     return pi;
   }
 

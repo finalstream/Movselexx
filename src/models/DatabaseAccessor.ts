@@ -107,7 +107,9 @@ export default class DatabaseAccessor {
     const gidcnt = gidcntResult ? gidcntResult.GCNT : 0;
 
     if (gidcnt > 0) {
-      const gidfavcntResult: any = await this.db.get<any>(Sql.SelectGroupIdCount, { "@Gid": gid });
+      const gidfavcntResult: any = await this.db.get<any>(Sql.SelectFavGroupIdCount, {
+        "@Gid": gid,
+      });
       const gidfavcnt = gidfavcntResult ? gidfavcntResult.GCNT : 0;
 
       if (gidcnt == gidfavcnt) return RatingType.Favorite;

@@ -39,7 +39,7 @@ export default class PlayController {
   monitoring(pi: PlayInfo): boolean {
     let isUpdatePlayings = false;
     if (pi.library == null) return false;
-    const nowId = pi.library.ID;
+    const nowId = pi.library.id;
     this._playingInfo = pi;
 
     if (nowId == this._playingId) {
@@ -73,7 +73,7 @@ export default class PlayController {
       // 再生しているものがかわった
 
       // 再生中リストから前回再生していたものを取り除く
-      this.updatePlayingList(nowId, new PlayItem(pi.library));
+      this.updatePlayingList(nowId, pi.library);
 
       this._playingId = nowId;
       this._playPreviousDate = null;
@@ -98,7 +98,7 @@ export default class PlayController {
       await this._mpcClient.openFile(nextItem.filePath, isFullScreen);
     } else if (this._lastMakePlayings.length > 0) {
       // 最後までいったらlastPlayingから復元する
-      this._playings = this._playings.concat(this._lastMakePlayings);
+      this._playings = this._playings.concat(this._lastMakePlayings.filter(p => !p.isSkip));
       await this._mpcClient.openFile(this._playings[0].filePath, isFullScreen);
     }
     this._playingId = -1;
@@ -199,9 +199,10 @@ export default class PlayController {
     return new Date().getTime().toString(16) + Math.floor(strong * Math.random()).toString(16);
   }
 
-  setSkip(key: string) {
-    this._playings.filter(p => p.key == key).forEach(p => (p.isSkip = true));
-    this._lastMakePlayings.filter(p => p.key == key).forEach(p => (p.isSkip = true));
+  setSkip(pi: PlayingItem) {
+    this._playings.filter(p => p.key == pi.key).forEach(p => (p.isSkip = true));
+    // TODO: playingsとlastMakePlayingsでkeyが同期取れていないので修正する
+    this._lastMakePlayings.filter(p => p.id == pi.id).forEach(p => (p.isSkip = true));
   }
 
   reserveNext(item: PlayItem) {
@@ -216,6 +217,11 @@ export default class PlayController {
         this._lastMakePlayings.splice(idx, 0, reserveItem);
       }
     }
+  }
+
+  updateRating(id: number, rating: number) {
+    this._playings.filter(p => p.id == id).forEach(p => (p.library.rating = rating));
+    this._lastMakePlayings.filter(p => p.id == id).forEach(p => (p.library.rating = rating));
   }
 
   isNearEnd() {

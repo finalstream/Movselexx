@@ -8,10 +8,11 @@ import { Vue, Component, Watch } from "vue-property-decorator";
 import ArrayUtils from "firx/ArrayUtils";
 import { MessageLevel } from "firx/MessageLevel";
 import MpcClient from "@/models/MpcClient";
-
+import Vuetify from "vuetify";
 import PlayController from "@/models/PlayController";
 import { RatingType } from "@/models/RatingType";
 import contextMenuDataPlayList from "../assets/contextMenuDataPlayList.json";
+import PlayingItem from "@/models/PlayingItem";
 
 @Component
 export default class Home extends Vue {
@@ -32,12 +33,12 @@ export default class Home extends Vue {
       value: "groupName",
     },*/
     { text: "Title", align: "start", value: "title" },
-    { text: "No", align: "end", value: "no" },
-    { text: "Length", align: "end", value: "length" },
+    { text: "No", align: "end", value: "no", width: "70px" },
+    { text: "Length", align: "end", value: "length", sortable: false },
     { text: "", align: "center", value: "rating" },
 
-    { text: "Date", value: "date" },
-    { text: "VideoSize", value: "videoSize", sortable: false },
+    { text: "Date", value: "date", width: "120px" },
+    { text: "Video", align: "center", value: "video", sortable: false },
     { text: "D", value: "drive", sortable: false },
     { text: "Cnt", value: "playCount", align: "end", sortable: false },
     { text: "", align: "center", value: "isPlayed" },
@@ -58,6 +59,7 @@ export default class Home extends Vue {
   searchKeyword: string;
   isOnlyFavorite = false;
   itemListHeight = 300;
+  sortBy = "";
 
   /**
    * コンストラクタ
@@ -110,14 +112,16 @@ export default class Home extends Vue {
         this.$emit("update-play-info", pi);
         if (pi.library != null) {
           const library = pi.library;
-          const itemIndex = this.items.findIndex(i => i.id == library.ID);
+          const itemIndex = this.items.findIndex(i => i.id == library.id);
           this.items.forEach(i => (i.isPlaying = false));
           if (itemIndex != -1) {
             const item = this.items[itemIndex];
-            item.rating = library.RATING;
-            item.playCount = library.PLAYCOUNT;
+            item.rating = library.rating;
+            item.playCount = library.playCount;
+            item.lastPlayDate = new Date(library.lastPlayDate);
             item.isPlaying = true;
           }
+          this.playController.updateRating(library.id, library.rating);
 
           const isUpdatePlayings = this.playController.monitoring(pi);
           if (isUpdatePlayings) this.$emit("update-playing-info", this.playController.playings);
@@ -278,10 +282,11 @@ export default class Home extends Vue {
     return this.playController.getCountUpRemainMs();
   }
 
-  removePlaying(key: string) {
-    this.playController.setSkip(key);
+  removePlaying(playingItem: PlayingItem) {
+    this.playController.setSkip(playingItem);
     this.playController.calcStartTime();
     this.$emit("update-playing-info", this.playController.playings);
+    if (this.playController.playingId == playingItem.id) this.playNext();
   }
 
   rowClasses(item: PlayItem) {
@@ -352,6 +357,7 @@ export default class Home extends Vue {
   @Watch("searchKeyword")
   onChangeSearchKeyword() {
     console.log("ChangeSearchKeyword", this.searchKeyword);
+    if (!this.searchKeyword) this.sortBy = "";
     this.reloadPlayItems();
   }
 }

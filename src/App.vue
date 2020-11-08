@@ -71,14 +71,31 @@
             <strong>{{ nowPlaying.startTimeString }}</strong
             >&nbsp;<v-icon
               small
-              v-show="playInfo.library && playInfo.library.ID != nowPlaying.id"
               style="margin-top:-5px"
               color="red accent-3"
               @click="removePlaying(nowPlaying)"
               >mdi-close-thick</v-icon
             >
           </div>
-          <div style="margin-left:-40px" class="pl-3">{{ nowPlaying.title }}</div>
+          <div style="margin-left:-40px" class="pl-3">
+            <v-icon
+              color="orange darken-1"
+              v-show="nowPlaying.isFavorite"
+              small
+              style="z-index:999"
+              @click="switchRating(nowPlaying.library)"
+              >mdi-star</v-icon
+            >
+            <v-icon
+              color="grey lighten-1"
+              v-show="!nowPlaying.isFavorite"
+              small
+              style="z-index:999"
+              @click="switchRating(nowPlaying.library)"
+              >mdi-star-outline</v-icon
+            >
+            {{ nowPlaying.title }}
+          </div>
         </v-timeline-item>
       </v-timeline>
     </v-navigation-drawer>
@@ -119,13 +136,13 @@
           <div class="pt-1">
             <v-icon
               color="orange darken-1"
-              @click="switchRating(playInfo)"
+              @click="switchRating(playInfo.library)"
               v-show="playInfo.hasLibrary && playInfo.isFavorite"
               >mdi-star</v-icon
             >
             <v-icon
               color="grey lighten-1"
-              @click="switchRating(playInfo)"
+              @click="switchRating(playInfo.library)"
               v-show="playInfo.hasLibrary && !playInfo.isFavorite"
               >mdi-star-outline</v-icon
             >
@@ -187,16 +204,22 @@
           </v-btn>
         </v-col>
         <v-col class="pa-0 px-1">
-          <v-btn color="primary" @click="throwPlay()" block>Throw</v-btn>
+          <v-btn color="primary" @click="throwPlay()" block
+            ><v-icon class="pr-1">mdi-movie-open</v-icon>Play</v-btn
+          >
         </v-col>
         <v-col class="pa-0 px-1">
-          <v-btn color="primary" @click="shuffle()" block>Shuffle</v-btn>
+          <v-btn color="primary" @click="shuffle()" block
+            ><v-icon class="pr-1">mdi-shuffle-variant</v-icon>Shuffle</v-btn
+          >
         </v-col>
         <v-col cols="1" class="pa-0 px-1">
-          <v-btn color="primary" @click="prevPlay()" block>Prev</v-btn>
+          <v-btn color="primary" @click="prevPlay()" block
+            ><v-icon>mdi-skip-previous</v-icon></v-btn
+          >
         </v-col>
         <v-col cols="1" class="pa-0 px-1">
-          <v-btn color="primary" @click="nextPlay()" block>Next</v-btn>
+          <v-btn color="primary" @click="nextPlay()" block><v-icon>mdi-skip-next</v-icon></v-btn>
         </v-col>
       </v-row>
     </v-footer>
@@ -384,6 +407,7 @@ import ArrayUtils from "firx/ArrayUtils";
 import MovselexxAppStore from "./models/MovselexxAppStore";
 import DisplayInfo from "./models/DisplayInfo";
 import TimeSpan from "firx/TimeSpan";
+import PlayItem from "./models/PlayItem";
 
 @Component
 export default class App extends Vue {
@@ -585,17 +609,17 @@ export default class App extends Vue {
     this.isShowLeftNav = !this.isShowLeftNav;
   }
 
-  async switchRating(playInfo: PlayInfo) {
-    if (!playInfo.library) return;
-    const id = playInfo.library.ID;
-    console.log("switchRating", id, !playInfo.isFavorite);
-    const rating = await this.ipcRenderer.invoke("switchRating", id, !playInfo.isFavorite);
-    playInfo.library.RATING = rating;
+  async switchRating(item: PlayItem) {
+    if (!item) return;
+    const id = item.id;
+    console.log("switchRating", id, !item.isFavorite);
+    const rating = await this.ipcRenderer.invoke("switchRating", id, !item.isFavorite);
+    item.rating = rating;
   }
 
   removePlaying(nowPlaying: PlayingItem) {
     console.log("removePlaying", nowPlaying);
-    this.getMainVue().removePlaying(nowPlaying.key);
+    this.getMainVue().removePlaying(nowPlaying);
   }
 
   getDisplayName(display: DisplayInfo) {
@@ -664,6 +688,7 @@ html {
   display: flex;
   /*align-items: center;*/
   justify-content: normal !important;
+  z-index: 1;
 }
 
 .v-application--is-ltr .v-timeline--dense:not(.v-timeline--reverse):before {

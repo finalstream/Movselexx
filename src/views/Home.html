@@ -38,8 +38,9 @@
     :headers="headers"
     :items="items"
     item-key="id"
-    :items-per-page="items.length"
+    disable-pagination
     :item-class= "rowClasses"
+    :sort-by.sync="sortBy"
     hide-default-footer
     style="user-select: none;"
     single-select
@@ -60,6 +61,18 @@
     <template v-slot:item.rating="{ item }">
       <v-icon color="orange darken-1" @click="switchRating(item)" v-show="item.isFavorite">mdi-star</v-icon>
       <v-icon color="grey lighten-1" @click="switchRating(item)" v-show="!item.isFavorite">mdi-star-outline</v-icon>
+    </template>
+    <template v-slot:item.date="{ item }">
+      <div style="font-size:9pt;">{{ item.dateString }}</div>
+      <div style="font-size:9pt;">
+        {{ item.lastPlayDateString }}
+      </div>
+    </template>
+    <template v-slot:item.video="{ item }">
+      <div style="font-size:9pt;">{{ item.videoSize }}</div>
+      <div style="font-size:9pt;">
+        <v-chip x-small label outlined>{{ item.extension }}</v-chip>
+      </div>
     </template>
     <template v-slot:item.isPlayed="{ item }">
       <v-icon v-show="item.isPlayed" @click="switchPlayed(item)" color="light-green darken-1">mdi-check-bold</v-icon>
