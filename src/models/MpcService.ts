@@ -13,9 +13,13 @@ export default class MpcService {
     return this._mpcControl.getVariables();
   }
 
-  openFile(filePath: string, isFullScreen: boolean) {
-    this._mpcControl.openFile(encodeURIComponent(filePath));
-    if (isFullScreen) this._mpcControl.execute("FULLSCREEN");
+  async openFile(filePath: string, isFullScreen: boolean) {
+    await this._mpcControl.openFile(encodeURIComponent(filePath));
+    if (isFullScreen) await this._mpcControl.execute("FULLSCREEN");
+  }
+
+  seek(position: number) {
+    return this._mpcControl.seek(position);
   }
 
   async saveScreenShot() {

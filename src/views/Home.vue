@@ -104,7 +104,13 @@ export default class Home extends Vue {
       false,
       true
     );
-    this.mpcClient.connect();
+    const connected = await this.mpcClient.connect();
+
+    if (!connected) {
+      // resume play
+      console.log("resume play");
+      await this.mpcClient.resumePlay();
+    }
 
     setInterval(() => {
       this.mpcClient.getPlayInfo().then(pi => {

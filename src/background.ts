@@ -55,13 +55,29 @@ async function createWindow() {
     await win.loadURL("app://./index.html");
   }
 
+  win.on("session-end", async () => {
+    // シャットダウン処理
+    await quitBefore();
+  });
+
   win.on("closed", () => {
     win = null;
   });
 }
 
+async function quitBefore() {
+  // 再生中の場合、再生ファイルと位置を保存
+  try {
+    const pv = await mpcService.getPlayInfo();
+    AppStore.instance.set("resume.filepath", pv.filepath);
+    AppStore.instance.set("resume.position", pv.position);
+  } catch {}
+}
+
 // Quit when all windows are closed.
-app.on("window-all-closed", () => {
+app.on("window-all-closed", async () => {
+  await quitBefore();
+
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== "darwin") {
@@ -141,11 +157,12 @@ ipcMain.handle("getStore", (event, key) => {
   return AppStore.instance.get(key);
 });
 
-ipcMain.handle("closeWindow", () => {
+ipcMain.handle("closeWindow", async () => {
   AppStore.instance.set("window.x", win!.getPosition()[0]);
   AppStore.instance.set("window.y", win!.getPosition()[1]);
   AppStore.instance.set("window.height", win!.getSize()[1]);
   AppStore.instance.set("window.width", win!.getSize()[0]);
+
   win!.destroy(); // close()では閉じられない
 });
 
@@ -161,8 +178,14 @@ ipcMain.handle("maximizeWindow", () => {
   win?.isMaximized() ? win?.unmaximize() : win?.maximize();
 });
 
-ipcMain.handle("mpcConnect", (event, connectInfo: any) => {
+ipcMain.handle("mpcConnect", async (event, connectInfo: any) => {
   mpcService = new MpcService(connectInfo.host, connectInfo.port);
+  try {
+    await mpcService.getPlayInfo();
+    return true;
+  } catch {
+    return false;
+  }
 });
 
 ipcMain.handle("mpcGetPlayInfo", async () => {
@@ -194,6 +217,15 @@ ipcMain.handle("countupPlay", (event, id: number) => {
 });
 ipcMain.handle("mpcBoot", async (event, mpcExePath: string, screenNo: number) => {
   await mpcService.boot(mpcExePath, screenNo);
+});
+
+ipcMain.handle("mpcResumePlay", async event => {
+  const resumeFilePath: string = AppStore.instance.get("resume.filepath");
+  const resumePosition: number = AppStore.instance.get("resume.position");
+  if (resumeFilePath) {
+    await mpcService.openFile(resumeFilePath, true);
+    await mpcService.seek(resumePosition);
+  }
 });
 
 ipcMain.handle("mpcOpenFile", (event, filePath: string, isFullScreen: boolean) => {

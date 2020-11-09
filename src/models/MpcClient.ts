@@ -18,8 +18,8 @@ export default class MpcClient {
     this._isBootMpc = false;
   }
 
-  async connect() {
-    await this.ipcRenderer.invoke("mpcConnect", {
+  async connect(): Promise<boolean> {
+    return await this.ipcRenderer.invoke("mpcConnect", {
       host: this._host,
       port: this._port,
     });
@@ -50,6 +50,11 @@ export default class MpcClient {
       this._appStore.mpcExePath,
       this._appStore.playDisplayNo
     );
+  }
+
+  async resumePlay() {
+    await this.bootMpc();
+    await this.ipcRenderer.invoke("mpcResumePlay");
   }
 
   async openFile(filePath: string, isFullScreen: boolean) {
