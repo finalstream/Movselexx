@@ -61,6 +61,7 @@ export default class Home extends Vue {
   isOnlyFavorite = false;
   itemListHeight = 300;
   sortBy = "";
+  isCtrlKeyDown = false;
 
   /**
    * コンストラクタ
@@ -168,19 +169,36 @@ export default class Home extends Vue {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async rowClick(e: MouseEvent, value: any) {
-    console.log("selectItem", value.item);
-    const item: PlayItem = value.item;
-    for (let index = 0; index < this.items.length; index++) {
-      const element = this.items[index];
-      element.isSelected = false;
+  async rowClick(e: MouseEvent) {
+    const elem: any = e.currentTarget!;
+    const key = elem.dataset!.key;
+
+    const clickItem = this.items.filter(item => item.key == key);
+
+    console.log("selectItem", clickItem[0]);
+
+    const item: PlayItem = clickItem[0];
+    if (!e.ctrlKey) {
+      for (let index = 0; index < this.items.length; index++) {
+        const element = this.items[index];
+        element.isSelected = false;
+      }
     }
     item.isSelected = true;
   }
 
+  rowKeyDown(e: KeyboardEvent) {
+    this.isCtrlKeyDown = e.ctrlKey;
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async rowDbClick(e: MouseEvent, value: any) {
-    const item: PlayItem = value.item;
+  async rowDbClick(e: MouseEvent) {
+    const elem: any = e.currentTarget!;
+    const key = elem.dataset!.key;
+
+    const clickItem = this.items.filter(item => item.key == key);
+
+    const item: PlayItem = clickItem[0];
     console.log(item.filePath);
 
     const isNearEnd = this.playController.isNearEnd();

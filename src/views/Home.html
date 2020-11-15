@@ -47,36 +47,56 @@
     @click:row="rowClick"
     @dblclick:row="rowDbClick"
     @contextmenu:row="onRowContextmenu"
+    @keydown:row="rowKeyDown"
     ref="gridItemList"
   >
-    <template v-slot:item.title="{ item }">
-      <div class="caption" style="color:lightslategray">
-        {{ item.groupName }}
-      </div>
-      <div>{{ item.title }}</div>
-    </template>
-    <template v-slot:item.isPlaying="{ item }">
-      <v-icon color="indigo accent-3" v-show="item.isPlaying">mdi-play-circle-outline</v-icon>
-    </template>
-    <template v-slot:item.rating="{ item }">
-      <v-icon color="orange darken-1" @click="switchRating(item)" v-show="item.isFavorite">mdi-star</v-icon>
-      <v-icon color="grey lighten-1" @click="switchRating(item)" v-show="!item.isFavorite">mdi-star-outline</v-icon>
-    </template>
-    <template v-slot:item.date="{ item }">
-      <div style="font-size:9pt;">{{ item.dateString }}</div>
-      <div style="font-size:9pt;">
-        {{ item.lastPlayDateString }}
-      </div>
-    </template>
-    <template v-slot:item.video="{ item }">
-      <div style="font-size:9pt;">{{ item.videoSize }}</div>
-      <div style="font-size:9pt;">
-        <v-chip x-small label outlined>{{ item.extension }}</v-chip>
-      </div>
-    </template>
-    <template v-slot:item.isPlayed="{ item }">
-      <v-icon v-show="item.isPlayed" @click="switchPlayed(item)" color="light-green darken-1">mdi-check-bold</v-icon>
-      <v-icon v-show="!item.isPlayed" @click="switchPlayed(item)" color="grey lighten-2">mdi-check-outline</v-icon>
+    <template v-slot:item="{ item }">
+      <tr @click="rowClick" @dblclick="rowDbClick" :data-key="item.key" :class="rowClasses(item)">
+        <!-- playing -->
+        <td>
+          <v-icon color="indigo accent-3" v-show="item.isPlaying">mdi-play-circle-outline</v-icon>
+        </td>
+        <!-- title/group -->
+        <td>
+          <div class="caption" style="color:lightslategray">
+            {{ item.groupName }}
+          </div>
+          <div>{{ item.title }}</div>
+        </td>
+        <td style="text-align: right;">
+          {{ item.no }}
+        </td>
+        <td style="text-align: right;">
+          {{ item.length }}
+        </td>
+        <!-- rating -->
+        <td>
+          <v-icon color="orange darken-1" @click="switchRating(item)" v-show="item.isFavorite">mdi-star</v-icon>
+          <v-icon color="grey lighten-1" @click="switchRating(item)" v-show="!item.isFavorite">mdi-star-outline</v-icon>
+        </td>
+        <!-- date/lastplaydate -->
+        <td>
+          <div style="font-size:9pt;">{{ item.dateString }}</div>
+          <div style="font-size:9pt;">
+            {{ item.lastPlayDateString }}
+          </div>
+        </td>
+        <!-- video -->
+        <td>
+          <div style="font-size:9pt;">{{ item.videoSize }}</div>
+          <div style="font-size:9pt;">
+            <v-chip x-small label outlined>{{ item.extension }}</v-chip>
+          </div>
+        </td>
+        <td>{{ item.drive }}</td>
+        <td style="text-align: right;">
+          {{ item.playCount }}
+        </td>
+        <td>
+          <v-icon v-show="item.isPlayed" @click="switchPlayed(item)" color="light-green darken-1">mdi-check-bold</v-icon>
+          <v-icon v-show="!item.isPlayed" @click="switchPlayed(item)" color="grey lighten-2">mdi-check-outline</v-icon>
+        </td>
+      </tr>
     </template>
   </v-data-table>
   <v-snackbar v-model="isShowSnackbar" bottom :color="snackbarMessageLevel" timeout="1000">

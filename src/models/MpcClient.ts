@@ -63,7 +63,7 @@ export default class MpcClient {
       await this.bootMpc();
       isFullScreen = true;
     }
-    this.ipcRenderer.invoke("mpcOpenFile", filePath, isFullScreen);
+    return this.ipcRenderer.invoke("mpcOpenFile", filePath, isFullScreen);
   }
 
   saveScreenShot() {

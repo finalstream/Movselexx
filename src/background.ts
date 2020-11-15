@@ -228,8 +228,8 @@ ipcMain.handle("mpcResumePlay", async event => {
   }
 });
 
-ipcMain.handle("mpcOpenFile", (event, filePath: string, isFullScreen: boolean) => {
-  mpcService.openFile(filePath, isFullScreen);
+ipcMain.handle("mpcOpenFile", async (event, filePath: string, isFullScreen: boolean) => {
+  await mpcService.openFile(filePath, isFullScreen);
 });
 
 ipcMain.handle("mpcSaveScreenShot", event => {

@@ -5,6 +5,7 @@ import path from "path";
 import TimeSpan from "firx/TimeSpan";
 
 export default class PlayItem {
+  key: string;
   id: number;
   filePath: string;
   isPlaying: boolean;
@@ -27,6 +28,7 @@ export default class PlayItem {
    *
    */
   constructor(item: IPlayItem) {
+    this.key = this.getUniqueKey(100000);
     this.id = item.ID;
     this.filePath = item.FILEPATH;
     this.isPlaying = false;
@@ -44,6 +46,12 @@ export default class PlayItem {
     this.playCount = item.PLAYCOUNT;
     this.isSelected = false;
     this.season = item.SEASON;
+  }
+
+  getUniqueKey(myStrong?: number): string {
+    let strong = 1000;
+    if (myStrong) strong = myStrong;
+    return new Date().getTime().toString(16) + Math.floor(strong * Math.random()).toString(16);
   }
 
   get dateString() {
