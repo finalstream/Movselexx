@@ -3,7 +3,7 @@
 <script lang="ts">
 import { IPlayItem } from "@/models/IPlayItem";
 import PlayItem from "@/models/PlayItem";
-import electron from "electron";
+import electron, { TouchBarButton } from "electron";
 import { Vue, Component, Watch } from "vue-property-decorator";
 import ArrayUtils from "firx/ArrayUtils";
 import { MessageLevel } from "firx/MessageLevel";
@@ -175,7 +175,7 @@ export default class Home extends Vue {
 
     const clickItem = this.items.filter(item => item.key == key);
 
-    console.log("selectItem", clickItem[0]);
+    console.log("selectItem", e, clickItem[0]);
 
     const item: PlayItem = clickItem[0];
     if (!e.ctrlKey) {
@@ -185,12 +185,17 @@ export default class Home extends Vue {
       }
     }
     item.isSelected = true;
-  }
 
-  rowKeyDown(e: KeyboardEvent) {
-    this.isCtrlKeyDown = e.ctrlKey;
+    if (e.button == 2) {
+      // right click
+      this.isShowMenu = false;
+      this.menuX = e.clientX;
+      this.menuY = e.clientY;
+      this.$nextTick(() => {
+        this.isShowMenu = true;
+      });
+    }
   }
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async rowDbClick(e: MouseEvent) {
     const elem: any = e.currentTarget!;

@@ -57,7 +57,7 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-navigation-drawer clipped app right>
+    <v-navigation-drawer clipped app right permanent>
       <v-timeline align-top dense>
         <v-timeline-item
           v-for="nowPlaying in nowPlayings.filter(p => !p.isSkip)"

@@ -47,11 +47,10 @@
     @click:row="rowClick"
     @dblclick:row="rowDbClick"
     @contextmenu:row="onRowContextmenu"
-    @keydown:row="rowKeyDown"
     ref="gridItemList"
   >
     <template v-slot:item="{ item }">
-      <tr @click="rowClick" @dblclick="rowDbClick" :data-key="item.key" :class="rowClasses(item)">
+      <tr @mousedown="rowClick" @dblclick="rowDbClick" :data-key="item.key" :class="rowClasses(item)">
         <!-- playing -->
         <td>
           <v-icon color="indigo accent-3" v-show="item.isPlaying">mdi-play-circle-outline</v-icon>
