@@ -47,6 +47,10 @@ export default class LibraryService {
     return await this._databaseAccessor.selectPlayingList();
   }
 
+  getGroupKeyword(title: string) {
+    return this.createKeywords(title).reverse()[0];
+  }
+
   async updateLibrary(playItems: PlayItem[]) {
     if (playItems.length == 0) return;
 
@@ -134,6 +138,12 @@ export default class LibraryService {
       }
       this._notificationService.pushProgressInfo("#REGIST-END#", registedCount);
     });
+  }
+
+  unGroupLibrary(ids: number[]) {
+    for (const id of ids) {
+      this._databaseAccessor.updateGidById(null, id);
+    }
   }
 
   updatePlayingList(playingItems: PlayingItem[]) {
@@ -241,8 +251,8 @@ export default class LibraryService {
       if (group) {
         // 同じキーワードのグループが見つかったら情報を更新して抜ける
         const gid = group.GID;
-        const groupRating = await this._databaseAccessor.getGroupRating(gid);
-        this._databaseAccessor.updateGroupLastUpdateDatetime(gid);
+        const groupRating = await this._databaseAccessor.getGroupRating(gid!);
+        this._databaseAccessor.updateGroupLastUpdateDatetime(gid!);
         return {
           GID: group.GID,
           GROUPNAME: group.GROUPNAME,
@@ -262,7 +272,14 @@ export default class LibraryService {
 
       // グループを登録する
       const gid = await this.registGroup(groupNameandKeyword, groupNameandKeyword);
-      await this.joinGroup(groupNameandKeyword, groupNameandKeyword, unGroupLibraries);
+
+      await this.joinGroup(
+        gid,
+        unGroupLibraries.map(l => l.ID)
+      );
+      for (const library of unGroupLibraries) {
+        library.GROUPNAME = groupNameandKeyword;
+      }
 
       // グループのレーティングを取得
       const groupRating = await this._databaseAccessor.getGroupRating(gid);
@@ -278,25 +295,16 @@ export default class LibraryService {
   }
 
   async registGroup(groupName: string, keyword: string) {
-    this._databaseAccessor.insertGroup(groupName, keyword);
+    this._databaseAccessor.insertGroup(groupName, keyword.trim().toLowerCase());
     const gid: number = await this._databaseAccessor.selectLastInsertRowId();
     return gid;
   }
 
-  async joinGroup(groupName: string, keyword: string, unGroupLibraries: IPlayItem[]) {
-    let gid = await this._databaseAccessor.selectGIdByGroupName(groupName);
-
-    if (gid == -1) {
-      // グループが存在しない場合登録
-      gid = await this.registGroup(groupName, keyword);
+  async joinGroup(groupId: number, joinIds: number[]) {
+    for (const joinId of joinIds) {
+      await this._databaseAccessor.updateGidById(groupId, joinId);
     }
-
-    for (const i in unGroupLibraries) {
-      const library = unGroupLibraries[i];
-      this._databaseAccessor.updateGidById(gid, library.ID);
-      this._databaseAccessor.updateGroupLastUpdateDatetime(gid);
-      library.GROUPNAME = groupName;
-    }
+    await this._databaseAccessor.updateGroupLastUpdateDatetime(groupId);
   }
 
   private createKeywords(title: string): string[] {

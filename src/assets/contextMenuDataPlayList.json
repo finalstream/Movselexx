@@ -4,8 +4,16 @@
     "action": "reserveNext"
   },
   {
+    "label": "グループ化...",
+    "action": "grouping"
+  },
+  {
     "label": "グループでフィルタ",
     "action": "filterGroup"
+  },
+  {
+    "label": "グループ解除",
+    "action": "unGroup"
   },
   {
     "label": "削除...",

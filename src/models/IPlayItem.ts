@@ -3,7 +3,7 @@ export interface IPlayItem {
   CODEC: string;
   DATE: string;
   FILEPATH: string;
-  GID: number;
+  GID: number | null;
   GROUPNAME: string;
   ID: number;
   ISPLAYED: number;

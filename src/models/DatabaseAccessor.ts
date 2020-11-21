@@ -144,7 +144,7 @@ export default class DatabaseAccessor {
     });
   }
 
-  async updateGidById(gid: number, id: number) {
+  async updateGidById(gid: number | null, id: number) {
     await this.db.run(Sql.UpdateGidById, { "@Id": id, "@Gid": gid });
   }
 

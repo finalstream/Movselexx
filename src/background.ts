@@ -212,9 +212,28 @@ ipcMain.handle("getLibrary", async (event, filePath: string) => {
   return await libraryService.getLibraryByFilePath(filePath);
 });
 
+ipcMain.handle("getGroupKeyword", (event, title: string) => {
+  const keyword = libraryService.getGroupKeyword(title);
+  const resultKeywords = [];
+  for (const kw of keyword.split(" ")) {
+    // 数字はすてる
+    if (isNaN(parseInt(kw, 10))) resultKeywords.push(kw);
+  }
+  return resultKeywords.join(" ");
+});
+
 ipcMain.handle("countupPlay", (event, id: number) => {
   libraryService.countupPlay(id);
 });
+
+ipcMain.handle("registGroup", async (event, groupName: string, groupKeyword: string) => {
+  return await libraryService.registGroup(groupName, groupKeyword);
+});
+
+ipcMain.handle("joinGroup", async (event, groupId: number, targetIds: number[]) => {
+  await libraryService.joinGroup(groupId, targetIds);
+});
+
 ipcMain.handle("mpcBoot", async (event, mpcExePath: string, screenNo: number) => {
   await mpcService.boot(mpcExePath, screenNo);
 });
@@ -234,6 +253,10 @@ ipcMain.handle("mpcOpenFile", async (event, filePath: string, isFullScreen: bool
 
 ipcMain.handle("mpcSaveScreenShot", event => {
   mpcService.saveScreenShot();
+});
+
+ipcMain.handle("unGroupLibrary", (event, ids: number[]) => {
+  libraryService.unGroupLibrary(ids);
 });
 
 ipcMain.handle("updatePlayingList", (event, playingItems: PlayingItem[]) => {

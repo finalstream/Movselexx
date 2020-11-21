@@ -62,6 +62,11 @@ export default class Home extends Vue {
   itemListHeight = 300;
   sortBy = "";
   isCtrlKeyDown = false;
+  isShowGroupingDialog = false;
+  groupingGroup: PlayItem | null = null;
+  groupingNewGroupName = "";
+  groupingKeyword = "";
+  isGroupingAllNoGroup = false;
 
   /**
    * コンストラクタ
@@ -178,7 +183,8 @@ export default class Home extends Vue {
     console.log("selectItem", e, clickItem[0]);
 
     const item: PlayItem = clickItem[0];
-    if (!e.ctrlKey) {
+    if (!e.ctrlKey && e.button != 2) {
+      // clear selection
       for (let index = 0; index < this.items.length; index++) {
         const element = this.items[index];
         element.isSelected = false;
@@ -318,8 +324,35 @@ export default class Home extends Vue {
     );
   }
 
+  async grouping() {
+    const selectItems = this.items.filter(i => i.isSelected);
+    const targetIds = selectItems.map(i => i.id);
+    let groupId = this.groupingGroup?.groupId;
+    const groupName = this.groupingGroup?.groupName;
+    console.log("grouping", this.isGroupingAllNoGroup, groupId, targetIds);
+    if (this.isGroupingAllNoGroup) {
+      // regist Group
+      groupId = await this.ipcRenderer.invoke(
+        "registGroup",
+        this.groupingNewGroupName,
+        this.groupingKeyword
+      );
+    }
+    await this.ipcRenderer.invoke("joinGroup", groupId, targetIds);
+    for (const item of selectItems) {
+      if (groupId) item.groupId = groupId;
+      if (groupName) item.groupName = groupName;
+    }
+  }
+
   getCountUpRemainMs() {
     return this.playController.getCountUpRemainMs();
+  }
+
+  getGroupingGroups() {
+    return this.items.filter((v, i, a) => {
+      return v.groupName != null && a.findIndex(vs => vs.groupId == v.groupId) == i;
+    });
   }
 
   removePlaying(playingItem: PlayingItem) {
@@ -347,7 +380,7 @@ export default class Home extends Vue {
       })
       .sort((item1, item2) => item1.title.localeCompare(item2.title));
       */
-    this.rowClick(event, data);
+    this.rowClick(event);
     this.isShowMenu = false;
     this.menuX = event.clientX;
     this.menuY = event.clientY;
@@ -356,7 +389,7 @@ export default class Home extends Vue {
     });
   }
 
-  onContextMenuClick(action: string) {
+  async onContextMenuClick(action: string) {
     const selectItems = this.items.filter(i => i.isSelected);
     console.log("contextMenuClick", action, selectItems);
 
@@ -367,9 +400,40 @@ export default class Home extends Vue {
         this.updatePlayingList();
         break;
       }
+      case "grouping": {
+        const selectItem = selectItems[0];
+        this.groupingGroup = selectItem;
+
+        this.isGroupingAllNoGroup = selectItems.every(g => g.groupId == null);
+
+        if (this.isGroupingAllNoGroup) {
+          this.groupingKeyword = await this.ipcRenderer.invoke("getGroupKeyword", selectItem.title);
+          this.groupingNewGroupName = this.groupingKeyword;
+          this.groupingGroup = this.getGroupingGroups().find(
+            g => g.groupName == this.groupingKeyword
+          )!;
+          this.isGroupingAllNoGroup = !this.getGroupingGroups().some(
+            i => i.groupName == this.groupingKeyword
+          );
+        }
+
+        this.isShowGroupingDialog = true;
+        break;
+      }
       case "filterGroup": {
         const selectItem = selectItems[0];
         this.setSearchKeyword(selectItem.groupName);
+        break;
+      }
+      case "unGroup": {
+        await this.ipcRenderer.invoke(
+          "unGroupLibrary",
+          selectItems.map(i => i.id)
+        );
+        for (const item of selectItems) {
+          item.groupId = null;
+          item.groupName = "";
+        }
         break;
       }
       case "deleteLibrary": {

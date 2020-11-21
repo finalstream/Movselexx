@@ -9,7 +9,7 @@ export default class PlayItem {
   id: number;
   filePath: string;
   isPlaying: boolean;
-  groupId: number;
+  groupId: number | null;
   groupName: string;
   title: string;
   no: string;

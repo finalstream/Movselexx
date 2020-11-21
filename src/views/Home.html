@@ -200,4 +200,68 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+  <v-dialog
+    v-model="isShowGroupingDialog"
+    persistent 
+    max-width="650"
+  >
+    <v-card class="pt-3">
+      <v-card-title class="pa-3">Grouping</v-card-title>
+      <v-card-text class="pt-3">
+        グループに登録します。
+      </v-card-text>
+      <v-card-text>
+      <v-text-field
+        v-show="isGroupingAllNoGroup"
+        label="New GroupName"
+        v-model="groupingNewGroupName"
+      ></v-text-field>
+      <v-select
+          v-show="!isGroupingAllNoGroup"
+          v-model="groupingGroup"
+          :items="getGroupingGroups()"
+          label="GroupName"
+          item-text="groupName"
+          outlined
+          return-object
+        ></v-select>
+        <v-text-field
+        v-show="isGroupingAllNoGroup"
+        v-model="groupingKeyword"
+        label="GroupKeyword"
+        ></v-text-field>
+        <v-list style="max-height: 200px"
+        class="overflow-y-auto">
+          <v-subheader>Targets</v-subheader>
+          <v-list-item-group
+          >
+          <v-list-item
+            v-for="(item, i) in items.filter(i => i.isSelected)"
+            :key="i"
+          >
+          {{ item.title }}
+          </v-list-item>
+          </v-list-item-group>
+        </v-list>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn
+          :disabled="groupingGroup == '' || groupingGroup == null"
+          color="green darken-1"
+          text
+          @click="grouping();isShowGroupingDialog = false;"
+        >
+          grouping
+        </v-btn>
+
+        <v-btn
+          text
+          @click="isShowGroupingDialog = false"
+        >
+          cancel
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </div>
