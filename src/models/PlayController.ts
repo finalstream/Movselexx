@@ -168,6 +168,7 @@ export default class PlayController {
   }
 
   calcStartTime() {
+    if (this.playings.length == 0) return;
     // ベース時刻は最初のアイテムとする
     let currentTime = this.playings[0].startTime;
     let currentTimeSpan = TimeSpan.fromMilliseconds(currentTime.getTime());
