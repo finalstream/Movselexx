@@ -184,7 +184,7 @@ export default class Home extends Vue {
     console.log("selectItem", e, clickItem[0]);
 
     const item: PlayItem = clickItem[0];
-    if (!e.ctrlKey && e.button != 2) {
+    if ((!e.ctrlKey && e.button != 2) || (e.button == 2 && !item.isSelected)) {
       // clear selection
       for (let index = 0; index < this.items.length; index++) {
         const element = this.items[index];
