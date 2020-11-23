@@ -87,6 +87,14 @@ export default class Home extends Vue {
       e.preventDefault();
       return false;
     };
+
+    document.onkeydown = e => {
+      if (e.code == "F12") {
+        console.log("switch debug mode");
+        this.ipcRenderer.invoke("toggleDevTools");
+      }
+    };
+
     document.ondrop = e => {
       const drops = [];
       if (e.dataTransfer == null) return;

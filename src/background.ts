@@ -53,10 +53,11 @@ async function createWindow() {
     createProtocol("app");
     // Load the index.html when not in development
     await win.loadURL("app://./index.html");
-    win.webContents.openDevTools();
+    //win.webContents.openDevTools();
   }
 
   win.on("session-end", async () => {
+    // TODO:// no fire https://github.com/electron/electron/issues/21093
     // シャットダウン処理
     await quitBefore();
   });
@@ -285,4 +286,8 @@ ipcMain.handle("openDialogfile", (event, data) => {
     .then(ret => {
       return ret.filePaths[0];
     });
+});
+
+ipcMain.handle("toggleDevTools", event => {
+  win!.webContents.toggleDevTools();
 });
