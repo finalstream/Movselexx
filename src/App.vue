@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 <template>
   <v-app id="inspire">
-    <v-navigation-drawer v-model="isShowLeftNav" :clipped="$vuetify.breakpoint.lgAndUp" app>
+    <v-navigation-drawer v-model="isShowLeftNav" stateless clipped hide-overlay app>
       <v-list>
         <v-list-item-group v-model="item" color="primary">
           <template v-for="item in items">
@@ -171,7 +171,7 @@
           <span>{{ getCountUpRemainTimeString() }}</span>
         </v-tooltip>
       </v-toolbar-title>
-      <v-btn icon @click="refresh()">
+      <v-btn large icon @click="refresh()">
         <v-icon>mdi-refresh</v-icon>
       </v-btn>
     </v-app-bar>
