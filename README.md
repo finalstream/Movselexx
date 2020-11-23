@@ -20,6 +20,9 @@ Support Windows 10　(ElectronなのでMacOS及びLinuxでも動作するかも�
 #### スクリーンショット取得
 ボタン一つで動画のスクリーンショットを取得できるのでお気に入りの１シーンを保存できます。OneDriveを設定しておけば、そのまま取得ファイルはクラウドにアップロードされます。
 
+## 謝辞
+icon designed by Freepik and distributed by Flaticon
+
 ## Project setup
 ```
 yarn install
