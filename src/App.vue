@@ -479,6 +479,13 @@ export default class App extends Vue {
   }
 
   async created() {
+    document.onkeydown = e => {
+      if (e.code == "F12") {
+        console.log("switch debug mode");
+        this.ipcRenderer.invoke("toggleDevTools");
+      }
+    };
+
     const displays: Display[] = await this.ipcRenderer.invoke("initialize");
     await this.loadSettings();
     let no = 1;
