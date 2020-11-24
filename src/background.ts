@@ -15,6 +15,7 @@ import PlayItem from "./models/PlayItem";
 import NotificationService from "./models/NotificationService";
 import PlayingItem from "./models/PlayingItem";
 import { RatingType } from "./models/RatingType";
+import { IPlayerVariables } from "mpc-hc-control/lib/commands/commands";
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -71,9 +72,13 @@ async function quitBefore() {
   // 再生中の場合、再生ファイルと位置を保存
   try {
     const pv = await mpcService.getPlayInfo();
-    AppStore.instance.set("resume.filepath", pv.filepath);
-    AppStore.instance.set("resume.position", pv.position);
+    saveResumeInfo(pv);
   } catch {}
+}
+
+function saveResumeInfo(pv: IPlayerVariables) {
+  AppStore.instance.set("resume.filepath", pv.filepath);
+  AppStore.instance.set("resume.position", pv.position);
 }
 
 // Quit when all windows are closed.
@@ -205,6 +210,8 @@ ipcMain.handle("mpcGetPlayInfo", async () => {
   playInfo.position = pv.position;
   playInfo.durationString = pv.durationstring;
   playInfo.positionString = pv.positionstring;
+
+  saveResumeInfo(pv);
 
   return playInfo;
 });
