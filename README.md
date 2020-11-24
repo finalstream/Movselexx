@@ -6,6 +6,8 @@
 
 Support Windows 10　(ElectronアプリなのでMacOS及びLinuxでも動作するかもしれません)
 
+### [Download](https://github.com/finalstream/Movselex/releases/latest)
+
 ![image](https://user-images.githubusercontent.com/3516444/99921627-e6fe2580-2d6e-11eb-8899-cd90c52e3888.png)
 
 ## 特徴
