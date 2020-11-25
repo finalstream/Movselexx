@@ -170,20 +170,27 @@ export default class PlayController {
   calcStartTime() {
     if (this.playings.length == 0) return;
     // ベース時刻は最初のアイテムとする
-    let currentTime = this.playings[0].startTime;
-    let currentTimeSpan = TimeSpan.fromMilliseconds(currentTime.getTime());
+    let prevStartTime = this.playings[0].startTime;
+    let prevDurationSpan: TimeSpan = TimeSpan.zero;
     let count = 0;
     for (const item of this._playings) {
-      if (count == 0 || item.isSkip) {
-        count++;
-        continue;
-      }
-      let durationSpan = TimeSpan.zero;
-      durationSpan = TimeSpan.parse(item.library.length);
-      currentTime = new Date(currentTimeSpan.add(durationSpan).totalMilliseconds);
-      currentTimeSpan = TimeSpan.fromMilliseconds(currentTime.getTime());
+      if (item.isSkip) continue;
 
-      item.startTime = currentTime;
+      if (count == 0) {
+        // 最初はスタート時間を更新しない
+        if (this._playingInfo) {
+          prevDurationSpan = TimeSpan.fromMilliseconds(
+            this._playingInfo.duration - this._playingInfo.position
+          );
+        }
+      } else {
+        item.startTime = new Date(
+          TimeSpan.fromMilliseconds(prevStartTime.getTime()).add(prevDurationSpan).totalMilliseconds
+        );
+        prevStartTime = new Date(item.startTime.getTime());
+        prevDurationSpan = TimeSpan.parse(item.library.length);
+      }
+
       count++;
     }
   }
