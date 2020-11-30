@@ -108,7 +108,12 @@ export default class LibraryService {
               continue; // 不完全ファイルはスキップ
             const movTitle = this.getMovTitle(filePath);
             const group = await this.getMovGroup(movTitle);
-            const length = duration.minutes + ":" + ("00" + duration.seconds).slice(-2);
+            const hour = duration.hours > 0 ? duration.hours : "";
+            const minute =
+              duration.hours > 0 ? ("00" + duration.minutes).slice(-2) : duration.minutes;
+            const second = ("00" + duration.seconds).slice(-2);
+            const length =
+              duration.hours > 0 ? hour + ":" + minute + ":" + second : minute + ":" + second;
             const lastWriteDate = fs.statSync(filePath).mtime;
             await this._databaseAccessor.insertLibrary({
               "@Gid": group.GID,
