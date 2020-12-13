@@ -21,6 +21,11 @@ module.exports = {
             filter: ["**/*"],
           },
           {
+            from: "filter.json",
+            to: "filter.json",
+            filter: ["**/*"],
+          },
+          {
             from: "bin",
             to: "bin",
             filter: ["**/*"],

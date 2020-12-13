@@ -1,0 +1,30 @@
+[
+  { "text": "ALL MOVIE", 
+    "sql":"",
+    "isLimited": true
+  },
+  { "text": "再生中",
+    "sql": "INNER JOIN (SELECT ID,SORT FROM PLAYINGLIST) PLAYING ON PL.ID=PLAYING.ID ORDER BY PLAYING.SORT",
+    "isLimited": false 
+  },
+  { "text": "未再生",
+    "sql": "AND PLAYED = 0 ORDER BY ADDDATE DESC",
+    "isLimited": false 
+  },
+  { "text": "再生履歴",
+    "sql": "ORDER BY LASTPLAYDATE DESC", 
+    "isLimited": true
+  },
+  { "text": "1週間以内に追加した",
+    "sql": "AND DATETIME(ADDDATE,'LOCALTIME') >= DATETIME(DATETIME('NOW','LOCALTIME'), '-7 DAY','LOCALTIME') ORDER BY ADDDATE DESC", 
+    "isLimited": false
+  },
+  { "text": "再生頻度が高いもの",
+    "sql": "AND PLAYCOUNT >= 3 ORDER BY  PLAYCOUNT / ROUND(JULIANDAY(DATETIME('NOW', 'LOCALTIME')) - JULIANDAY(DATETIME(ADDDATE))) DESC", 
+    "isLimited": true
+  },
+  { "text": "映画っぽいもの",
+    "sql": "AND length(LENGTH) >= 6 ORDER BY LENGTH DESC", 
+    "isLimited": false
+  }
+]
