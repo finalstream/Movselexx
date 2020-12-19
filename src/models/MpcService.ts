@@ -36,11 +36,11 @@ export default class MpcService {
     await this.sleep(2000);
   }
 
-  async sleep(t: number) {
+  sleep(t: number) {
     // TODO:ライブラリ化
-    return await new Promise(r => {
+    return new Promise(r => {
       setTimeout(() => {
-        r();
+        r(void);
       }, t);
     });
   }
