@@ -66,6 +66,10 @@ export default class MpcClient {
     return this.ipcRenderer.invoke("mpcOpenFile", filePath, isFullScreen);
   }
 
+  async toggleMute() {
+    await this.ipcRenderer.invoke("mpcToggleMute");
+  }
+
   saveScreenShot() {
     return this.ipcRenderer.invoke("mpcSaveScreenShot");
   }

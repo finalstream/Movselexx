@@ -259,6 +259,10 @@ export default class Home extends Vue {
     this.playController.playPrev();
   }
 
+  toggleMute() {
+    this.mpcClient.toggleMute();
+  }
+
   async refresh() {
     if (this.items.length == 0) {
       this.reloadPlayItems();

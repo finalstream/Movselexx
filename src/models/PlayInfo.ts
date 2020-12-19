@@ -11,6 +11,7 @@ export default class PlayInfo {
   position: number;
   durationString: string;
   positionString: string;
+  isMuted: boolean;
   library: PlayItem | null;
 
   constructor() {
@@ -21,6 +22,7 @@ export default class PlayInfo {
     this.position = 0;
     this.durationString = "";
     this.positionString = "";
+    this.isMuted = false;
     this.library = null;
   }
 
@@ -32,6 +34,7 @@ export default class PlayInfo {
     this.position = playInfo.position;
     this.durationString = playInfo.durationString;
     this.positionString = playInfo.positionString;
+    this.isMuted = playInfo.isMuted;
     this.library = playInfo.library;
   }
 

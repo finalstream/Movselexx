@@ -210,6 +210,7 @@ ipcMain.handle("mpcGetPlayInfo", async () => {
   playInfo.position = pv.position;
   playInfo.durationString = pv.durationstring;
   playInfo.positionString = pv.positionstring;
+  playInfo.isMuted = pv.muted;
 
   saveResumeInfo(pv);
 
@@ -258,6 +259,10 @@ ipcMain.handle("mpcResumePlay", async event => {
 
 ipcMain.handle("mpcOpenFile", async (event, filePath: string, isFullScreen: boolean) => {
   await mpcService.openFile(filePath, isFullScreen);
+});
+
+ipcMain.handle("mpcToggleMute", (event, isMute: boolean) => {
+  mpcService.toggleMute();
 });
 
 ipcMain.handle("mpcSaveScreenShot", event => {

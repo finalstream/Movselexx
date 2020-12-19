@@ -221,6 +221,12 @@
         <v-col cols="1" class="pa-0 px-1">
           <v-btn color="primary" @click="nextPlay()" block><v-icon>mdi-skip-next</v-icon></v-btn>
         </v-col>
+        <v-col cols="1" class="pa-0 px-1">
+          <v-btn color="primary" @click="toggleMute()" block
+            ><v-icon v-show="!playInfo.isMuted">mdi-volume-high</v-icon
+            ><v-icon v-show="playInfo.isMuted">mdi-volume-off</v-icon></v-btn
+          >
+        </v-col>
       </v-row>
     </v-footer>
     <!--
@@ -570,6 +576,10 @@ export default class App extends Vue {
 
   refresh() {
     this.getMainVue().refresh();
+  }
+
+  toggleMute() {
+    this.getMainVue().toggleMute();
   }
 
   showSettings() {

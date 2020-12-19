@@ -22,6 +22,10 @@ export default class MpcService {
     return this._mpcControl.seek(position);
   }
 
+  async toggleMute() {
+    this._mpcControl.toggleMute();
+  }
+
   async saveScreenShot() {
     await this._mpcControl.execute("SAVE_IMAGE_AUTO");
   }
