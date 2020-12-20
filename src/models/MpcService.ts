@@ -40,7 +40,7 @@ export default class MpcService {
     // TODO:ライブラリ化
     return new Promise(r => {
       setTimeout(() => {
-        r(void);
+        r(undefined);
       }, t);
     });
   }
