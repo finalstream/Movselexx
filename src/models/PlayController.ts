@@ -40,7 +40,7 @@ export default class PlayController {
     return this._lastMakePlayings;
   }
 
-  monitoring(pi: PlayInfo): boolean {
+  async monitoring(pi: PlayInfo): Promise<boolean> {
     let isUpdatePlayings = false;
     if (pi.library == null) return false;
     const nowId = pi.library.id;
@@ -49,7 +49,7 @@ export default class PlayController {
     if (nowId == this._playingId) {
       if (pi.duration == pi.position && pi.state == 1) {
         // 再生が停止されたら再生リストの次のアイテムを再生
-        this.playNext(false);
+        await this.playNext(false);
         //isUpdatePlayings = true;
       }
       // 継続再生

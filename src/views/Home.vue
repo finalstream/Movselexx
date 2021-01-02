@@ -120,15 +120,19 @@ export default class Home extends Vue {
     }
 
     setInterval(() => {
-      this.mpcClient.getPlayInfo().then(pi => {
+      this.mpcClient.getPlayInfo().then(async pi => {
         if (pi == null) return;
         //console.log(pi);
         this.$emit("update-play-info", pi);
+
         if (pi.library != null) {
+          // ライブラリ内にある場合
           const library = pi.library;
           const itemIndex = this.items.findIndex(i => i.id == library.id);
           this.items.forEach(i => (i.isPlaying = false));
+
           if (itemIndex != -1) {
+            // グリッドにあればグリッドの情報を更新
             const item = this.items[itemIndex];
             item.rating = library.rating;
             item.playCount = library.playCount;
@@ -137,8 +141,8 @@ export default class Home extends Vue {
           }
           this.playController.updateRating(library.id, library.rating);
 
-          const isUpdatePlayings = this.playController.monitoring(pi);
-          if (isUpdatePlayings) this.updatePlayingList();
+          const isUpdatePlayings = await this.playController.monitoring(pi);
+          if (isUpdatePlayings) await this.updatePlayingList();
         }
       });
     }, 1000);
@@ -319,13 +323,13 @@ export default class Home extends Vue {
   }
 
   updatePlayingList() {
-    this.ipcRenderer.invoke(
-      "updatePlayingList",
-      this.playController.lastMakePlayings.filter(p => !p.isSkip)
-    );
     this.$emit(
       "update-playing-info",
       this.playController.playings.filter(p => !p.isSkip)
+    );
+    return this.ipcRenderer.invoke(
+      "updatePlayingList",
+      this.playController.lastMakePlayings.filter(p => !p.isSkip)
     );
   }
 
