@@ -4,6 +4,7 @@ import PlayingItem from "./PlayingItem";
 import PlayItem from "./PlayItem";
 import TimeSpan from "firx/TimeSpan";
 import ArrayUtils from "firx/ArrayUtils";
+import { IPlayItem } from "./IPlayItem";
 
 export default class PlayController {
   private _mpcClient: MpcClient;
@@ -99,19 +100,29 @@ export default class PlayController {
         await this.playNext(isManual);
         return;
       }
-      await this._mpcClient.openFile(nextItem.filePath, isFullScreen);
+      const library: IPlayItem | undefined = await this._mpcClient.openFile(
+        nextItem.filePath,
+        isFullScreen
+      );
+      this._playingId = library ? library.ID : -1;
     } else if (this._lastMakePlayings.length > 0) {
       // 最後までいったらlastPlayingから復元する
       this._playings = this._playings.concat(this._lastMakePlayings.filter(p => !p.isSkip));
-      await this._mpcClient.openFile(this._playings[0].filePath, isFullScreen);
+      const library: IPlayItem | undefined = await this._mpcClient.openFile(
+        this._playings[0].filePath,
+        isFullScreen
+      );
+      this._playingId = library ? library.ID : -1;
     }
-    this._playingId = -1;
   }
 
   async playPrev() {
     if (this._playPreviousFilePath) {
-      await this._mpcClient.openFile(this._playPreviousFilePath, false);
-      this._playingId = -1;
+      const library: IPlayItem | undefined = await this._mpcClient.openFile(
+        this._playPreviousFilePath,
+        false
+      );
+      this._playingId = library ? library.ID : -1;
     }
   }
 

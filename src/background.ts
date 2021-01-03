@@ -259,6 +259,7 @@ ipcMain.handle("mpcResumePlay", async event => {
 
 ipcMain.handle("mpcOpenFile", async (event, filePath: string, isFullScreen: boolean) => {
   await mpcService.openFile(filePath, isFullScreen);
+  return libraryService.getLibraryByFilePath(filePath);
 });
 
 ipcMain.handle("mpcToggleMute", (event, isMute: boolean) => {
