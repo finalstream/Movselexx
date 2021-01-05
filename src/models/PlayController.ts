@@ -104,7 +104,7 @@ export default class PlayController {
         nextItem.filePath,
         isFullScreen
       );
-      this._playingId = library ? library.ID : -1;
+      this._playingId = -1; // 再生アイテムの変更を検知するため-1に初期化
     } else if (this._lastMakePlayings.length > 0) {
       // 最後までいったらlastPlayingから復元する
       this._playings = this._playings.concat(this._lastMakePlayings.filter(p => !p.isSkip));
@@ -112,7 +112,7 @@ export default class PlayController {
         this._playings[0].filePath,
         isFullScreen
       );
-      this._playingId = library ? library.ID : -1;
+      this._playingId = -1; // 再生アイテムの変更を検知するため-1に初期化
     }
   }
 
@@ -122,7 +122,7 @@ export default class PlayController {
         this._playPreviousFilePath,
         false
       );
-      this._playingId = library ? library.ID : -1;
+      this._playingId = -1; // 再生アイテムの変更を検知するため-1に初期化
     }
   }
 
