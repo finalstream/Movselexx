@@ -8,6 +8,9 @@ import { IPlayItem } from "./IPlayItem";
 import { IPlayerVariables } from "mpc-hc-control/lib/commands/commands";
 import { RatingType } from "./RatingType";
 import dateformat from "dateformat";
+import AppUtils from "firx/AppUtils";
+import FilterCondition from "./FilterCondition";
+import { FilterMode } from "./FilterMode";
 
 export default class DatabaseAccessor {
   db: Database<sqlite3.Database, sqlite3.Statement>;
@@ -15,7 +18,7 @@ export default class DatabaseAccessor {
   lastSelectLibrarySql = Sql.SelectLibraryList;
 
   constructor(databaseFileName: string) {
-    const appDirectory = !app.isPackaged ? __dirname : path.dirname(app.getPath("exe"));
+    const appDirectory = AppUtils.getAppDirectory(app);
     const blankdatabaseFilePath = path.join(appDirectory, "database", "blank.movselexdatabase");
     const databaseFilePath = path.join(appDirectory, "database", databaseFileName);
     if (!fs.existsSync(databaseFilePath)) fs.copyFileSync(blankdatabaseFilePath, databaseFilePath);
@@ -43,12 +46,17 @@ export default class DatabaseAccessor {
     });
   }
 
-  async selectLibraries(isShuffle: boolean, selectionRating: RatingType, searchKeyword: string) {
+  async selectLibraries(
+    isShuffle: boolean,
+    selectionRating: RatingType,
+    searchKeyword: string,
+    filterCondition: FilterCondition
+  ) {
     if (isShuffle) {
       return await this.db.all<IPlayItem[]>(this.createShuffleSql());
     } else {
       return await this.db.all<IPlayItem[]>(
-        this.createSql(Sql.SelectLibraryList, selectionRating, searchKeyword, true)
+        this.createSql(Sql.SelectLibraryList, selectionRating, searchKeyword, filterCondition)
       );
     }
   }
@@ -191,25 +199,38 @@ export default class DatabaseAccessor {
     sql: string,
     selectionRating: RatingType,
     searchKeyword: string,
-    withLimit: boolean = false
+    filterCondition: FilterCondition
   ) {
-    // Generate WHERE
-    sql += " WHERE ";
-    // Rating
-    sql += this.getRatingWhereString(selectionRating);
+    if (filterCondition.isFullSql) {
+      sql += " " + filterCondition.sql;
+    } else {
+      // Generate WHERE
+      sql += " WHERE ";
+      // Rating
+      sql += this.getRatingWhereString(selectionRating);
 
-    // Keyword
-    if (searchKeyword) {
-      const searchKeywordLower = searchKeyword.toLowerCase();
-      sql +=
-        " AND lower(IFNULL(FILEPATH,'') || IFNULL(TITLE,'') || IFNULL(GPL.GROUPNAME,'') || IFNULL(SEASON,'')) LIKE '%" +
-        this.escapeSql(searchKeywordLower) +
-        "%' ";
+      // Keyword
+      if (searchKeyword) {
+        const searchKeywordLower = searchKeyword.toLowerCase();
+        sql +=
+          " AND lower(IFNULL(FILEPATH,'') || IFNULL(TITLE,'') || IFNULL(GPL.GROUPNAME,'') || IFNULL(SEASON,'')) LIKE '%" +
+          this.escapeSql(searchKeywordLower) +
+          "%' ";
+      }
+
+      // FilterMode
+      switch (filterCondition.mode) {
+        case FilterMode.Sql:
+          sql += " " + filterCondition.sql;
+          break;
+        case FilterMode.Group:
+          break;
+      }
     }
 
     this.lastSelectLibrarySql = sql;
-    sql += " ORDER BY PL.DATE DESC ";
-    if (withLimit) sql = sql + " LIMIT " + this.limit;
+    if (sql.indexOf("ORDER BY") == -1) sql += " ORDER BY PL.DATE DESC ";
+    if (filterCondition.isLimited) sql = sql + " LIMIT " + this.limit;
 
     return sql;
   }

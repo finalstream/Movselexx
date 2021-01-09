@@ -2,20 +2,23 @@
 <template>
   <v-app id="inspire">
     <v-navigation-drawer v-model="isShowLeftNav" stateless clipped hide-overlay app>
-      <v-list>
-        <v-list-item-group v-model="item" color="primary">
-          <template v-for="item in items">
-            <v-row v-if="item.heading" :key="item.heading" align="center">
-              <v-col cols="6">
-                <v-subheader v-if="item.heading">
-                  {{ item.heading }}
-                </v-subheader>
-              </v-col>
-              <v-col cols="6" class="text-center">
-                <a href="#!" class="body-2 black--text">EDIT</a>
-              </v-col>
-            </v-row>
-            <!--
+      <v-tabs v-model="tab">
+        <v-tab>Presets</v-tab>
+        <v-tab>Groups</v-tab>
+      </v-tabs>
+      <v-tabs-items v-model="tab">
+        <v-tab-item>
+          <v-list>
+            <v-list-item-group v-model="item" color="primary" mandatory>
+              <template v-for="item in presetItems">
+                <v-row v-if="item.heading" :key="item.heading" align="center">
+                  <v-col>
+                    <v-subheader v-if="item.heading">
+                      {{ item.heading }}
+                    </v-subheader>
+                  </v-col>
+                </v-row>
+                <!--
           <v-list-group
             v-else-if="item.children"
             :key="item.text"
@@ -42,19 +45,22 @@
             </v-list-item>
           </v-list-group>
           -->
-            <v-list-item v-else :key="item.text" link>
-              <!--<v-list-item-action>
+                <v-list-item v-else :key="item.text" @click="updateFilterCondition(item)" dense>
+                  <!--<v-list-item-action>
               <v-icon>{{ item.icon }}</v-icon>
             </v-list-item-action>-->
-              <v-list-item-content>
-                <v-list-item-title>
-                  {{ item.text }}
-                </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </template>
-        </v-list-item-group>
-      </v-list>
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      {{ item.text }}
+                    </v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </template>
+            </v-list-item-group>
+          </v-list>
+        </v-tab-item>
+        <v-tab-item> </v-tab-item>
+      </v-tabs-items>
     </v-navigation-drawer>
 
     <v-navigation-drawer clipped app right permanent>
@@ -178,6 +184,7 @@
     <v-main>
       <v-container fluid>
         <router-view
+          :filterCondition="filterCondition"
           @update-play-info="updatePlayInfo"
           @update-playing-info="updatePlayingInfo"
           @update-progress-info="updateProgressInfo"
@@ -186,7 +193,7 @@
       </v-container>
     </v-main>
 
-    <v-footer style="z-index:9" app>
+    <v-footer app>
       <v-container v-show="isProgress" fluid class="mt-2 mb-2 pa-0">
         <span>{{ progressMessage }}</span>
         <v-progress-linear
@@ -414,6 +421,9 @@ import MovselexxAppStore from "./models/MovselexxAppStore";
 import DisplayInfo from "./models/DisplayInfo";
 import TimeSpan from "firx/TimeSpan";
 import PlayItem from "./models/PlayItem";
+import InitData from "./models/InitData";
+import FilterCondition from "./models/FilterCondition";
+import { FilterMode } from "./models/FilterMode";
 
 @Component
 export default class App extends Vue {
@@ -423,15 +433,8 @@ export default class App extends Vue {
   isShowLeftNav = false;
   item = null;
   players = ["Media Player Classic"];
-  items = [
-    { text: "ALL MOVIE" },
-    { text: "再生中" },
-    { text: "未再生" },
-    { text: "再生履歴" },
-    { text: "1週間以内に追加した" },
-    { text: "再生頻度が高いもの" },
-    { text: "映画っぽいもの" },
-    { text: "存在しないもの" },
+  tab = null;
+  presetItems: any[] = [
     /*
     {
       icon: "mdi-chevron-up",
@@ -467,6 +470,7 @@ export default class App extends Vue {
   isShowSettingDailog: boolean;
   displays: DisplayInfo[];
   playDisplay: DisplayInfo;
+  filterCondition: FilterCondition;
 
   /**
    * コンストラクタ
@@ -482,6 +486,7 @@ export default class App extends Vue {
     this.isShowLeftNav = false;
     this.displays = [];
     this.playDisplay = new DisplayInfo(1, { width: 0, height: 0 });
+    this.filterCondition = new FilterCondition();
   }
 
   async created() {
@@ -492,10 +497,16 @@ export default class App extends Vue {
       }
     };
 
-    const displays: Display[] = await this.ipcRenderer.invoke("initialize");
+    const initData: InitData = await this.ipcRenderer.invoke("initialize");
+
+    // load filters
+    for (const filter of initData.filters) {
+      this.presetItems.push(filter);
+    }
+
     await this.loadSettings();
     let no = 1;
-    for (const d of displays) {
+    for (const d of initData.displays) {
       this.displays.push(new DisplayInfo(no++, d.size));
     }
 
@@ -641,6 +652,12 @@ export default class App extends Vue {
 
   getDisplayName(display: DisplayInfo) {
     return "Display " + display.no + " (" + display.size.width + "x" + display.size.height + ")";
+  }
+
+  updateFilterCondition(filter: any) {
+    console.log("updateFilterCondition", filter.sql, filter.isFullSql, filter.isLimited);
+    this.filterCondition.update(FilterMode.Sql, filter.sql, filter.isFullSql, filter.isLimited);
+    this.getMainVue().reloadPlayItems();
   }
 
   /*

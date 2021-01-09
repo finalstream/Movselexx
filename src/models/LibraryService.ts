@@ -15,6 +15,7 @@ import { RatingType } from "./RatingType";
 import trash from "trash";
 import { app } from "electron";
 import path from "path";
+import FilterCondition from "./FilterCondition";
 
 export default class LibraryService {
   _databaseAccessor: DatabaseAccessor;
@@ -29,9 +30,19 @@ export default class LibraryService {
     this._databaseAccessor.updatePlayCount(id);
   }
 
-  async getLibraries(isShuffle: boolean, selectionRating: RatingType, searchKeyword: string) {
+  async getLibraries(
+    isShuffle: boolean,
+    selectionRating: RatingType,
+    searchKeyword: string,
+    filterCondition: FilterCondition
+  ) {
     return await (
-      await this._databaseAccessor.selectLibraries(isShuffle, selectionRating, searchKeyword)
+      await this._databaseAccessor.selectLibraries(
+        isShuffle,
+        selectionRating,
+        searchKeyword,
+        filterCondition
+      )
     ).filter(l => fs.existsSync(l.FILEPATH));
   }
 

@@ -16,6 +16,11 @@ import NotificationService from "./models/NotificationService";
 import PlayingItem from "./models/PlayingItem";
 import { RatingType } from "./models/RatingType";
 import { IPlayerVariables } from "mpc-hc-control/lib/commands/commands";
+import fs from "fs";
+import AppUtils from "firx/AppUtils";
+import path from "path";
+import InitData from "./models/InitData";
+import FilterCondition from "./models/FilterCondition";
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -134,13 +139,27 @@ ipcMain.handle("initialize", () => {
   const dba = new DatabaseAccessor("movselex.db");
   dba.open();
   libraryService = new LibraryService(dba, new NotificationService(win!.webContents));
-  return screen.getAllDisplays();
+
+  // read fikter.json
+  const filtersString: string = fs.readFileSync(
+    path.join(AppUtils.getAppDirectory(app), "filter.json"),
+    "utf-8"
+  );
+  const filters = JSON.parse(filtersString);
+  const initData = new InitData(screen.getAllDisplays(), filters);
+  return initData;
 });
 
 ipcMain.handle(
   "getLibraries",
-  (event, searchKeyword: string, isShuffle: boolean, selectionRating: RatingType) => {
-    return libraryService.getLibraries(isShuffle, selectionRating, searchKeyword);
+  (
+    event,
+    searchKeyword: string,
+    isShuffle: boolean,
+    selectionRating: RatingType,
+    filterCondition: FilterCondition
+  ) => {
+    return libraryService.getLibraries(isShuffle, selectionRating, searchKeyword, filterCondition);
   }
 );
 

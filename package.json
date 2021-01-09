@@ -22,7 +22,7 @@
     "dateformat": "^3.0.3",
     "ffprobe": "^1.1.2",
     "ffprobe-static": "^3.0.0",
-    "firx": "^0.1.4",
+    "firx": "^0.1.5",
     "mpc-hc-control": "^1.0.2",
     "path": "^0.12.7",
     "sqlite": "^4.0.14",

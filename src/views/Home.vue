@@ -4,7 +4,7 @@
 import { IPlayItem } from "@/models/IPlayItem";
 import PlayItem from "@/models/PlayItem";
 import electron, { TouchBarButton } from "electron";
-import { Vue, Component, Watch } from "vue-property-decorator";
+import { Vue, Component, Watch, Prop } from "vue-property-decorator";
 import ArrayUtils from "firx/ArrayUtils";
 import { MessageLevel } from "firx/MessageLevel";
 import MpcClient from "@/models/MpcClient";
@@ -14,10 +14,14 @@ import PlayController from "@/models/PlayController";
 import { RatingType } from "@/models/RatingType";
 import contextMenuDataPlayList from "../assets/contextMenuDataPlayList.json";
 import PlayingItem from "@/models/PlayingItem";
+import FilterCondition from "@/models/FilterCondition";
 
 @Component
 export default class Home extends Vue {
   private ipcRenderer = electron.ipcRenderer;
+
+  @Prop()
+  filterCondition!: FilterCondition;
 
   headers = [
     {
@@ -230,11 +234,19 @@ export default class Home extends Vue {
   }
 
   async reloadPlayItems(isShuffle = false) {
+    console.log(
+      "reloadPlayItems",
+      this.searchKeyword,
+      isShuffle,
+      this.isOnlyFavorite,
+      this.filterCondition
+    );
     const rows: IPlayItem[] = await this.ipcRenderer.invoke(
       "getLibraries",
       this.searchKeyword,
       isShuffle,
-      this.isOnlyFavorite ? RatingType.Favorite : RatingType.Normal
+      this.isOnlyFavorite ? RatingType.Favorite : RatingType.Normal,
+      this.filterCondition
     );
     this.updatePlayItems(rows);
   }
