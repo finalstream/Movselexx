@@ -163,6 +163,10 @@ ipcMain.handle(
   }
 );
 
+ipcMain.handle("getGroups", (event, selectionRating: RatingType) => {
+  return libraryService.getGroups(selectionRating);
+});
+
 ipcMain.handle("getPlayingList", event => {
   return libraryService.getPlayingList();
 });

@@ -1,10 +1,12 @@
 import { FilterMode } from "./FilterMode";
+import GroupItem from "./GroupItem";
 
 export default class FilterCondition {
   mode: FilterMode;
   sql: string;
   isFullSql: boolean;
   isLimited: boolean;
+  groupId: number;
 
   /**
    *
@@ -14,15 +16,25 @@ export default class FilterCondition {
     this.sql = "";
     this.isFullSql = false;
     this.isLimited = true;
+    this.groupId = -1;
   }
 
   /**
    *
    */
-  update(mode: FilterMode, sql: string, isFullSql: boolean, isLimited: boolean) {
-    this.mode = mode;
+  updatePresets(sql: string, isFullSql: boolean, isLimited: boolean) {
+    this.mode = FilterMode.Sql;
     this.sql = sql;
     this.isFullSql = isFullSql;
     this.isLimited = isLimited;
+    this.groupId = -1;
+  }
+
+  updateGroup(group: GroupItem) {
+    this.mode = FilterMode.Group;
+    this.sql = "";
+    this.isFullSql = false;
+    this.isLimited = true;
+    this.groupId = group.groupId!;
   }
 }

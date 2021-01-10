@@ -15,6 +15,8 @@ import { RatingType } from "@/models/RatingType";
 import contextMenuDataPlayList from "../assets/contextMenuDataPlayList.json";
 import PlayingItem from "@/models/PlayingItem";
 import FilterCondition from "@/models/FilterCondition";
+import { IGroupItem } from "@/models/IGroupItem";
+import GroupItem from "@/models/GroupItem";
 
 @Component
 export default class Home extends Vue {
@@ -249,6 +251,14 @@ export default class Home extends Vue {
       this.filterCondition
     );
     this.updatePlayItems(rows);
+    const grows: IGroupItem[] = await this.ipcRenderer.invoke(
+      "getGroups",
+      this.isOnlyFavorite ? RatingType.Favorite : RatingType.Normal
+    );
+    this.$emit(
+      "update-groups",
+      grows.map(r => new GroupItem(r))
+    );
   }
 
   throwPlay() {

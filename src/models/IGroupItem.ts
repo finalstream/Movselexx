@@ -3,4 +3,9 @@ export interface IGroupItem {
   GROUPNAME: string;
   GROUPKEYWORD: string;
   GROUPRATING: number;
+  GCNT: number;
+  GFAVCNT: number;
+  DRIVE: string;
+  FILESIZE: number;
+  COMPLETED: number;
 }

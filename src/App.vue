@@ -11,44 +11,12 @@
           <v-list>
             <v-list-item-group v-model="item" color="primary" mandatory>
               <template v-for="item in presetItems">
-                <v-row v-if="item.heading" :key="item.heading" align="center">
-                  <v-col>
-                    <v-subheader v-if="item.heading">
-                      {{ item.heading }}
-                    </v-subheader>
-                  </v-col>
-                </v-row>
-                <!--
-          <v-list-group
-            v-else-if="item.children"
-            :key="item.text"
-            v-model="item.model"
-            :prepend-icon="item.model ? item.icon : item['icon-alt']"
-            append-icon=""
-          >
-            <template v-slot:activator>
-              <v-list-item-content>
-                <v-list-item-title>
-                  {{ item.text }}
-                </v-list-item-title>
-              </v-list-item-content>
-            </template>
-            <v-list-item v-for="(child, i) in item.children" :key="i" link>
-              <v-list-item-action v-if="child.icon">
-                <v-icon>{{ child.icon }}</v-icon>
-              </v-list-item-action>
-              <v-list-item-content>
-                <v-list-item-title>
-                  {{ child.text }}
-                </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list-group>
-          -->
-                <v-list-item v-else :key="item.text" @click="updateFilterCondition(item)" dense>
-                  <!--<v-list-item-action>
-              <v-icon>{{ item.icon }}</v-icon>
-            </v-list-item-action>-->
+                <v-list-item
+                  style="padding-left:16px !important;"
+                  :key="item.text"
+                  @click="updateFilterConditionPresets(item)"
+                  dense
+                >
                   <v-list-item-content>
                     <v-list-item-title>
                       {{ item.text }}
@@ -59,7 +27,53 @@
             </v-list-item-group>
           </v-list>
         </v-tab-item>
-        <v-tab-item> </v-tab-item>
+        <v-tab-item>
+          <v-list>
+            <v-list-item-group color="primary" mandatory>
+              <template v-for="group in groups">
+                <v-list-item :key="group.groupId" @click="updateFilterConditionGroup(group)" dense>
+                  <v-list-item-avatar>
+                    <v-icon
+                      color="orange darken-1"
+                      @click="switchRating(item)"
+                      v-show="group.isFavorite"
+                      >mdi-star</v-icon
+                    >
+                    <v-icon
+                      color="grey lighten-1"
+                      @click="switchRating(item)"
+                      v-show="!group.isFavorite"
+                      >mdi-star-outline</v-icon
+                    >
+                  </v-list-item-avatar>
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      <v-icon small color="grey lighten-1" v-show="group.isCompleted"
+                        >mdi-check-circle</v-icon
+                      >&nbsp;{{ group.groupName }}
+                    </v-list-item-title>
+                    <v-list-item-subtitle>
+                      {{ group.fileSizeGB }} GB
+                      <span v-for="drive in group.drives" :key="drive">
+                        <v-chip
+                          style="padding-left:4px;padding-right:4px;margin:2px"
+                          x-small
+                          label
+                          outlined
+                          color="blue"
+                          >{{ drive }}</v-chip
+                        >
+                      </span>
+                    </v-list-item-subtitle>
+                  </v-list-item-content>
+                  <v-list-item-action>
+                    <v-chip class="ma-2" x-small>{{ group.groupCount }}</v-chip>
+                  </v-list-item-action>
+                </v-list-item>
+              </template>
+            </v-list-item-group>
+          </v-list>
+        </v-tab-item>
       </v-tabs-items>
     </v-navigation-drawer>
 
@@ -188,6 +202,7 @@
           @update-play-info="updatePlayInfo"
           @update-playing-info="updatePlayingInfo"
           @update-progress-info="updateProgressInfo"
+          @update-groups="updateGroups"
           ref="main"
         ></router-view>
       </v-container>
@@ -424,6 +439,7 @@ import PlayItem from "./models/PlayItem";
 import InitData from "./models/InitData";
 import FilterCondition from "./models/FilterCondition";
 import { FilterMode } from "./models/FilterMode";
+import GroupItem from "./models/GroupItem";
 
 @Component
 export default class App extends Vue {
@@ -471,6 +487,7 @@ export default class App extends Vue {
   displays: DisplayInfo[];
   playDisplay: DisplayInfo;
   filterCondition: FilterCondition;
+  groups: GroupItem[];
 
   /**
    * コンストラクタ
@@ -487,6 +504,7 @@ export default class App extends Vue {
     this.displays = [];
     this.playDisplay = new DisplayInfo(1, { width: 0, height: 0 });
     this.filterCondition = new FilterCondition();
+    this.groups = [];
   }
 
   async created() {
@@ -654,10 +672,24 @@ export default class App extends Vue {
     return "Display " + display.no + " (" + display.size.width + "x" + display.size.height + ")";
   }
 
-  updateFilterCondition(filter: any) {
-    console.log("updateFilterCondition", filter.sql, filter.isFullSql, filter.isLimited);
-    this.filterCondition.update(FilterMode.Sql, filter.sql, filter.isFullSql, filter.isLimited);
+  updateFilterConditionPresets(filter: any) {
+    console.log("updateFilterConditionPresets", filter.sql, filter.isFullSql, filter.isLimited);
+    this.filterCondition.updatePresets(filter.sql, filter.isFullSql, filter.isLimited);
     this.getMainVue().reloadPlayItems();
+  }
+
+  updateFilterConditionGroup(group: GroupItem) {
+    console.log("updateFilterConditionGroup", group);
+    this.filterCondition.updateGroup(group);
+    this.getMainVue().reloadPlayItems();
+  }
+
+  updateGroups(groups: GroupItem[]) {
+    // TODO: 配列の中身を差し替えるArrayUtilsを作成する
+    ArrayUtils.clear(this.groups);
+    for (const group of groups) {
+      this.groups.push(group);
+    }
   }
 
   /*
@@ -728,5 +760,17 @@ html {
 .v-application--is-ltr .v-timeline--dense:not(.v-timeline--reverse):before {
   left: calc(32px - 1px) !important;
   right: initial;
+}
+
+.v-list-item {
+  padding: 0px 2px 0px 2px !important;
+}
+
+.v-list-item__avatar {
+  margin-right: 0px !important;
+}
+
+.v-list-item__action {
+  margin-left: 0px !important;
 }
 </style>

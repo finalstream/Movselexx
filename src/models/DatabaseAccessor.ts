@@ -15,7 +15,8 @@ import { FilterMode } from "./FilterMode";
 export default class DatabaseAccessor {
   db: Database<sqlite3.Database, sqlite3.Statement>;
   limit = 100;
-  lastSelectLibrarySql = Sql.SelectLibraryList;
+  lastSelectLibrarySql = "";
+  lastSelectLibrarySqlWithLimit = "";
 
   constructor(databaseFileName: string) {
     const appDirectory = AppUtils.getAppDirectory(app);
@@ -56,9 +57,20 @@ export default class DatabaseAccessor {
       return await this.db.all<IPlayItem[]>(this.createShuffleSql());
     } else {
       return await this.db.all<IPlayItem[]>(
-        this.createSql(Sql.SelectLibraryList, selectionRating, searchKeyword, filterCondition)
+        this.createLibrarySql(
+          Sql.SelectLibraryList,
+          selectionRating,
+          searchKeyword,
+          filterCondition
+        )
       );
     }
+  }
+
+  async selectGroups(selectionRating: RatingType) {
+    return await this.db.all<IPlayItem[]>(
+      this.createGroupSql(Sql.SelectGroupList, selectionRating)
+    );
   }
 
   async selectAllLibraryFilePaths() {
@@ -195,7 +207,7 @@ export default class DatabaseAccessor {
     return dateformat(date, "yyyy-mm-dd HH:MM:ss");
   }
 
-  private createSql(
+  private createLibrarySql(
     sql: string,
     selectionRating: RatingType,
     searchKeyword: string,
@@ -224,6 +236,8 @@ export default class DatabaseAccessor {
           sql += " " + filterCondition.sql;
           break;
         case FilterMode.Group:
+          sql += " AND GPL.GID = " + filterCondition.groupId + "";
+          sql += " ORDER BY round(PL.NO)";
           break;
       }
     }
@@ -231,9 +245,34 @@ export default class DatabaseAccessor {
     this.lastSelectLibrarySql = sql;
     if (sql.indexOf("ORDER BY") == -1) sql += " ORDER BY PL.DATE DESC ";
     if (filterCondition.isLimited) sql = sql + " LIMIT " + this.limit;
+    if (filterCondition.mode != FilterMode.Group) this.lastSelectLibrarySqlWithLimit = sql;
 
     return sql;
   }
+
+  private createGroupSql(sql: string, selectionRating: RatingType) {
+    let join = "";
+
+    join += "LEFT JOIN (SELECT PPL.GID , count(*) cnt ";
+    join += "FROM MOVLIST PPL ";
+    join += "INNER JOIN  MOVLIST SPL ON PPL.ID = SPL.ID  AND ";
+    join += "SPL.RATING = 9";
+    join += " GROUP BY PPL.GID ";
+    join += ") CL ON ifnull(PL.GID,'') = ifnull(CL.GID,'') ";
+    join += "LEFT JOIN (SELECT PPPL.GID , count(*) cnt ";
+    join += "FROM MOVLIST PPPL WHERE ";
+    join += this.getRatingWhereString(selectionRating);
+    join += "GROUP BY PPPL.GID ";
+    join += ") ACL ON ifnull(PL.GID,'') = ifnull(ACL.GID,'') ";
+    join += "LEFT JOIN  MOVGROUPLIST GPL ON PL.GID = GPL.GID ";
+
+    sql = sql.replace("#CLASS1COUNT#", ",ifnull(CL.cnt,0) ");
+
+    sql = sql.replace("#JOIN#", join);
+    sql = sql.replace("#LASTEXECSQL#", this.lastSelectLibrarySqlWithLimit);
+    return sql;
+  }
+
   getRatingWhereString(selectionRating: RatingType) {
     switch (selectionRating) {
       case RatingType.Normal:

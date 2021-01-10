@@ -46,6 +46,10 @@ export default class LibraryService {
     ).filter(l => fs.existsSync(l.FILEPATH));
   }
 
+  async getGroups(selectionRating: RatingType) {
+    return await await this._databaseAccessor.selectGroups(selectionRating);
+  }
+
   async getAllLibraryFilePaths() {
     return (await this._databaseAccessor.selectAllLibraryFilePaths()).map(p => p.FILEPATH);
   }
@@ -274,6 +278,11 @@ export default class LibraryService {
           GROUPNAME: group.GROUPNAME,
           GROUPKEYWORD: keyword,
           GROUPRATING: groupRating,
+          GCNT: 0,
+          GFAVCNT: 0,
+          DRIVE: "",
+          FILESIZE: 0,
+          COMPLETED: 0,
         };
       }
     }
@@ -305,9 +314,24 @@ export default class LibraryService {
         GROUPNAME: groupNameandKeyword,
         GROUPKEYWORD: groupNameandKeyword,
         GROUPRATING: groupRating,
+        GCNT: 0,
+        GFAVCNT: 0,
+        DRIVE: "",
+        FILESIZE: 0,
+        COMPLETED: 0,
       };
     }
-    return { GID: null, GROUPNAME: "", GROUPKEYWORD: "", GROUPRATING: RatingType.Nothing };
+    return {
+      GID: null,
+      GROUPNAME: "",
+      GROUPKEYWORD: "",
+      GROUPRATING: RatingType.Nothing,
+      GCNT: 0,
+      GFAVCNT: 0,
+      DRIVE: "",
+      FILESIZE: 0,
+      COMPLETED: 0,
+    };
   }
 
   async registGroup(groupName: string, keyword: string) {
