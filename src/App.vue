@@ -31,7 +31,12 @@
           <v-list>
             <v-list-item-group color="primary" mandatory>
               <template v-for="group in groups">
-                <v-list-item :key="group.groupId" @click="updateFilterConditionGroup(group)" dense>
+                <v-list-item
+                  style="padding: 0px 2px 0px 2px"
+                  :key="group.groupId"
+                  @click="updateFilterConditionGroup(group)"
+                  dense
+                >
                   <v-list-item-avatar>
                     <v-icon
                       color="orange darken-1"
@@ -208,7 +213,7 @@
       </v-container>
     </v-main>
 
-    <v-footer app>
+    <v-footer style="z-index:8" app>
       <v-container v-show="isProgress" fluid class="mt-2 mb-2 pa-0">
         <span>{{ progressMessage }}</span>
         <v-progress-linear
@@ -760,10 +765,6 @@ html {
 .v-application--is-ltr .v-timeline--dense:not(.v-timeline--reverse):before {
   left: calc(32px - 1px) !important;
   right: initial;
-}
-
-.v-list-item {
-  padding: 0px 2px 0px 2px !important;
 }
 
 .v-list-item__avatar {
