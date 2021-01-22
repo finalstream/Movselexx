@@ -82,8 +82,10 @@ async function quitBefore() {
 }
 
 function saveResumeInfo(pv: IPlayerVariables) {
-  AppStore.instance.set("resume.filepath", pv.filepath);
-  AppStore.instance.set("resume.position", pv.position);
+  if (libraryService.isExistsLibrary(pv.filepath)) {
+    AppStore.instance.set("resume.filepath", pv.filepath);
+    AppStore.instance.set("resume.position", pv.position);
+  }
 }
 
 // Quit when all windows are closed.

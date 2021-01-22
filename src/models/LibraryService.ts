@@ -184,6 +184,11 @@ export default class LibraryService {
     return this._databaseAccessor.updatePlayed(id, isPlayed);
   }
 
+  async isExistsLibrary(filepath: string) {
+    const library = await this.getLibraryByFilePath(filepath);
+    return library != undefined;
+  }
+
   private getSeasonString(date: Date) {
     const month = date.getMonth() + 1;
 
