@@ -118,9 +118,12 @@ export default class LibraryService {
               ? ffprobeStatic.path
               : path.join(path.dirname(app.getPath("exe")), "bin", "win32", "x64", "ffprobe.exe");
             const mediaFile = await ffprobe(filePath, { path: ffprobePath });
-            const duration = new TimeSpan(mediaFile.streams[0].duration * 1000);
-            if (mediaFile.streams[0].duration == undefined || mediaFile.streams[0].duration <= 0)
+            if (
+              mediaFile &&
+              (mediaFile.streams[0].duration == undefined || mediaFile.streams[0].duration <= 0)
+            )
               continue; // 不完全ファイルはスキップ
+            const duration = new TimeSpan(mediaFile.streams[0].duration * 1000);
             const movTitle = this.getMovTitle(filePath);
             const group = await this.getMovGroup(movTitle);
             const hour = duration.hours > 0 ? duration.hours : "";
