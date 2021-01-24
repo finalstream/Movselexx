@@ -123,7 +123,9 @@ export default class LibraryService {
               (mediaFile.streams[0].duration == undefined || mediaFile.streams[0].duration <= 0)
             )
               continue; // 不完全ファイルはスキップ
-            const duration = new TimeSpan(mediaFile!.streams[0].duration * 1000);
+            let duration = TimeSpan.zero;
+            if (mediaFile != undefined)
+              duration = new TimeSpan(mediaFile.streams[0].duration * 1000);
             const movTitle = this.getMovTitle(filePath);
             const group = await this.getMovGroup(movTitle);
             const hour = duration.hours > 0 ? duration.hours : "";
