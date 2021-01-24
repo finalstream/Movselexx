@@ -126,7 +126,7 @@ export default class LibraryService {
             const media = mediaFile.streams[0];
             const durationMs = media.duration;
             const durationMs2 = durationMs ? durationMs * 1000 : 0;
-            const duration = new TimeSpan(durationMs);
+            const duration = new TimeSpan(durationMs2);
             const movTitle = this.getMovTitle(filePath);
             const group = await this.getMovGroup(movTitle);
             const hour = duration.hours > 0 ? duration.hours : "";
