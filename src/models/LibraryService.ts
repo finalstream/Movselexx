@@ -124,7 +124,8 @@ export default class LibraryService {
             )
               continue; // 不完全ファイルはスキップ
             const media = mediaFile.streams[0];
-            const duration = new TimeSpan(media.duration * 1000);
+            const durationMs = media.duration * 1000;
+            const duration = new TimeSpan(durationMs);
             const movTitle = this.getMovTitle(filePath);
             const group = await this.getMovGroup(movTitle);
             const hour = duration.hours > 0 ? duration.hours : "";
