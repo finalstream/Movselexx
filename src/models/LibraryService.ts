@@ -123,6 +123,7 @@ export default class LibraryService {
               (mediaFile.streams[0].duration == undefined || mediaFile.streams[0].duration <= 0)
             )
               continue; // 不完全ファイルはスキップ
+            // TODO:なぜかGitHub ActionsでObject is possibly 'undefined'.って言われるので強引に直した
             const media = mediaFile.streams[0];
             const durationMs = media.duration;
             const durationMs2 = durationMs ? durationMs * 1000 : 0;
@@ -182,8 +183,19 @@ export default class LibraryService {
     });
   }
 
-  switchRating(id: number, isFavorite: boolean): any {
+  switchRating(id: number, isFavorite: boolean) {
     return this._databaseAccessor.updateRating(id, isFavorite);
+  }
+
+  async switchGroupRating(gid: number, isFavorite: boolean) {
+    let rating: RatingType = RatingType.Nothing;
+    await this._databaseAccessor.transaction(async dba => {
+      const libraries = await dba.selectLibraryIdByGid(gid);
+      for (const lib of libraries) {
+        rating = await dba.updateRating(lib.ID, isFavorite);
+      }
+    });
+    return rating;
   }
 
   switchPlayed(id: number, isPlayed: boolean): any {

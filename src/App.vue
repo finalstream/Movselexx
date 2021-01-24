@@ -40,13 +40,13 @@
                   <v-list-item-avatar>
                     <v-icon
                       color="orange darken-1"
-                      @click="switchRating(item)"
+                      @click="switchGroupRating(group)"
                       v-show="group.isFavorite"
                       >mdi-star</v-icon
                     >
                     <v-icon
                       color="grey lighten-1"
-                      @click="switchRating(item)"
+                      @click="switchGroupRating(group)"
                       v-show="!group.isFavorite"
                       >mdi-star-outline</v-icon
                     >
@@ -666,6 +666,15 @@ export default class App extends Vue {
     console.log("switchRating", id, !item.isFavorite);
     const rating = await this.ipcRenderer.invoke("switchRating", id, !item.isFavorite);
     item.rating = rating;
+  }
+
+  async switchGroupRating(item: GroupItem) {
+    if (!item) return;
+    const gid = item.groupId;
+    console.log("switchGroupRating", gid, !item.isFavorite);
+    const rating = await this.ipcRenderer.invoke("switchGroupRating", gid, !item.isFavorite);
+    item.groupRating = rating;
+    this.updateFilterConditionGroup(item);
   }
 
   removePlaying(nowPlaying: PlayingItem) {

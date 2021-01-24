@@ -34,16 +34,20 @@ export default class DatabaseAccessor {
     await this.db.open();
   }
 
-  transaction(proc: (dba: DatabaseAccessor) => void) {
+  async transaction(proc: (dba: DatabaseAccessor) => void) {
     const database = this.db.getDatabaseInstance();
-    database.serialize(() => {
-      try {
-        database.run("BEGIN TRANSACTION");
-        proc(this);
-        database.run("COMMIT");
-      } catch (e) {
-        database.run("ROLLBACK");
-      }
+    await new Promise<void>(resolve => {
+      database.serialize(async () => {
+        try {
+          database.run("BEGIN TRANSACTION");
+          await proc(this);
+          database.run("COMMIT");
+        } catch (e) {
+          database.run("ROLLBACK");
+        } finally {
+          resolve();
+        }
+      });
     });
   }
 
@@ -80,6 +84,12 @@ export default class DatabaseAccessor {
   async selectLibraryByFilePath(filepath: string) {
     return await this.db.get<IPlayItem>(Sql.SelectLibraryList + " WHERE FILEPATH = @FilePath", {
       "@FilePath": filepath,
+    });
+  }
+
+  async selectLibraryIdByGid(groupId: number) {
+    return await this.db.all<IPlayItem[]>(Sql.SelectIdByGroupId, {
+      "@Gid": groupId,
     });
   }
 

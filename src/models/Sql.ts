@@ -67,6 +67,12 @@ export default class Sql {
 
   static SelectShuffleLibrary = `SELECT * FROM (#LastExecSql#) ORDER BY random() `;
 
+  static SelectIdByGroupId = `SELECT 
+  PL.ID
+  FROM MOVLIST PL 
+  WHERE GID = @Gid
+  `;
+
   static InsertLibrary = `INSERT INTO MOVLIST(
     FILEPATH,
     TITLE,

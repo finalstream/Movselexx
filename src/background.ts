@@ -177,6 +177,10 @@ ipcMain.handle("switchRating", (event, id: number, isFavorite: boolean) => {
   return libraryService.switchRating(id, isFavorite);
 });
 
+ipcMain.handle("switchGroupRating", async (event, gid: number, isFavorite: boolean) => {
+  return libraryService.switchGroupRating(gid, isFavorite);
+});
+
 ipcMain.handle("switchPlayed", (event, id: number, isPlayed: boolean) => {
   return libraryService.switchPlayed(id, isPlayed);
 });
