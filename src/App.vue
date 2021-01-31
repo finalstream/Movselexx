@@ -29,12 +29,13 @@
         </v-tab-item>
         <v-tab-item>
           <v-list>
-            <v-list-item-group color="primary" mandatory>
+            <v-list-item-group v-model="selectedGroupIndex" color="primary" mandatory>
               <template v-for="group in groups">
                 <v-list-item
                   style="padding: 0px 2px 0px 2px"
                   :key="group.groupId"
                   @click="updateFilterConditionGroup(group)"
+                  @contextmenu="onGroupRowContextmenu"
                   dense
                 >
                   <v-list-item-avatar>
@@ -53,7 +54,7 @@
                   </v-list-item-avatar>
                   <v-list-item-content>
                     <v-list-item-title>
-                      <v-icon small color="grey lighten-1" v-show="group.isCompleted"
+                      <v-icon small color="green lighten-1" v-show="group.isCompleted"
                         >mdi-check-circle</v-icon
                       >&nbsp;{{ group.groupName }}
                     </v-list-item-title>
@@ -428,12 +429,23 @@
         <div style="flex: 1 1 auto;"></div>
       </v-card>
     </v-dialog>
+    <v-menu v-model="isShowMenu" :position-x="menuX" :position-y="menuY" absolute offset-y>
+      <v-list dense>
+        <v-list-item
+          v-for="item in contextMenuDataGroupLists"
+          :key="item.label"
+          @click="onContextMenuClick(item.action)"
+        >
+          <v-list-item-title style="font-size: small;">{{ item.label }}</v-list-item-title>
+        </v-list-item>
+      </v-list>
+    </v-menu>
   </v-app>
 </template>
 
 <script lang="ts">
 import { Vue, Component } from "vue-property-decorator";
-import electron, { Display } from "electron";
+import electron from "electron";
 import PlayInfo from "./models/PlayInfo";
 import PlayingItem from "./models/PlayingItem";
 import ArrayUtils from "firx/ArrayUtils";
@@ -443,8 +455,8 @@ import TimeSpan from "firx/TimeSpan";
 import PlayItem from "./models/PlayItem";
 import InitData from "./models/InitData";
 import FilterCondition from "./models/FilterCondition";
-import { FilterMode } from "./models/FilterMode";
 import GroupItem from "./models/GroupItem";
+import contextMenuDataGroupList from "./assets/contextMenuDataGroupList.json";
 
 @Component
 export default class App extends Vue {
@@ -493,6 +505,11 @@ export default class App extends Vue {
   playDisplay: DisplayInfo;
   filterCondition: FilterCondition;
   groups: GroupItem[];
+  isShowMenu = false;
+  menuX = 0;
+  menuY = 0;
+  contextMenuDataGroupLists = contextMenuDataGroupList;
+  selectedGroupIndex = 0;
 
   /**
    * コンストラクタ
@@ -703,6 +720,29 @@ export default class App extends Vue {
     ArrayUtils.clear(this.groups);
     for (const group of groups) {
       this.groups.push(group);
+    }
+  }
+
+  onGroupRowContextmenu(event: MouseEvent) {
+    event.preventDefault();
+    this.isShowMenu = false;
+    this.menuX = event.clientX;
+    this.menuY = event.clientY;
+    this.$nextTick(() => {
+      this.isShowMenu = true;
+    });
+  }
+
+  async onContextMenuClick(action: string) {
+    const selectItems = this.groups[this.selectedGroupIndex];
+    console.log("contextMenuClick", action, selectItems);
+
+    switch (action) {
+      case "editGroup": {
+        break;
+      }
+      default:
+        break;
     }
   }
 
