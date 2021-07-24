@@ -1,0 +1,267 @@
+<div v-resize="onHomeResized">
+  <v-row>
+    <v-col cols="2">
+      <!--
+      <v-btn-toggle v-model="selectionRatingMode" color="blue accent-3">
+        <v-btn>
+          <span class="hidden-sm-and-down">Normal</span>
+        </v-btn>
+        <v-btn>
+          <span class="hidden-sm-and-down">Favorite</span>
+        </v-btn>
+        <v-btn>
+          <span class="hidden-sm-and-down">Exclude</span>
+        </v-btn>
+      </v-btn-toggle>
+    -->
+      <v-switch
+        v-model="isOnlyFavorite"
+        label="Only Favorite"
+      ></v-switch>
+    </v-col>
+    <v-col
+      ><v-text-field
+        flat
+        hide-details
+        clearable
+        prepend-inner-icon="mdi-magnify"
+        v-model ="searchKeyword"
+      ></v-text-field
+    ></v-col>
+    <v-col cols="2" class="text-right">
+      <div class="pt-6"><span style="font-size:16pt">{{ items.length }}</span> items</div>
+    </v-col>
+  </v-row>
+  <v-data-table
+    fixed-header
+    :height="itemListHeight"
+    :headers="headers"
+    :items="items"
+    item-key="id"
+    disable-pagination
+    :item-class= "rowClasses"
+    :sort-by.sync="sortBy"
+    hide-default-footer
+    style="user-select: none;"
+    single-select
+    @click:row="rowClick"
+    @dblclick:row="rowDbClick"
+    @contextmenu:row="onRowContextmenu"
+    ref="gridItemList"
+  >
+    <template v-slot:item="{ item }">
+      <tr @mousedown="rowClick" @dblclick="rowDbClick" :data-key="item.key" :class="rowClasses(item)">
+        <!-- playing -->
+        <td>
+          <v-icon color="indigo accent-3" v-show="item.isPlaying">mdi-play-circle-outline</v-icon>
+        </td>
+        <!-- title/group -->
+        <td>
+          <div class="caption" style="color:lightslategray">
+            {{ item.groupName }}
+          </div>
+          <div>{{ item.title }}</div>
+        </td>
+        <td style="text-align: right;">
+          {{ item.no }}
+        </td>
+        <td style="text-align: right;">
+          {{ item.length }}
+        </td>
+        <!-- rating -->
+        <td>
+          <v-icon color="orange darken-1" @click="switchRating(item)" v-show="item.isFavorite">mdi-star</v-icon>
+          <v-icon color="grey lighten-1" @click="switchRating(item)" v-show="!item.isFavorite">mdi-star-outline</v-icon>
+        </td>
+        <!-- date/lastplaydate -->
+        <td>
+          <div style="font-size:9pt;">{{ item.dateString }}</div>
+          <div style="font-size:9pt;">
+            {{ item.lastPlayDateString }}
+          </div>
+        </td>
+        <!-- video -->
+        <td>
+          <div style="font-size:9pt;">{{ item.videoSize }}</div>
+          <div style="font-size:9pt;">
+            <v-chip x-small label outlined>{{ item.extension }}</v-chip>
+          </div>
+        </td>
+        <td>{{ item.drive }}</td>
+        <td style="text-align: right;">
+          {{ item.playCount }}
+        </td>
+        <td>
+          <v-icon v-show="item.isPlayed" @click="switchPlayed(item)" color="light-green darken-1">mdi-check-bold</v-icon>
+          <v-icon v-show="!item.isPlayed" @click="switchPlayed(item)" color="grey lighten-2">mdi-check-outline</v-icon>
+        </td>
+      </tr>
+    </template>
+  </v-data-table>
+  <v-snackbar v-model="isShowSnackbar" bottom :color="snackbarMessageLevel" timeout="1000">
+    {{ snackbarMessage }}
+    <!--
+      <template v-slot:action="{ attrs }">
+        <v-btn
+          dark
+          text
+          v-bind="attrs"
+          @click="snackbar = false"
+        >
+          Close
+        </v-btn>
+      </template>
+    -->
+  </v-snackbar>
+  <v-menu
+      v-model="isShowMenu"
+      :position-x="menuX"
+      :position-y="menuY"
+      absolute
+      offset-y
+    >
+    <v-list dense>
+      <v-list-item
+        v-for="item in contextMenuDataPlayLists"
+        :key="item.label"
+        @click="onContextMenuClick(item.action)"
+      >
+        <v-list-item-title style="font-size: small;">{{ item.label }}</v-list-item-title>
+      </v-list-item>
+    </v-list>
+  </v-menu>
+  <v-dialog
+    v-model="isShowDeleteLibraryDialog"
+    persistent 
+    max-width="650"
+  >
+    <v-card class="pt-3">
+      <v-card-title class="pa-3">Question?</v-card-title>
+      <v-card-text class="pt-3">
+        {{ deleteSelectItems.length > 0 ? deleteSelectItems[0].title: "" }} を削除します。よろしいですか？
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn
+          color="green darken-1"
+          text
+          @click="isShowDeleteLibraryDialog = false;isShowDeleteFileDialog = true"
+        >
+          yes(with file)
+        </v-btn>
+
+        <v-btn
+          color="green darken-1"
+          text
+          @click="isShowDeleteLibraryDialog = false;deleteLibrary(false)"
+        >
+          yes only library
+        </v-btn>
+
+        <v-btn
+          color="green darken-1"
+          text
+          @click="isShowDeleteLibraryDialog = false"
+        >
+          no
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+  <v-dialog
+    v-model="isShowDeleteFileDialog"
+    persistent 
+    max-width="650"
+  >
+    <v-card class="pt-3">
+      <v-card-title class="pa-3">Question?</v-card-title>
+      <v-card-text class="pt-3">
+        ファイルも削除します。よろしいですか？
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn
+          color="green darken-1"
+          text
+          @click="isShowDeleteFileDialog = false;deleteLibrary(true)"
+        >
+          yes
+        </v-btn>
+
+        <v-btn
+          color="green darken-1"
+          text
+          @click="isShowDeleteFileDialog = false"
+        >
+          no
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+  <v-dialog
+    v-model="isShowGroupingDialog"
+    persistent 
+    max-width="650"
+  >
+    <v-card class="pt-3">
+      <v-card-title class="pa-3">Grouping</v-card-title>
+      <v-card-text class="pt-3">
+        グループに登録します。
+      </v-card-text>
+      <v-card-text>
+      <v-text-field
+        v-show="isGroupingAllNoGroup"
+        label="New GroupName"
+        v-model="groupingNewGroupName"
+      ></v-text-field>
+      <v-select
+          v-show="!isGroupingAllNoGroup"
+          v-model="groupingGroup"
+          :items="getGroupingGroups()"
+          label="GroupName"
+          item-text="groupName"
+          outlined
+          return-object
+        ></v-select>
+        <v-text-field
+        v-show="isGroupingAllNoGroup"
+        v-model="groupingKeyword"
+        label="GroupKeyword"
+        ></v-text-field>
+        <v-list style="max-height: 200px"
+        class="overflow-y-auto">
+          <v-subheader>Targets</v-subheader>
+          <v-list-item-group
+          >
+          <v-list-item
+            v-for="(item, i) in items.filter(i => i.isSelected)"
+            :key="i"
+          >
+          {{ item.title }}
+          </v-list-item>
+          </v-list-item-group>
+        </v-list>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn
+          :disabled="groupingGroup == '' || groupingGroup == null"
+          color="green darken-1"
+          text
+          @click="grouping();isShowGroupingDialog = false;"
+        >
+          grouping
+        </v-btn>
+
+        <v-btn
+          text
+          @click="isShowGroupingDialog = false"
+        >
+          cancel
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+</div>
