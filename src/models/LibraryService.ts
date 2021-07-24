@@ -43,7 +43,7 @@ export default class LibraryService {
         searchKeyword,
         filterCondition
       )
-    ).filter(l => fs.existsSync(l.FILEPATH));
+    ).filter((l) => fs.existsSync(l.FILEPATH));
   }
 
   async getGroups(selectionRating: RatingType) {
@@ -51,7 +51,7 @@ export default class LibraryService {
   }
 
   async getAllLibraryFilePaths() {
-    return (await this._databaseAccessor.selectAllLibraryFilePaths()).map(p => p.FILEPATH);
+    return (await this._databaseAccessor.selectAllLibraryFilePaths()).map((p) => p.FILEPATH);
   }
 
   async getLibraryByFilePath(filepath: string) {
@@ -69,7 +69,7 @@ export default class LibraryService {
   async updateLibrary(playItems: PlayItem[]) {
     if (playItems.length == 0) return;
 
-    const directories = playItems.map(p => Path.dirname(p.filePath));
+    const directories = playItems.map((p) => Path.dirname(p.filePath));
     const baseDirctory = this.getMostUseDirectory(directories);
     const movFiles = this.getAllFiles(baseDirctory, AppConfig.SupportFileExts);
 
@@ -100,7 +100,7 @@ export default class LibraryService {
   async registLibrary(movFiles: string[]) {
     const registedFiles = await this.getAllLibraryFilePaths();
 
-    this._databaseAccessor.transaction(async dba => {
+    this._databaseAccessor.transaction(async (dba) => {
       let registedCount = 0;
       for (const f in movFiles) {
         // ドライブレターが大文字か小文字を区別しないようにチェックする
@@ -174,11 +174,11 @@ export default class LibraryService {
   }
 
   updatePlayingList(playingItems: PlayingItem[]) {
-    this._databaseAccessor.transaction(async dba => {
-      this._databaseAccessor.deletePlayingList();
+    this._databaseAccessor.transaction(async (dba) => {
+      await this._databaseAccessor.deletePlayingList();
       let sort = 1;
       for (const pi of playingItems) {
-        this._databaseAccessor.insertPlayingList(pi.id, sort++);
+        await this._databaseAccessor.insertPlayingList(pi.id, sort++);
       }
     });
   }
@@ -189,7 +189,7 @@ export default class LibraryService {
 
   async switchGroupRating(gid: number, isFavorite: boolean) {
     let rating: RatingType = RatingType.Nothing;
-    await this._databaseAccessor.transaction(async dba => {
+    await this._databaseAccessor.transaction(async (dba) => {
       const libraries = await dba.selectLibraryIdByGid(gid);
       for (const lib of libraries) {
         rating = await dba.updateRating(lib.ID, isFavorite);
@@ -280,7 +280,7 @@ export default class LibraryService {
     sss = this.replaceAll(sss, "#", "");
     sss = this.replaceAll(sss, "RAW", "");
 
-    var title = sss.replace(/[(\[].+?[)\]]/g, "").trim();
+    const title = sss.replace(/[(\[].+?[)\]]/g, "").trim();
 
     return title ? title : ss;
   }
@@ -323,7 +323,7 @@ export default class LibraryService {
 
       await this.joinGroup(
         gid,
-        unGroupLibraries.map(l => l.ID)
+        unGroupLibraries.map((l) => l.ID)
       );
       for (const library of unGroupLibraries) {
         library.GROUPNAME = groupNameandKeyword;
@@ -375,7 +375,7 @@ export default class LibraryService {
 
     const wordList = [];
 
-    let workword: string = "";
+    let workword = "";
     for (const i in titlewords) {
       const word = titlewords[i];
       if (word) {
@@ -417,7 +417,7 @@ export default class LibraryService {
     // TODO: ライブラリに追加する
     const countMap = new Map<string, number>();
 
-    directories.forEach(d => {
+    directories.forEach((d) => {
       let value = countMap.get(d) ?? 0;
       countMap.set(d, ++value);
     });

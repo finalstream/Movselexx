@@ -36,7 +36,7 @@ export default class DatabaseAccessor {
 
   async transaction(proc: (dba: DatabaseAccessor) => void) {
     const database = this.db.getDatabaseInstance();
-    await new Promise<void>(resolve => {
+    await new Promise<void>((resolve) => {
       database.serialize(async () => {
         try {
           database.run("BEGIN TRANSACTION");
@@ -102,9 +102,9 @@ export default class DatabaseAccessor {
   async selectUnGroupingLibrary(keywords: string[]) {
     for (const i in keywords) {
       const keyword = keywords[i];
-      var keywordCond = " lower(TITLE) LIKE '%" + this.escapeSql(keyword.toLowerCase()) + "%'";
-      var sql = Sql.SelectNoGroupFromTitle.replace("#0#", keywordCond);
-      var result = await this.db.all<IPlayItem[]>(sql);
+      const keywordCond = " lower(TITLE) LIKE '%" + this.escapeSql(keyword.toLowerCase()) + "%'";
+      const sql = Sql.SelectNoGroupFromTitle.replace("#0#", keywordCond);
+      const result = await this.db.all<IPlayItem[]>(sql);
       if (result && result.length > 0) return { KEYWORD: keyword, RESULT: result };
     }
 

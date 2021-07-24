@@ -63,10 +63,7 @@ export default class PlayItem {
   }
 
   get extension() {
-    return path
-      .extname(this.filePath)
-      .toUpperCase()
-      .substr(1);
+    return path.extname(this.filePath).toUpperCase().substr(1);
   }
 
   get isFavorite() {

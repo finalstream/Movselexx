@@ -38,7 +38,7 @@ export default class MpcService {
 
   sleep(t: number) {
     // TODO:ライブラリ化
-    return new Promise(r => {
+    return new Promise((r) => {
       setTimeout(() => {
         r(undefined);
       }, t);

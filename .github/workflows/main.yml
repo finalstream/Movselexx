@@ -14,6 +14,7 @@ jobs:
     steps:
       - name: Set Context
         env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }} 
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
       - uses: actions/checkout@v1
@@ -22,7 +23,7 @@ jobs:
       - name: Set Node.js Version
         uses: actions/setup-node@v2
         with:
-          node-version: 12.x
+          node-version: 14.x
       - name: Install Yarn
         run: |
           yarn install
@@ -32,7 +33,7 @@ jobs:
       - name: Build for Windows
         if: matrix.os == 'windows-latest'
         run: |
-          yarn run electron:build --windows nsis zip --x64
+          yarn run electron:build --windows nsis zip --x64 --publish never
       - name: Build for MacOS
         if: matrix.os == 'macos-latest'
         run: |

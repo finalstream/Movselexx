@@ -107,7 +107,7 @@ export default class PlayController {
       this._playingId = -1; // 再生アイテムの変更を検知するため-1に初期化
     } else if (this._lastMakePlayings.length > 0) {
       // 最後までいったらlastPlayingから復元する
-      this._playings = this._playings.concat(this._lastMakePlayings.filter(p => !p.isSkip));
+      this._playings = this._playings.concat(this._lastMakePlayings.filter((p) => !p.isSkip));
       const library: IPlayItem | undefined = await this._mpcClient.openFile(
         this._playings[0].filePath,
         isFullScreen
@@ -132,11 +132,11 @@ export default class PlayController {
   }
 
   updatePlayingList(nowId: number, nextItem: PlayItem) {
-    const nowPlayindex = this._playings.findIndex(v => v.id == nowId);
+    const nowPlayindex = this._playings.findIndex((v) => v.id == nowId);
     if (nowPlayindex != -1) {
       this._playings.splice(0, nowPlayindex);
       this.addPlayingItems(
-        this._playings.map(p => p.library),
+        this._playings.map((p) => p.library),
         false,
         false
       );
@@ -148,7 +148,7 @@ export default class PlayController {
 
   addPlayingItems(items: PlayItem[], isAdd: boolean, isRebuild: boolean, removeId?: number) {
     if (isAdd) {
-      items = items.concat(this._playings.map(p => p.library));
+      items = items.concat(this._playings.map((p) => p.library));
     }
 
     this.clearPlayings();
@@ -223,9 +223,9 @@ export default class PlayController {
   }
 
   setSkip(pi: PlayingItem) {
-    this._playings.filter(p => p.key == pi.key).forEach(p => (p.isSkip = true));
+    this._playings.filter((p) => p.key == pi.key).forEach((p) => (p.isSkip = true));
     // TODO: playingsとlastMakePlayingsでkeyが同期取れていないので修正する
-    this._lastMakePlayings.filter(p => p.id == pi.id).forEach(p => (p.isSkip = true));
+    this._lastMakePlayings.filter((p) => p.id == pi.id).forEach((p) => (p.isSkip = true));
   }
 
   reserveNext(item: PlayItem) {
@@ -235,7 +235,7 @@ export default class PlayController {
     // ストックしているリストにも反映
     const playingItem = this._playings[0];
     if (playingItem) {
-      const idx = this._lastMakePlayings.findIndex(p => p.key == playingItem.key);
+      const idx = this._lastMakePlayings.findIndex((p) => p.key == playingItem.key);
       if (idx != -1) {
         this._lastMakePlayings.splice(idx, 0, reserveItem);
       }
@@ -243,8 +243,8 @@ export default class PlayController {
   }
 
   updateRating(id: number, rating: number) {
-    this._playings.filter(p => p.id == id).forEach(p => (p.library.rating = rating));
-    this._lastMakePlayings.filter(p => p.id == id).forEach(p => (p.library.rating = rating));
+    this._playings.filter((p) => p.id == id).forEach((p) => (p.library.rating = rating));
+    this._lastMakePlayings.filter((p) => p.id == id).forEach((p) => (p.library.rating = rating));
   }
 
   isNearEnd() {

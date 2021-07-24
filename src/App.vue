@@ -12,7 +12,7 @@
             <v-list-item-group v-model="item" color="primary" mandatory>
               <template v-for="item in presetItems">
                 <v-list-item
-                  style="padding-left:16px !important;"
+                  style="padding-left: 16px !important"
                   :key="item.text"
                   @click="updateFilterConditionPresets(item)"
                   dense
@@ -62,7 +62,7 @@
                       {{ group.fileSizeGB }} GB
                       <span v-for="drive in group.drives" :key="drive">
                         <v-chip
-                          style="padding-left:4px;padding-right:4px;margin:2px"
+                          style="padding-left: 4px; padding-right: 4px; margin: 2px"
                           x-small
                           label
                           outlined
@@ -86,29 +86,29 @@
     <v-navigation-drawer clipped app right permanent>
       <v-timeline align-top dense>
         <v-timeline-item
-          v-for="nowPlaying in nowPlayings.filter(p => !p.isSkip)"
+          v-for="nowPlaying in nowPlayings.filter((p) => !p.isSkip)"
           :key="nowPlaying.key"
           small
           fill-dot
           right
           class="pr-2"
         >
-          <div style="margin-left:-40px">
+          <div style="margin-left: -40px">
             <strong>{{ nowPlaying.startTimeString }}</strong
             >&nbsp;<v-icon
               small
-              style="margin-top:-5px"
+              style="margin-top: -5px"
               color="red accent-3"
               @click="removePlaying(nowPlaying)"
               >mdi-close-thick</v-icon
             >
           </div>
-          <div style="margin-left:-40px" class="pl-3">
+          <div style="margin-left: -40px" class="pl-3">
             <v-icon
               color="orange darken-1"
               v-show="nowPlaying.isFavorite"
               small
-              style="z-index:999"
+              style="z-index: 999"
               @click="switchRating(nowPlaying.library)"
               >mdi-star</v-icon
             >
@@ -116,7 +116,7 @@
               color="grey lighten-1"
               v-show="!nowPlaying.isFavorite"
               small
-              style="z-index:999"
+              style="z-index: 999"
               @click="switchRating(nowPlaying.library)"
               >mdi-star-outline</v-icon
             >
@@ -127,25 +127,25 @@
     </v-navigation-drawer>
 
     <v-system-bar class="pr-0" id="titlebar" color="blue darken-3" app window>
-      <span class="drag-region" style="color:white; width:100%; padding-top:5px">Movselexx</span>
+      <span class="drag-region" style="color: white; width: 100%; padding-top: 5px">Movselexx</span>
       <v-spacer></v-spacer>
       <v-btn class="windowcontrol pl-2" icon tile
-        ><v-icon small style="color:white" @click="showSettings()">mdi-cog</v-icon></v-btn
+        ><v-icon small style="color: white" @click="showSettings()">mdi-cog</v-icon></v-btn
       >
       <v-btn class="windowcontrol pl-2" icon tile @click="minimizeWindow()"
-        ><v-icon small style="color:white;text-align:center">mdi-minus</v-icon></v-btn
+        ><v-icon small style="color: white; text-align: center">mdi-minus</v-icon></v-btn
       >
       <v-btn class="windowcontrol pl-2" icon tile @click="maximizeWindow()"
-        ><v-icon small style="color:white">mdi-checkbox-blank-outline</v-icon></v-btn
+        ><v-icon small style="color: white">mdi-checkbox-blank-outline</v-icon></v-btn
       >
       <v-btn class="windowcontrol pl-2" icon tile
-        ><v-icon small style="color:white" @click="closeWindow()">mdi-close</v-icon></v-btn
+        ><v-icon small style="color: white" @click="closeWindow()">mdi-close</v-icon></v-btn
       >
     </v-system-bar>
-    <v-app-bar style="user-select: none;" clipped-left clipped-right app>
+    <v-app-bar style="user-select: none" clipped-left clipped-right app>
       <v-app-bar-nav-icon @click.stop="switchShowLeftNav()"></v-app-bar-nav-icon>
       <v-toolbar-title class="ml-0 pl-2">
-        <div style="display: flex;">
+        <div style="display: flex">
           <div>
             <v-chip
               v-show="playInfo.getSeason() != ''"
@@ -177,17 +177,17 @@
           <div>
             <div
               class="caption pl-3"
-              style="color:lightslategray"
+              style="color: lightslategray"
               @click="setGroupNameSearchKeyword(playInfo)"
             >
               {{ playInfo.getGroupName() }}
             </div>
-            <div class="pl-3" style="margin-top:-7px">{{ playInfo.getTitle() }}</div>
+            <div class="pl-3" style="margin-top: -7px">{{ playInfo.getTitle() }}</div>
           </div>
         </div>
       </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-toolbar-title style="width: 300px;text-align:right" class="ml-0 pr-5">
+      <v-toolbar-title style="width: 300px; text-align: right" class="ml-0 pr-5">
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <span class="hidden-sm-and-down" v-bind="attrs" v-on="on"
@@ -214,7 +214,7 @@
       </v-container>
     </v-main>
 
-    <v-footer style="z-index:8" app>
+    <v-footer style="z-index: 8" app>
       <v-container v-show="isProgress" fluid class="mt-2 mb-2 pa-0">
         <span>{{ progressMessage }}</span>
         <v-progress-linear
@@ -225,37 +225,39 @@
           height="6"
         ></v-progress-linear>
       </v-container>
-      <v-row>
-        <v-col cols="1" class="pa-0 px-1">
-          <v-btn color="primary" block @click="saveScreenShot()">
-            <v-icon>mdi-camera</v-icon>
-          </v-btn>
-        </v-col>
-        <v-col class="pa-0 px-1">
-          <v-btn color="primary" @click="throwPlay()" block
-            ><v-icon class="pr-1">mdi-movie-open</v-icon>Play</v-btn
-          >
-        </v-col>
-        <v-col class="pa-0 px-1">
-          <v-btn color="primary" @click="shuffle()" block
-            ><v-icon class="pr-1">mdi-shuffle-variant</v-icon>Shuffle</v-btn
-          >
-        </v-col>
-        <v-col cols="1" class="pa-0 px-1">
-          <v-btn color="primary" @click="prevPlay()" block
-            ><v-icon>mdi-skip-previous</v-icon></v-btn
-          >
-        </v-col>
-        <v-col cols="1" class="pa-0 px-1">
-          <v-btn color="primary" @click="nextPlay()" block><v-icon>mdi-skip-next</v-icon></v-btn>
-        </v-col>
-        <v-col cols="1" class="pa-0 px-1">
-          <v-btn color="primary" @click="toggleMute()" block
-            ><v-icon v-show="!playInfo.isMuted">mdi-volume-high</v-icon
-            ><v-icon v-show="playInfo.isMuted">mdi-volume-off</v-icon></v-btn
-          >
-        </v-col>
-      </v-row>
+      <v-container fluid>
+        <v-row>
+          <v-col cols="1" class="pa-0 px-1">
+            <v-btn color="primary" block @click="saveScreenShot()">
+              <v-icon>mdi-camera</v-icon>
+            </v-btn>
+          </v-col>
+          <v-col class="pa-0 px-1">
+            <v-btn color="primary" @click="throwPlay()" block
+              ><v-icon class="pr-1">mdi-movie-open</v-icon>Play</v-btn
+            >
+          </v-col>
+          <v-col class="pa-0 px-1">
+            <v-btn color="primary" @click="shuffle()" block
+              ><v-icon class="pr-1">mdi-shuffle-variant</v-icon>Shuffle</v-btn
+            >
+          </v-col>
+          <v-col cols="1" class="pa-0 px-1">
+            <v-btn color="primary" @click="prevPlay()" block
+              ><v-icon>mdi-skip-previous</v-icon></v-btn
+            >
+          </v-col>
+          <v-col cols="1" class="pa-0 px-1">
+            <v-btn color="primary" @click="nextPlay()" block><v-icon>mdi-skip-next</v-icon></v-btn>
+          </v-col>
+          <v-col cols="1" class="pa-0 px-1">
+            <v-btn color="primary" @click="toggleMute()" block
+              ><v-icon v-show="!playInfo.isMuted">mdi-volume-high</v-icon
+              ><v-icon v-show="playInfo.isMuted">mdi-volume-off</v-icon></v-btn
+            >
+          </v-col>
+        </v-row>
+      </v-container>
     </v-footer>
     <!--
     <v-btn bottom color="pink" dark fab fixed right @click="dialog = !dialog">
@@ -333,9 +335,7 @@
           <v-toolbar-title>Settings</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-toolbar-items>
-            <v-btn dark text @click="saveSettings()">
-              Save
-            </v-btn>
+            <v-btn dark text @click="saveSettings()"> Save </v-btn>
           </v-toolbar-items>
         </v-toolbar>
         <v-card-text>
@@ -355,7 +355,7 @@
                 <v-list-item-title>Media Player Classic EXE Path</v-list-item-title>
                 <v-list-item-subtitle></v-list-item-subtitle>
                 <v-list-item-subtitle>
-                  <div style="display: inline-flex;width:100%">
+                  <div style="display: inline-flex; width: 100%">
                     <v-text-field readonly v-model="appStore.mpcExePath"></v-text-field>
                     <v-btn class="mt-3 ml-3" @click="selectFileDialog()">...</v-btn>
                   </div>
@@ -368,7 +368,7 @@
                 <v-list-item-subtitle></v-list-item-subtitle>
                 <v-list-item-subtitle>
                   <v-text-field
-                    style="width:100px"
+                    style="width: 100px"
                     type="number"
                     v-model="appStore.mpcPort"
                   ></v-text-field>
@@ -426,7 +426,7 @@
           </v-list>
         </v-card-text>
 
-        <div style="flex: 1 1 auto;"></div>
+        <div style="flex: 1 1 auto"></div>
       </v-card>
     </v-dialog>
     <v-menu v-model="isShowMenu" :position-x="menuX" :position-y="menuY" absolute offset-y>
@@ -436,7 +436,7 @@
           :key="item.label"
           @click="onContextMenuClick(item.action)"
         >
-          <v-list-item-title style="font-size: small;">{{ item.label }}</v-list-item-title>
+          <v-list-item-title style="font-size: small">{{ item.label }}</v-list-item-title>
         </v-list-item>
       </v-list>
     </v-menu>
@@ -530,7 +530,7 @@ export default class App extends Vue {
   }
 
   async created() {
-    document.onkeydown = e => {
+    document.onkeydown = (e) => {
       if (e.code == "F12") {
         console.log("switch debug mode");
         this.ipcRenderer.invoke("toggleDevTools");
@@ -551,7 +551,7 @@ export default class App extends Vue {
     }
 
     if (this.displays.length > 0) {
-      this.playDisplay = this.displays.filter(d => d.no == this.appStore.playDisplayNo)[0];
+      this.playDisplay = this.displays.filter((d) => d.no == this.appStore.playDisplayNo)[0];
     }
     this.loadSettings();
   }
@@ -590,7 +590,7 @@ export default class App extends Vue {
 
   updatePlayingInfo(playingInfos: PlayingItem[]) {
     ArrayUtils.clear(this.nowPlayings);
-    playingInfos.forEach(pi => {
+    playingInfos.forEach((pi) => {
       this.nowPlayings.push(pi);
     });
   }

@@ -87,14 +87,14 @@ export default class Home extends Vue {
   }
 
   async created() {
-    document.ondragover = document.ondrop = e => {
+    document.ondragover = document.ondrop = (e) => {
       if (e.dataTransfer == null) return;
       e.dataTransfer.dropEffect = "copy";
       e.preventDefault();
       return false;
     };
 
-    document.ondrop = e => {
+    document.ondrop = (e) => {
       const drops = [];
       if (e.dataTransfer == null) return;
       for (const i in e.dataTransfer.files) {
@@ -113,7 +113,7 @@ export default class Home extends Vue {
     this.playController = new PlayController(this.mpcClient);
     const playingItems: IPlayItem[] = await this.ipcRenderer.invoke("getPlayingList");
     this.addPlayingItems(
-      playingItems.map(p => new PlayItem(p)),
+      playingItems.map((p) => new PlayItem(p)),
       false,
       true
     );
@@ -126,7 +126,7 @@ export default class Home extends Vue {
     }
 
     setInterval(() => {
-      this.mpcClient.getPlayInfo().then(async pi => {
+      this.mpcClient.getPlayInfo().then(async (pi) => {
         if (pi == null) return;
         //console.log(pi);
         this.$emit("update-play-info", pi);
@@ -134,8 +134,8 @@ export default class Home extends Vue {
         if (pi.library != null) {
           // ライブラリ内にある場合
           const library = pi.library;
-          const itemIndex = this.items.findIndex(i => i.id == library.id);
-          this.items.forEach(i => (i.isPlaying = false));
+          const itemIndex = this.items.findIndex((i) => i.id == library.id);
+          this.items.forEach((i) => (i.isPlaying = false));
 
           if (itemIndex != -1) {
             // グリッドにあればグリッドの情報を更新
@@ -189,7 +189,7 @@ export default class Home extends Vue {
     const elem: any = e.currentTarget!;
     const key = elem.dataset!.key;
 
-    const clickItem = this.items.filter(item => item.key == key);
+    const clickItem = this.items.filter((item) => item.key == key);
 
     console.log("selectItem", e, clickItem[0]);
 
@@ -218,7 +218,7 @@ export default class Home extends Vue {
     const elem: any = e.currentTarget!;
     const key = elem.dataset!.key;
 
-    const clickItem = this.items.filter(item => item.key == key);
+    const clickItem = this.items.filter((item) => item.key == key);
 
     const item: PlayItem = clickItem[0];
     console.log(item.filePath);
@@ -257,7 +257,7 @@ export default class Home extends Vue {
     );
     this.$emit(
       "update-groups",
-      grows.map(r => new GroupItem(r))
+      grows.map((r) => new GroupItem(r))
     );
   }
 
@@ -301,7 +301,7 @@ export default class Home extends Vue {
 
   updatePlayItems(rows: IPlayItem[]) {
     ArrayUtils.clear(this.items);
-    rows.forEach(r => this.items.push(new PlayItem(r)));
+    rows.forEach((r) => this.items.push(new PlayItem(r)));
   }
 
   async saveScreenShot() {
@@ -333,7 +333,7 @@ export default class Home extends Vue {
     console.log("deleteLibrary", isFileDelete, this.deleteSelectItems);
     await this.ipcRenderer.invoke("deleteLibrary", isFileDelete, this.deleteSelectItems);
     for (const deleteItem of this.deleteSelectItems) {
-      const deleteIndex = this.items.findIndex(v => v.id == deleteItem.id);
+      const deleteIndex = this.items.findIndex((v) => v.id == deleteItem.id);
       if (deleteIndex != -1) {
         this.items.splice(deleteIndex, 1);
       }
@@ -347,17 +347,17 @@ export default class Home extends Vue {
   updatePlayingList() {
     this.$emit(
       "update-playing-info",
-      this.playController.playings.filter(p => !p.isSkip)
+      this.playController.playings.filter((p) => !p.isSkip)
     );
     return this.ipcRenderer.invoke(
       "updatePlayingList",
-      this.playController.lastMakePlayings.filter(p => !p.isSkip)
+      this.playController.lastMakePlayings.filter((p) => !p.isSkip)
     );
   }
 
   async grouping() {
-    const selectItems = this.items.filter(i => i.isSelected);
-    const targetIds = selectItems.map(i => i.id);
+    const selectItems = this.items.filter((i) => i.isSelected);
+    const targetIds = selectItems.map((i) => i.id);
     let groupId = this.groupingGroup?.groupId;
     const groupName = this.groupingGroup?.groupName;
     console.log("grouping", this.isGroupingAllNoGroup, groupId, targetIds);
@@ -382,7 +382,7 @@ export default class Home extends Vue {
 
   getGroupingGroups() {
     return this.items.filter((v, i, a) => {
-      return v.groupName != null && a.findIndex(vs => vs.groupId == v.groupId) == i;
+      return v.groupName != null && a.findIndex((vs) => vs.groupId == v.groupId) == i;
     });
   }
 
@@ -421,7 +421,7 @@ export default class Home extends Vue {
   }
 
   async onContextMenuClick(action: string) {
-    const selectItems = this.items.filter(i => i.isSelected);
+    const selectItems = this.items.filter((i) => i.isSelected);
     console.log("contextMenuClick", action, selectItems);
 
     switch (action) {
@@ -435,16 +435,16 @@ export default class Home extends Vue {
         const selectItem = selectItems[0];
         this.groupingGroup = selectItem;
 
-        this.isGroupingAllNoGroup = selectItems.every(g => g.groupId == null);
+        this.isGroupingAllNoGroup = selectItems.every((g) => g.groupId == null);
 
         if (this.isGroupingAllNoGroup) {
           this.groupingKeyword = await this.ipcRenderer.invoke("getGroupKeyword", selectItem.title);
           this.groupingNewGroupName = this.groupingKeyword;
           this.groupingGroup = this.getGroupingGroups().find(
-            g => g.groupName == this.groupingKeyword
+            (g) => g.groupName == this.groupingKeyword
           )!;
           this.isGroupingAllNoGroup = !this.getGroupingGroups().some(
-            i => i.groupName == this.groupingKeyword
+            (i) => i.groupName == this.groupingKeyword
           );
         }
 
@@ -459,7 +459,7 @@ export default class Home extends Vue {
       case "unGroup": {
         await this.ipcRenderer.invoke(
           "unGroupLibrary",
-          selectItems.map(i => i.id)
+          selectItems.map((i) => i.id)
         );
         for (const item of selectItems) {
           item.groupId = null;
@@ -481,7 +481,7 @@ export default class Home extends Vue {
   async onHomeResized() {
     const winSize: number[] = await this.ipcRenderer.invoke("getWindowSize");
     console.log("homeResized", winSize);
-    this.itemListHeight = winSize[1] - 260;
+    this.itemListHeight = winSize[1] - 250;
   }
 
   @Watch("isOnlyFavorite")

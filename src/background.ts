@@ -46,8 +46,9 @@ async function createWindow() {
     webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
-      nodeIntegration: (process.env.ELECTRON_NODE_INTEGRATION as unknown) as boolean,
+      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION as unknown as boolean,
       //nodeIntegration: true,
+      contextIsolation: false, // これないとエラーになる
     },
   });
 
@@ -125,7 +126,7 @@ app.on("ready", async () => {
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
   if (process.platform === "win32") {
-    process.on("message", data => {
+    process.on("message", (data) => {
       if (data === "graceful-exit") {
         app.quit();
       }
@@ -169,7 +170,7 @@ ipcMain.handle("getGroups", (event, selectionRating: RatingType) => {
   return libraryService.getGroups(selectionRating);
 });
 
-ipcMain.handle("getPlayingList", event => {
+ipcMain.handle("getPlayingList", (event) => {
   return libraryService.getPlayingList();
 });
 
@@ -207,11 +208,11 @@ ipcMain.handle("getWindowSize", () => {
 });
 
 ipcMain.handle("minimizeWindow", () => {
-  win?.minimize();
+  win!.minimize();
 });
 
 ipcMain.handle("maximizeWindow", () => {
-  win?.isMaximized() ? win?.unmaximize() : win?.maximize();
+  win!.isMaximized() ? win!.unmaximize() : win!.maximize();
 });
 
 ipcMain.handle("mpcConnect", async (event, connectInfo: any) => {
@@ -277,7 +278,7 @@ ipcMain.handle("mpcBoot", async (event, mpcExePath: string, screenNo: number) =>
   await mpcService.boot(mpcExePath, screenNo);
 });
 
-ipcMain.handle("mpcResumePlay", async event => {
+ipcMain.handle("mpcResumePlay", async (event) => {
   const resumeFilePath: string = AppStore.instance.get("resume.filepath");
   const resumePosition: number = AppStore.instance.get("resume.position");
   if (resumeFilePath) {
@@ -295,7 +296,7 @@ ipcMain.handle("mpcToggleMute", (event, isMute: boolean) => {
   mpcService.toggleMute();
 });
 
-ipcMain.handle("mpcSaveScreenShot", event => {
+ipcMain.handle("mpcSaveScreenShot", (event) => {
   mpcService.saveScreenShot();
 });
 
@@ -325,11 +326,11 @@ ipcMain.handle("openDialogfile", (event, data) => {
       properties: ["openFile"],
       filters: [{ name: "exe file", extensions: ["exe"] }],
     })
-    .then(ret => {
+    .then((ret) => {
       return ret.filePaths[0];
     });
 });
 
-ipcMain.handle("toggleDevTools", event => {
+ipcMain.handle("toggleDevTools", (event) => {
   win!.webContents.toggleDevTools();
 });

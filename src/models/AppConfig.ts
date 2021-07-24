@@ -2,7 +2,6 @@
  * アプリ設定
  */
 export default class AppConfig {
-  
   /**
    * ロガー設定ファイル
    */
