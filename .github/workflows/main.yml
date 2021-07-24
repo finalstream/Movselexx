@@ -33,7 +33,7 @@ jobs:
       - name: Build for Windows
         if: matrix.os == 'windows-latest'
         run: |
-          yarn run electron:build --windows nsis zip --x64
+          yarn run electron:build --windows nsis zip --x64 --publish never
       - name: Build for MacOS
         if: matrix.os == 'macos-latest'
         run: |
