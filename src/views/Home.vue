@@ -133,6 +133,9 @@ export default class Home extends Vue {
 
         if (pi.library != null) {
           // ライブラリ内にある場合
+          const isUpdatePlayings = await this.playController.monitoring(pi);
+          if (isUpdatePlayings) await this.updatePlayingList();
+
           const library = pi.library;
           const itemIndex = this.items.findIndex((i) => i.id == library.id);
           this.items.forEach((i) => (i.isPlaying = false));
@@ -146,9 +149,6 @@ export default class Home extends Vue {
             item.isPlaying = true;
           }
           this.playController.updateRating(library.id, library.rating);
-
-          const isUpdatePlayings = await this.playController.monitoring(pi);
-          if (isUpdatePlayings) await this.updatePlayingList();
         }
       });
     }, 1000);

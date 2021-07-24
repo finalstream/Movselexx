@@ -76,15 +76,14 @@ export default class PlayController {
       this._playPreviousDate = new Date();
     } else {
       // 再生しているものがかわった
-
-      // 再生中リストから前回再生していたものを取り除く
-      this.updatePlayingList(nowId, pi.library);
-
       this._playingId = nowId;
       this._playPreviousDate = null;
       this._playAccumTimeMs = 0;
       console.log("changePlayingId", nowId);
       isUpdatePlayings = true;
+
+      // 再生中リストから前回再生していたものを取り除く
+      this.updatePlayingList(nowId, pi.library);
     }
     return isUpdatePlayings;
   }
