@@ -539,12 +539,13 @@ export default class App extends Vue {
 
     const initData: InitData = await this.ipcRenderer.invoke("initialize");
 
+    this.loadSettings(initData.mpcExePath, initData.playDisplayNo);
+
     // load filters
     for (const filter of initData.filters) {
       this.presetItems.push(filter);
     }
 
-    await this.loadSettings();
     let no = 1;
     for (const d of initData.displays) {
       this.displays.push(new DisplayInfo(no++, d.size));
@@ -553,12 +554,14 @@ export default class App extends Vue {
     if (this.displays.length > 0) {
       this.playDisplay = this.displays.filter((d) => d.no == this.appStore.playDisplayNo)[0];
     }
-    this.loadSettings();
   }
 
   mounted() {
     //
     //this.$vuetify.theme.dark = true;
+    this.$nextTick(() => {
+      this.getMainVue().initPlayController();
+    });
   }
 
   minimizeWindow() {
@@ -634,7 +637,6 @@ export default class App extends Vue {
   }
 
   showSettings() {
-    this.loadSettings();
     this.isShowSettingDailog = true;
   }
 
@@ -647,7 +649,8 @@ export default class App extends Vue {
   }
 
   getCountUpRemainTimeString() {
-    const countUpRemainMs = this.getMainVue()?.getCountUpRemainMs();
+    if (!this.getMainVue()) return "";
+    const countUpRemainMs = this.getMainVue().getCountUpRemainMs();
     if (countUpRemainMs == null) return "No Match Library";
     const countUpRemain = new TimeSpan(countUpRemainMs);
     let str = "Remain CountUp ";
@@ -662,9 +665,9 @@ export default class App extends Vue {
     return str;
   }
 
-  async loadSettings() {
-    this.appStore.mpcExePath = await this.ipcRenderer.invoke("getStore", "mpcExePath");
-    this.appStore.playDisplayNo = await this.ipcRenderer.invoke("getStore", "playDisplayNo");
+  loadSettings(mpcExePath: string, playDisplayNo: number) {
+    this.appStore.mpcExePath = mpcExePath;
+    this.appStore.playDisplayNo = playDisplayNo;
   }
 
   async saveSettings() {

@@ -99,19 +99,19 @@ export default class PlayController {
         await this.playNext(isManual);
         return;
       }
+      this._playingId = -1; // 再生アイテムの変更を検知するため-1に初期化
       const library: IPlayItem | undefined = await this._mpcClient.openFile(
         nextItem.filePath,
         isFullScreen
       );
-      this._playingId = -1; // 再生アイテムの変更を検知するため-1に初期化
     } else if (this._lastMakePlayings.length > 0) {
       // 最後までいったらlastPlayingから復元する
       this._playings = this._playings.concat(this._lastMakePlayings.filter((p) => !p.isSkip));
+      this._playingId = -1; // 再生アイテムの変更を検知するため-1に初期化
       const library: IPlayItem | undefined = await this._mpcClient.openFile(
         this._playings[0].filePath,
         isFullScreen
       );
-      this._playingId = -1; // 再生アイテムの変更を検知するため-1に初期化
     }
   }
 

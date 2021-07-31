@@ -109,6 +109,34 @@ export default class Home extends Vue {
     };
 
     this.refresh();
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this.ipcRenderer.on("pushProgressInfo", async (event, message: string, detail: any) => {
+      if (message == "#REGIST-END#") {
+        this.$emit("update-progress-info", false);
+        const registedCount: number = detail;
+        if (registedCount > 0) this.showSnackbar(registedCount + " 件 登録しました");
+        this.reloadPlayItems();
+        return;
+      }
+      console.log("filepath", message);
+      this.$emit("update-progress-info", true, message);
+    });
+    //const res = await this.ipcRenderer.invoke("getStore", "searchDirectory");
+    //if (res) this.mainData.searchDirectory = res;
+  }
+
+  mounted() {
+    //this.ipcRenderer.invoke("ready");
+  }
+
+  getAppStore() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const root: any = this.$root.$children[0];
+    return root.appStore;
+  }
+
+  async initPlayController(): Promise<void> {
     this.mpcClient = new MpcClient(this.getAppStore(), "localhost", 13579);
     this.playController = new PlayController(this.mpcClient);
     const playingItems: IPlayItem[] = await this.ipcRenderer.invoke("getPlayingList");
@@ -152,31 +180,6 @@ export default class Home extends Vue {
         }
       });
     }, 1000);
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this.ipcRenderer.on("pushProgressInfo", async (event, message: string, detail: any) => {
-      if (message == "#REGIST-END#") {
-        this.$emit("update-progress-info", false);
-        const registedCount: number = detail;
-        if (registedCount > 0) this.showSnackbar(registedCount + " 件 登録しました");
-        this.reloadPlayItems();
-        return;
-      }
-      console.log("filepath", message);
-      this.$emit("update-progress-info", true, message);
-    });
-    //const res = await this.ipcRenderer.invoke("getStore", "searchDirectory");
-    //if (res) this.mainData.searchDirectory = res;
-  }
-
-  mounted() {
-    //this.ipcRenderer.invoke("ready");
-  }
-
-  getAppStore() {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const root: any = this.$root.$children[0];
-    return root.appStore;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -377,6 +380,7 @@ export default class Home extends Vue {
   }
 
   getCountUpRemainMs() {
+    if (this.playController == null) return 0;
     return this.playController.getCountUpRemainMs();
   }
 

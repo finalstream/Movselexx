@@ -88,8 +88,8 @@ async function quitBefore() {
   } catch {}
 }
 
-function saveResumeInfo(pv: IPlayerVariables) {
-  if (libraryService.isExistsLibrary(pv.filepath)) {
+async function saveResumeInfo(pv: IPlayerVariables) {
+  if (await libraryService.isExistsLibrary(pv.filepath)) {
     AppStore.instance.set("resume.filepath", pv.filepath);
     AppStore.instance.set("resume.position", pv.position);
   }
@@ -149,13 +149,18 @@ ipcMain.handle("initialize", () => {
   dba.open();
   libraryService = new LibraryService(dba, new NotificationService(win!.webContents));
 
-  // read fikter.json
+  // read filter.json
   const filtersString: string = fs.readFileSync(
     path.join(AppUtils.getAppDirectory(app), "filter.json"),
     "utf-8"
   );
   const filters = JSON.parse(filtersString);
-  const initData = new InitData(screen.getAllDisplays(), filters);
+  const initData = new InitData(
+    screen.getAllDisplays(),
+    filters,
+    AppStore.instance.get("mpcExePath"),
+    AppStore.instance.get("playDisplayNo")
+  );
   return initData;
 });
 

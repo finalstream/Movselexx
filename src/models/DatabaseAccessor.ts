@@ -39,13 +39,13 @@ export default class DatabaseAccessor {
     await new Promise<void>((resolve) => {
       database.serialize(async () => {
         try {
-          database.run("BEGIN TRANSACTION");
+          await database.run("BEGIN TRANSACTION");
           await proc(this);
-          database.run("COMMIT");
+          await database.run("COMMIT");
         } catch (e) {
-          database.run("ROLLBACK");
+          await database.run("ROLLBACK");
         } finally {
-          resolve();
+          await resolve();
         }
       });
     });
