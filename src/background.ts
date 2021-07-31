@@ -21,6 +21,7 @@ import AppUtils from "firx/AppUtils";
 import path from "path";
 import InitData from "./models/InitData";
 import FilterCondition from "./models/FilterCondition";
+import logger from "electron-log";
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -29,6 +30,10 @@ let win: BrowserWindow | null;
 let mpcService: MpcService;
 let libraryService: LibraryService;
 let notificationService: NotificationService;
+
+process.on("uncaughtException", (err) => {
+  logger.error(err);
+});
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
