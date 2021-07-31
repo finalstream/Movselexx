@@ -33,6 +33,7 @@ let notificationService: NotificationService;
 
 process.on("uncaughtException", (err) => {
   logger.error(err);
+  logger.error(err.stack);
 });
 
 // Scheme must be registered before the app is ready

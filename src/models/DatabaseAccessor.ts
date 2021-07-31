@@ -34,7 +34,7 @@ export default class DatabaseAccessor {
     await this.db.open();
   }
 
-  async transaction(proc: (dba: DatabaseAccessor) => void) {
+  async transaction(proc: (dba: DatabaseAccessor) => Promise<void>) {
     const database = this.db.getDatabaseInstance();
     await new Promise<void>((resolve) => {
       database.serialize(async () => {

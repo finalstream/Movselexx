@@ -100,11 +100,10 @@ export default class LibraryService {
   async registLibrary(movFiles: string[]) {
     const registedFiles = await this.getAllLibraryFilePaths();
 
-    this._databaseAccessor.transaction(async (dba) => {
+    await this._databaseAccessor.transaction(async (dba) => {
       let registedCount = 0;
-      for (const f in movFiles) {
+      for await (const filePath of movFiles) {
         // ドライブレターが大文字か小文字を区別しないようにチェックする
-        const filePath = movFiles[f];
         const driveletter = filePath.substr(0, 1);
         const lowerDriveLetterFilePath = driveletter.toLowerCase() + filePath.substr(1);
         const upperDriveLetterFilePath = driveletter.toUpperCase() + filePath.substr(1);
@@ -177,7 +176,7 @@ export default class LibraryService {
     this._databaseAccessor.transaction(async (dba) => {
       await this._databaseAccessor.deletePlayingList();
       let sort = 1;
-      for (const pi of playingItems) {
+      for await (const pi of playingItems) {
         await this._databaseAccessor.insertPlayingList(pi.id, sort++);
       }
     });
@@ -191,7 +190,7 @@ export default class LibraryService {
     let rating: RatingType = RatingType.Nothing;
     await this._databaseAccessor.transaction(async (dba) => {
       const libraries = await dba.selectLibraryIdByGid(gid);
-      for (const lib of libraries) {
+      for await (const lib of libraries) {
         rating = await dba.updateRating(lib.ID, isFavorite);
       }
     });

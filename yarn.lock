@@ -4141,6 +4141,11 @@ electron-devtools-installer@^3.1.0:
     tslib "^2.1.0"
     unzip-crx-3 "^0.2.0"
 
+electron-log@^4.4.0:
+  version "4.4.0"
+  resolved "https://registry.nlark.com/electron-log/download/electron-log-4.4.0.tgz#0f350004565bb246e58e7b4af0b320c9f7aef3e8"
+  integrity sha1-DzUABFZbskbljntK8LMgyfeu8+g=
+
 electron-publish@22.11.7:
   version "22.11.7"
   resolved "https://registry.nlark.com/electron-publish/download/electron-publish-22.11.7.tgz#4126cbb08ccf082a2aa7fef89ee629b3a4b8ae9a"
@@ -10493,7 +10498,7 @@ vue-cli-plugin-electron-builder@^2.1.1:
     webpack-merge "^4.2.2"
     yargs "^15.3.1"
 
-vue-cli-plugin-vuetify@^2.4.1:
+vue-cli-plugin-vuetify@~2.4.1:
   version "2.4.1"
   resolved "https://registry.nlark.com/vue-cli-plugin-vuetify/download/vue-cli-plugin-vuetify-2.4.1.tgz#a31a9ddb274c8e512aeca7dc2f29d828a18df0af"
   integrity sha1-oxqd2ydMjlEq7KfcLynYKKGN8K8=
